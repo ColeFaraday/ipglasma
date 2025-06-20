@@ -1096,6 +1096,8 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
 
     ofstream foutNcoll(Ncoll_name.c_str(), ios::out);
 
+    // determination of Ncoll (&HSC)
+    // determination is done at the nucleon level, not the quark level
     if (param->getGaussianWounding() == 0) {
       for (int i = 0; i < A1; i++) {
         for (int j = 0; j < A2; j++) {
@@ -1104,7 +1106,7 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
           dij = dx * dx + dy * dy;
           if (dij < d2) {
             foutNcoll << (nucleusB_.at(j).x + nucleusA_.at(i).x) / 2. << " "
-                      << (nucleusB_.at(j).y + nucleusA_.at(i).y) / 2. << endl;
+                      << (nucleusB_.at(j).y + nucleusA_.at(i).y) / 2. << endl; // Location of the binary collision is the average transverse positiom of the nucleons
             Ncoll++;
             nucleusB_.at(j).collided = 1;
             nucleusA_.at(i).collided = 1;
