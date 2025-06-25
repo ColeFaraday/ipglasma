@@ -1113,7 +1113,9 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
           }
         }
       }
-    } else {
+    } 
+    // determination of Ncoll with Gaussian Wounding
+    else {
       double p;
       double G = 0.92;
       double ran;
