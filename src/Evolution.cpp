@@ -656,6 +656,7 @@ void Evolution::run(Lattice *lat, BufferLattice *bufferlat, Group *group,
       //eccentricity(lat, param, it, 10., 0);
 
       // success = multiplicity(lat, group, param, it);
+      // Cole: writes the dN/dkt (and other things) to file
       success = multiplicitynkxky(lat, group, param, it);
     }
 
