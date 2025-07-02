@@ -655,7 +655,8 @@ void Evolution::run(Lattice *lat, BufferLattice *bufferlat, Group *group,
       //eccentricity(lat, param, it, 1., 0);
       //eccentricity(lat, param, it, 10., 0);
 
-      success = multiplicity(lat, group, param, it);
+      // success = multiplicity(lat, group, param, it);
+      success = multiplicitynkxky(lat, group, param, it);
     }
 
     if (success == 0)
