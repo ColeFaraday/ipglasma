@@ -1472,10 +1472,10 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
        << averageQs2 * a * a / hbarc / hbarc * static_cast<double>(count)
        << endl;
   cout << "Count = "
-       << static_cast<int>(count) << endl;
+       << static_cast<int>(count)
        << endl;
   cout << "S_T (fm^2) = "
-       << a * a * static_cast<int>(count) << endl;
+       << a * a * static_cast<int>(count)
        << endl;
   cout << "Q_s^2(avg) S_T = "
        << averageQs2Avg * a * a / hbarc / hbarc * static_cast<double>(count)
