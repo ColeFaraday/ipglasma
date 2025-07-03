@@ -1471,6 +1471,12 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
   cout << "Q_s^2(max) S_T = "
        << averageQs2 * a * a / hbarc / hbarc * static_cast<double>(count)
        << endl;
+  cout << "Count = "
+       << static_cast<int>(count) << endl;
+       << endl;
+  cout << "S_T (fm^2) = "
+       << a * a * static_cast<int>(count) << endl;
+       << endl;
   cout << "Q_s^2(avg) S_T = "
        << averageQs2Avg * a * a / hbarc / hbarc * static_cast<double>(count)
        << endl;
@@ -1578,8 +1584,8 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
 
   ofstream foutNEst(NEst_name.c_str(), ios::out);
 
-  foutNEst << "#Q_s^2(min) S_T  " <<  "Q_s^2(avg) S_T  " << "Q_s^2(max) S_T " << " Q_s^2(min) S_T Log^2( Q_s^2(max) / Q_s^2(min))  " << endl;
-  foutNEst << averageQs2min2 * a * a / hbarc / hbarc  <<  "         " << averageQs2Avg * a * a / hbarc / hbarc * static_cast<double>(count) << "         " << averageQs2 * a * a / hbarc / hbarc * static_cast<double>(count) << "         " << averageQs2min2 * a * a / hbarc / hbarc * pow(log(averageQs2* static_cast<double>(count)/averageQs2min2),2.) << endl;
+  foutNEst << "#Q_s^2(min) S_T  " <<  "Q_s^2(avg) S_T  " << "Q_s^2(max) S_T " << " Q_s^2(min) S_T Log^2( Q_s^2(max) / Q_s^2(min))  " << " S_T" endl;
+  foutNEst << averageQs2min2 * a * a / hbarc / hbarc  <<  "         " << averageQs2Avg * a * a / hbarc / hbarc * static_cast<double>(count) << "         " << averageQs2 * a * a / hbarc / hbarc * static_cast<double>(count) << "         " << averageQs2min2 * a * a / hbarc / hbarc * pow(log(averageQs2* static_cast<double>(count)/averageQs2min2),2.) << "         " << a * a * static_cast<int>(count) << endl;
 
   foutNEst.close();
 }
