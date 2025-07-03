@@ -28,7 +28,7 @@ def collect_one_IPGlasma_event(results_path, event_id, hf, deleteFlag=False):
     parafile  = open(parafilename)
     for iline, rawline in enumerate(parafile.readlines()):
         paraline = rawline.strip('\n')
-        gtemp.attrs.create("{0}".format(iline), np.string_(paraline))
+        gtemp.attrs.create("{0}".format(iline), np.bytes_(paraline))
     if deleteFlag: remove(parafilename)
 
 
