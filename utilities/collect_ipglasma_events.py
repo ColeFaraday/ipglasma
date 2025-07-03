@@ -53,7 +53,7 @@ def save_event_to_hdf5(event_path, h5_group):
         dset = g_event.create_dataset(file_name, data=data, compression="gzip", compression_opts=9)
         with open(file_path, "r") as f:
             header = f.readline()
-        dset.attrs.create("header", np.string_(header))
+        dset.attrs.create("header", np.bytes_(header))
 
 def main(base_folder, output_h5_file):
     with h5py.File(output_h5_file, "w") as h5f:
