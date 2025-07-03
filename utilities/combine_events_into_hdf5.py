@@ -16,24 +16,23 @@ def print_help():
     """This function prints out help message"""
     print("{0} results_folder".format(sys.argv[0]))
 
-def collect_one_IPGlasma_event(results_path, event_id, hf, deleteFlag=False):
-    """This function collects one IPGlasma event"""
+def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False):
+    """This function collects one IPGlasma event from a given event folder"""
     file_name = "usedParameters{0}.dat".format(event_id)
-    if not path.exists(file_name):
-        print("Error: can not find file : {}".format(file_name))
+    parafilename = path.join(event_folder, file_name)
+    if not path.exists(parafilename):
+        print("Error: can not find file : {}".format(parafilename))
         exit(1)
 
     gtemp = hf.create_group("event-{0}".format(event_id))
-    parafilename = path.join(results_path, file_name)
     parafile  = open(parafilename)
     for iline, rawline in enumerate(parafile.readlines()):
         paraline = rawline.strip('\n')
         gtemp.attrs.create("{0}".format(iline), np.bytes_(paraline))
     if deleteFlag: remove(parafilename)
 
-
     file_name = "NcollList{0}.dat".format(event_id)
-    filepath = path.join(results_path, file_name)
+    filepath = path.join(event_folder, file_name)
     if path.isfile(filepath):
         dtemp = np.loadtxt(filepath)
         dtemp = np.nan_to_num(dtemp).reshape(-1, 2)
@@ -42,16 +41,16 @@ def collect_one_IPGlasma_event(results_path, event_id, hf, deleteFlag=False):
         if deleteFlag: remove(filepath)
 
     file_name = "NpartList{0}.dat".format(event_id)
-    filepath = path.join(results_path, file_name)
+    filepath = path.join(event_folder, file_name)
     if path.isfile(filepath):
-        dtemp = np.loadtxt(path.join(results_path, file_name))
+        dtemp = np.loadtxt(filepath)
         dtemp = np.nan_to_num(dtemp).reshape(-1, 4)
         dset = gtemp.create_dataset("{0}".format(file_name), data=dtemp,
                                     compression="gzip", compression_opts=9)
         if deleteFlag: remove(filepath)
 
     file_name_pattern = "NpartdNdy-t"
-    filelist = glob(path.join(results_path, "{0}*-{1}.dat".format(
+    filelist = glob(path.join(event_folder, "{0}*-{1}.dat".format(
                                                 file_name_pattern, event_id)))
     for ifile, filepath in enumerate(filelist):
         filename = filepath.split("/")[-1]
@@ -67,7 +66,7 @@ def collect_one_IPGlasma_event(results_path, event_id, hf, deleteFlag=False):
         if deleteFlag: remove(filepath)
 
     file_name_pattern = "epsilon-u-Hydro-t"
-    filelist = glob(path.join(results_path, "{0}*-{1}.dat".format(
+    filelist = glob(path.join(event_folder, "{0}*-{1}.dat".format(
                                                 file_name_pattern, event_id)))
     for ifile, filepath in enumerate(filelist):
         filename = filepath.split("/")[-1]
@@ -96,7 +95,7 @@ def collect_one_IPGlasma_event(results_path, event_id, hf, deleteFlag=False):
         if deleteFlag: remove(filepath)
 
     file_name_pattern = "Tmunu-t"
-    filelist = glob(path.join(results_path, "{0}*-{1}.dat".format(
+    filelist = glob(path.join(event_folder, "{0}*-{1}.dat".format(
                                                 file_name_pattern, event_id)))
     for ifile, filepath in enumerate(filelist):
         filename = filepath.split("/")[-1]
@@ -126,22 +125,24 @@ def collect_one_IPGlasma_event(results_path, event_id, hf, deleteFlag=False):
 
 
 def collect_IPGlasma_events(results_folder):
-    """This function collects IPGlasma events in results_folder"""
+    """This function collects IPGlasma events in results_folder (recursive for job/event structure)"""
+    import glob as _glob
     results_name = results_folder.split("/")[-1]
     if results_name == "":
         results_name = results_folder.split("/")[-2]
     results_path = path.abspath(path.join(".", results_folder))
-    event_list = glob(path.join(results_path, "usedParameters*.dat"))
-    nev = len(event_list)
+    # Recursively find all usedParameters*.dat files in job_*/event_*/
+    event_param_files = _glob.glob(path.join(results_path, "job_*/event_*/usedParameters*.dat"), recursive=True)
+    nev = len(event_param_files)
 
     print("collect {0} to {1}.h5 ... ".format(results_folder, results_name))
     hf = h5py.File("{0}.h5".format(results_name), "w")
 
-    for ievent, event_path in enumerate(event_list):
+    for ievent, event_param_path in enumerate(event_param_files):
         print("processing {0:d}/{1:d} ... ".format(ievent+1, nev))
-        event_id = (
-            event_path.split("/")[-1].split("Parameters")[-1].split(".")[0])
-        collect_one_IPGlasma_event(results_path, event_id, hf)
+        event_folder = path.dirname(event_param_path)
+        event_id = event_param_path.split("usedParameters")[-1].split(".dat")[0]
+        collect_one_IPGlasma_event(event_folder, event_id, hf)
 
 
 def collect_IPGlasma_events_MPI(results_folder):
@@ -174,7 +175,7 @@ def collect_IPGlasma_events_MPI(results_folder):
             event_id = (
                 event_path.split("/")[-1].split("Parameters")[-1].split(".")[0]
             )
-            collect_one_IPGlasma_event(results_path, event_id, hf)
+            collect_one_IPGlasma_event(path.dirname(event_path), event_id, hf)
     hf.close()
     mpi_comm.Barrier()
 
