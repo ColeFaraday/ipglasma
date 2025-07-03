@@ -52,18 +52,6 @@ def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False, inc
             f"epsilon-u-Hydro-t*-{event_id}.dat",
             f"Tmunu-t*-{event_id}.dat"
         ]
-    # Always add new file types if not already present
-    new_patterns = [
-        f"NpartdNdyHadrons-t*-{event_id}.dat",
-        f"multiplicity-t*-{event_id}.dat",
-        f"meanpt{event_id}.dat",
-        f"nkxky-t*-{event_id}.dat",
-        f"eccentricities{event_id}.dat",
-        f"NgluonEstimators{event_id}.dat"
-    ]
-    for pat in new_patterns:
-        if pat not in include_patterns:
-            include_patterns.append(pat)
 
     # Loop over all patterns
     for pattern in include_patterns:
