@@ -70,6 +70,9 @@ def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False, inc
         filelist = glob(path.join(event_folder, pattern))
         for filepath in filelist:
             filename = filepath.split("/")[-1]
+            if filename in gtemp:
+                print(f"[DEBUG] Dataset '{filename}' already exists in group '{group_name}', skipping.")
+                continue
             print(f"[DEBUG] Creating dataset for: {filename}")
             try:
                 # Custom logic for each file type
