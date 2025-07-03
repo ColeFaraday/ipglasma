@@ -32,15 +32,6 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
         print(f"[ERROR] Failed to create results folder '{results_path}': {e}")
         sys.exit(1)
 
-    # Create symlink to nucleusConfigurations in results folder
-    nucleus_src = Path(__file__).parent.parent / "nucleusConfigurations"
-    nucleus_dst = results_path / "nucleusConfigurations"
-    if not nucleus_dst.exists():
-        print(f"[DEBUG] Symlinking nucleusConfigurations: {nucleus_dst} -> {nucleus_src}")
-        nucleus_dst.symlink_to(nucleus_src)
-    else:
-        print(f"[DEBUG] nucleusConfigurations symlink already exists: {nucleus_dst}")
-
     input_file_path = Path(input_file).resolve()
     print(f"[DEBUG] Resolved input_file_path: {input_file_path}")
     qs2_input = Path("qs2Adj_vs_Tp_vs_Y_200.in").resolve()
@@ -69,6 +60,14 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
             shutil.copy(input_file_path, event_path)
             print(f"[DEBUG] Symlinking qs2 input: {qs2_link} -> {qs2_input}")
             qs2_link.symlink_to(qs2_input)
+            # Create symlink to nucleusConfigurations in each event folder
+            nucleus_src = Path(__file__).parent.parent / "nucleusConfigurations"
+            nucleus_dst = event_path / "nucleusConfigurations"
+            if not nucleus_dst.exists():
+                print(f"[DEBUG] Symlinking nucleusConfigurations: {nucleus_dst} -> {nucleus_src}")
+                nucleus_dst.symlink_to(nucleus_src)
+            else:
+                print(f"[DEBUG] nucleusConfigurations symlink already exists: {nucleus_dst}")
 
             event_folders.append(event_path.name)
             event_counter += 1
