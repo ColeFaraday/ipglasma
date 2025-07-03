@@ -16,17 +16,18 @@ def print_help():
     """This function prints out help message"""
     print("{0} results_folder".format(sys.argv[0]))
 
-def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False):
+def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False, include_patterns=None):
     """This function collects one IPGlasma event from a given event folder"""
     print(f"[DEBUG] Processing event_id={event_id} in folder={event_folder}")
-    file_name = "usedParameters{0}.dat".format(event_id)
+    # Always include usedParameters file as attributes
+    file_name = f"usedParameters{event_id}.dat"
     parafilename = path.join(event_folder, file_name)
     print(f"[DEBUG] Looking for parameter file: {parafilename}")
     if not path.exists(parafilename):
-        print("Error: can not find file : {}".format(parafilename))
+        print(f"Error: can not find file : {parafilename}")
         exit(1)
 
-    group_name = "event-{0}".format(event_id)
+    group_name = f"event-{event_id}"
     print(f"[DEBUG] Attempting to create group: {group_name}")
     try:
         gtemp = hf.create_group(group_name)
@@ -36,148 +37,131 @@ def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False):
         if group_name in hf:
             print(f"[DEBUG] Group '{group_name}' already exists in HDF5 file.")
         raise
-    parafile  = open(parafilename)
-    for iline, rawline in enumerate(parafile.readlines()):
-        paraline = rawline.strip('\n')
-        gtemp.attrs.create("{0}".format(iline), np.bytes_(paraline))
+    with open(parafilename) as parafile:
+        for iline, rawline in enumerate(parafile.readlines()):
+            paraline = rawline.strip('\n')
+            gtemp.attrs.create(f"{iline}", np.bytes_(paraline))
     if deleteFlag: remove(parafilename)
 
-    file_name = "NcollList{0}.dat".format(event_id)
-    filepath = path.join(event_folder, file_name)
-    print(f"[DEBUG] Checking for file: {filepath}")
-    if path.isfile(filepath):
-        print(f"[DEBUG] Creating dataset for: {file_name}")
-        dtemp = np.loadtxt(filepath)
-        dtemp = np.nan_to_num(dtemp).reshape(-1, 2)
-        try:
-            dset = gtemp.create_dataset("{0}".format(file_name), data=dtemp,
-                                        compression="gzip", compression_opts=9)
-            print(f"[DEBUG] Dataset created: {file_name}")
-        except Exception as e:
-            print(f"[ERROR] Could not create dataset '{file_name}': {e}")
-            if file_name in gtemp:
-                print(f"[DEBUG] Dataset '{file_name}' already exists in group '{group_name}'.")
-            raise
-        if deleteFlag: remove(filepath)
+    # Default patterns if not provided
+    if include_patterns is None:
+        include_patterns = [
+            f"NcollList{event_id}.dat",
+            f"NpartList{event_id}.dat",
+            f"NpartdNdy-t*-{event_id}.dat",
+            f"epsilon-u-Hydro-t*-{event_id}.dat",
+            f"Tmunu-t*-{event_id}.dat"
+        ]
+    # Always add new file types if not already present
+    new_patterns = [
+        f"NpartdNdyHadrons-t*-{event_id}.dat",
+        f"multiplicity-t*-{event_id}.dat",
+        f"meanpt{event_id}.dat",
+        f"nkxky-t*-{event_id}.dat",
+        f"eccentricities{event_id}.dat",
+        f"NgluonEstimators{event_id}.dat"
+    ]
+    for pat in new_patterns:
+        if pat not in include_patterns:
+            include_patterns.append(pat)
 
-    file_name = "NpartList{0}.dat".format(event_id)
-    filepath = path.join(event_folder, file_name)
-    print(f"[DEBUG] Checking for file: {filepath}")
-    if path.isfile(filepath):
-        print(f"[DEBUG] Creating dataset for: {file_name}")
-        dtemp = np.loadtxt(filepath)
-        dtemp = np.nan_to_num(dtemp).reshape(-1, 4)
-        try:
-            dset = gtemp.create_dataset("{0}".format(file_name), data=dtemp,
-                                        compression="gzip", compression_opts=9)
-            print(f"[DEBUG] Dataset created: {file_name}")
-        except Exception as e:
-            print(f"[ERROR] Could not create dataset '{file_name}': {e}")
-            if file_name in gtemp:
-                print(f"[DEBUG] Dataset '{file_name}' already exists in group '{group_name}'.")
-            raise
-        if deleteFlag: remove(filepath)
-
-    file_name_pattern = "NpartdNdy-t"
-    filelist = glob(path.join(event_folder, "{0}*-{1}.dat".format(
-                                                file_name_pattern, event_id)))
-    for ifile, filepath in enumerate(filelist):
-        filename = filepath.split("/")[-1]
-        print(f"[DEBUG] Creating dataset for: {filename}")
-        dtemp    = np.genfromtxt(filepath, dtype='str')
-        data     = np.zeros(len(dtemp))
-        for idx in range(len(dtemp)):
-            if dtemp[idx] != 'N/A':
-                data[idx] = float(dtemp[idx])
-            else:
-                data[idx] = 0.0
-        try:
-            dset = gtemp.create_dataset("{0}".format(filename), data = data,
-                                        compression="gzip", compression_opts=9)
-            print(f"[DEBUG] Dataset created: {filename}")
-        except Exception as e:
-            print(f"[ERROR] Could not create dataset '{filename}': {e}")
-            if filename in gtemp:
-                print(f"[DEBUG] Dataset '{filename}' already exists in group '{group_name}'.")
-            raise
-        if deleteFlag: remove(filepath)
-
-    file_name_pattern = "epsilon-u-Hydro-t"
-    filelist = glob(path.join(event_folder, "{0}*-{1}.dat".format(
-                                                file_name_pattern, event_id)))
-    for ifile, filepath in enumerate(filelist):
-        filename = filepath.split("/")[-1]
-        print(f"[DEBUG] Creating dataset for: {filename}")
-        dtemp    = np.loadtxt(filepath)
-        dtemp    = np.nan_to_num(dtemp)
-        x_size   = abs(dtemp[0, 1])*2.
-        y_size   = abs(dtemp[0, 2])*2.
-        data_cut = dtemp[:, 3:]
-        try:
-            dset     = gtemp.create_dataset("{0}".format(filename),
-                                            data = data_cut,
-                                            compression="gzip", compression_opts=9)
-            print(f"[DEBUG] Dataset created: {filename}")
-        except Exception as e:
-            print(f"[ERROR] Could not create dataset '{filename}': {e}")
-            if filename in gtemp:
-                print(f"[DEBUG] Dataset '{filename}' already exists in group '{group_name}'.")
-            raise
-        f = open(filepath)
-        header = f.readline().strip('\n')
-        dset.attrs.create("header", np.bytes_(header))
-        tmp = header.split()
-        dx = float(tmp[12])
-        dy = float(tmp[14])
-        nx = int(tmp[6])
-        ny = int(tmp[8])
-        dset.attrs.create("x_size", x_size)
-        dset.attrs.create("y_size", y_size)
-        dset.attrs.create("dx", dx)
-        dset.attrs.create("dy", dy)
-        dset.attrs.create("nx", nx)
-        dset.attrs.create("ny", ny)
-        if deleteFlag: remove(filepath)
-
-    file_name_pattern = "Tmunu-t"
-    filelist = glob(path.join(event_folder, "{0}*-{1}.dat".format(
-                                                file_name_pattern, event_id)))
-    for ifile, filepath in enumerate(filelist):
-        filename = filepath.split("/")[-1]
-        print(f"[DEBUG] Creating dataset for: {filename}")
-        dtemp    = np.loadtxt(filepath)
-        dtemp    = np.nan_to_num(dtemp)
-        x_size   = abs(dtemp[0, 1])*2.
-        y_size   = abs(dtemp[0, 2])*2.
-        data_cut = dtemp[:, 2:]
-        try:
-            dset     = gtemp.create_dataset("{0}".format(filename),
-                                            data=data_cut,
-                                            compression="gzip", compression_opts=9)
-            print(f"[DEBUG] Dataset created: {filename}")
-        except Exception as e:
-            print(f"[ERROR] Could not create dataset '{filename}': {e}")
-            if filename in gtemp:
-                print(f"[DEBUG] Dataset '{filename}' already exists in group '{group_name}'.")
-            raise
-        f = open(filepath)
-        header = f.readline().strip('\n')
-        dset.attrs.create("header", np.bytes_(header))
-        tmp = header.split()
-        dx = float(tmp[12])
-        dy = float(tmp[14])
-        nx = int(tmp[6])
-        ny = int(tmp[8])
-        dset.attrs.create("x_size", x_size)
-        dset.attrs.create("y_size", y_size)
-        dset.attrs.create("dx", dx)
-        dset.attrs.create("dy", dy)
-        dset.attrs.create("nx", nx)
-        dset.attrs.create("ny", ny)
-        if deleteFlag: remove(filepath)
+    # Loop over all patterns
+    for pattern in include_patterns:
+        filelist = glob(path.join(event_folder, pattern))
+        for filepath in filelist:
+            filename = filepath.split("/")[-1]
+            print(f"[DEBUG] Creating dataset for: {filename}")
+            try:
+                # Custom logic for each file type
+                if filename.startswith("NcollList"):
+                    dtemp = np.loadtxt(filepath)
+                    dtemp = np.nan_to_num(dtemp).reshape(-1, 2)
+                    dset = gtemp.create_dataset(filename, data=dtemp, compression="gzip", compression_opts=9)
+                elif filename.startswith("NpartList"):
+                    dtemp = np.loadtxt(filepath)
+                    dtemp = np.nan_to_num(dtemp).reshape(-1, 4)
+                    dset = gtemp.create_dataset(filename, data=dtemp, compression="gzip", compression_opts=9)
+                elif filename.startswith("NpartdNdyHadrons-t") or filename.startswith("NpartdNdy-t"):
+                    dtemp = np.genfromtxt(filepath, dtype='str')
+                    data = np.zeros(len(dtemp))
+                    for idx in range(len(dtemp)):
+                        try:
+                            data[idx] = float(dtemp[idx])
+                        except Exception:
+                            data[idx] = 0.0
+                    dset = gtemp.create_dataset(filename, data=data, compression="gzip", compression_opts=9)
+                elif filename.startswith("epsilon-u-Hydro-t"):
+                    dtemp = np.loadtxt(filepath)
+                    dtemp = np.nan_to_num(dtemp)
+                    x_size = abs(dtemp[0, 1])*2.
+                    y_size = abs(dtemp[0, 2])*2.
+                    data_cut = dtemp[:, 3:]
+                    dset = gtemp.create_dataset(filename, data=data_cut, compression="gzip", compression_opts=9)
+                    with open(filepath) as f:
+                        header = f.readline().strip('\n')
+                    dset.attrs.create("header", np.bytes_(header))
+                    tmp = header.split()
+                    try:
+                        dx = float(tmp[12])
+                        dy = float(tmp[14])
+                        nx = int(tmp[6])
+                        ny = int(tmp[8])
+                        dset.attrs.create("x_size", x_size)
+                        dset.attrs.create("y_size", y_size)
+                        dset.attrs.create("dx", dx)
+                        dset.attrs.create("dy", dy)
+                        dset.attrs.create("nx", nx)
+                        dset.attrs.create("ny", ny)
+                    except Exception:
+                        pass
+                elif filename.startswith("Tmunu-t"):
+                    dtemp = np.loadtxt(filepath)
+                    dtemp = np.nan_to_num(dtemp)
+                    x_size = abs(dtemp[0, 1])*2.
+                    y_size = abs(dtemp[0, 2])*2.
+                    data_cut = dtemp[:, 2:]
+                    dset = gtemp.create_dataset(filename, data=data_cut, compression="gzip", compression_opts=9)
+                    with open(filepath) as f:
+                        header = f.readline().strip('\n')
+                    dset.attrs.create("header", np.bytes_(header))
+                    tmp = header.split()
+                    try:
+                        dx = float(tmp[12])
+                        dy = float(tmp[14])
+                        nx = int(tmp[6])
+                        ny = int(tmp[8])
+                        dset.attrs.create("x_size", x_size)
+                        dset.attrs.create("y_size", y_size)
+                        dset.attrs.create("dx", dx)
+                        dset.attrs.create("dy", dy)
+                        dset.attrs.create("nx", nx)
+                        dset.attrs.create("ny", ny)
+                    except Exception:
+                        pass
+                elif filename.startswith("multiplicity-t") or filename.startswith("meanpt") or filename.startswith("nkxky-t") or filename.startswith("eccentricities") or filename.startswith("NgluonEstimators"):
+                    dtemp = np.loadtxt(filepath)
+                    dtemp = np.nan_to_num(dtemp)
+                    dset = gtemp.create_dataset(filename, data=dtemp, compression="gzip", compression_opts=9)
+                else:
+                    # Try to load as float, fallback to string
+                    try:
+                        dtemp = np.loadtxt(filepath)
+                        dtemp = np.nan_to_num(dtemp)
+                        dset = gtemp.create_dataset(filename, data=dtemp, compression="gzip", compression_opts=9)
+                    except Exception:
+                        with open(filepath) as f:
+                            content = f.read()
+                        dset = gtemp.create_dataset(filename, data=np.string_(content), compression="gzip", compression_opts=9)
+                print(f"[DEBUG] Dataset created: {filename}")
+            except Exception as e:
+                print(f"[ERROR] Could not create dataset '{filename}': {e}")
+                if filename in gtemp:
+                    print(f"[DEBUG] Dataset '{filename}' already exists in group '{group_name}'.")
+                raise
+            if deleteFlag: remove(filepath)
 
 
-def collect_IPGlasma_events(results_folder):
+def collect_IPGlasma_events(results_folder, include_patterns=None):
     """This function collects IPGlasma events in results_folder (recursive for job/event structure)"""
     import glob as _glob
     results_name = results_folder.split("/")[-1]
@@ -195,10 +179,10 @@ def collect_IPGlasma_events(results_folder):
         print("processing {0:d}/{1:d} ... ".format(ievent+1, nev))
         event_folder = path.dirname(event_param_path)
         event_id = event_param_path.split("usedParameters")[-1].split(".dat")[0]
-        collect_one_IPGlasma_event(event_folder, event_id, hf)
+        collect_one_IPGlasma_event(event_folder, event_id, hf, include_patterns=include_patterns)
 
 
-def collect_IPGlasma_events_MPI(results_folder):
+def collect_IPGlasma_events_MPI(results_folder, include_patterns=None):
     """This function collects IPGlasma events in results_folder with MPI"""
     from mpi4py import MPI
     mpi_comm = MPI.COMM_WORLD
@@ -226,9 +210,9 @@ def collect_IPGlasma_events_MPI(results_folder):
             print("MPI rank {0:d} processing {1:d}/{2:d} ... ".format(
                 mpi_rank, ievent, nev))
             event_id = (
-                event_path.split("/")[-1].split("Parameters")[-1].split(".")[0]
+                event_path.split("/")[-1].split("Parameters")[-1].split(".dat")[0]
             )
-            collect_one_IPGlasma_event(path.dirname(event_path), event_id, hf)
+            collect_one_IPGlasma_event(path.dirname(event_path), event_id, hf, include_patterns=include_patterns)
     hf.close()
     mpi_comm.Barrier()
 
@@ -253,12 +237,12 @@ def combine_hdf5_files_into_one(results_path, results_name):
 
 
 def collect_one_event_to_h5database(results_folder, event_id, database_name,
-                                    deleteFlag=False):
+                                    deleteFlag=False, include_patterns=None):
     results_path = path.abspath(path.join(".", results_folder))
     print("collecting event {} from {} to {}.h5  ... ".format(
                                     event_id, results_folder, database_name))
     hf = h5py.File("{}.h5".format(database_name), "a")
-    collect_one_IPGlasma_event(results_path, event_id, hf, deleteFlag)
+    collect_one_IPGlasma_event(results_path, event_id, hf, deleteFlag, include_patterns)
     hf.close()
 
 
@@ -286,7 +270,14 @@ def main():
     parser.add_argument('--combine_hdf5_files_only', action='store_true',
                         help='flag to combine hdf5 files under results_folder')
 
+    parser.add_argument('--include_files', type=str, default=None,
+                        help='Comma-separated list of file patterns to include (e.g. "NpartdNdyHadrons*,multiplicity*,meanpt*,nkxky*,eccentricities*,NgluonEstimators*")')
+
     args = parser.parse_args()
+
+    include_patterns = None
+    if args.include_files:
+        include_patterns = [pat.strip() for pat in args.include_files.split(",") if pat.strip()]
 
     if args.combine_hdf5_files_only:
         combine_hdf5_files_into_one(args.results_folder_name,
@@ -297,12 +288,12 @@ def main():
         deleteFlag = True
         collect_one_event_to_h5database(
                 args.results_folder_name, args.event_id, args.output_filename,
-                deleteFlag)
+                deleteFlag, include_patterns)
     else:
         if args.MPI_flag:
-            collect_IPGlasma_events_MPI(args.results_folder_name)
+            collect_IPGlasma_events_MPI(args.results_folder_name, include_patterns)
         else:
-            collect_IPGlasma_events(args.results_folder_name)
+            collect_IPGlasma_events(args.results_folder_name, include_patterns)
 
 
 if __name__ == "__main__":
