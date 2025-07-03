@@ -8,41 +8,65 @@ import sys
 def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file):
     walltime = "100:00"
     results_path = Path(results_folder).resolve()
+    print(f"[DEBUG] Resolved results_path: {results_path}")
 
     # Confirm and clear existing results folder
     if results_path.exists():
+        print(f"[DEBUG] Folder '{results_path}' already exists.")
         response = input(f"Folder '{results_path}' already exists. Delete it? [y/N]: ").strip().lower()
         if response == 'y':
+            print(f"[DEBUG] Deleting existing folder: {results_path}")
             shutil.rmtree(results_path)
         else:
+            print("[DEBUG] Aborting due to existing folder.")
             print("Aborting.")
             sys.exit(1)
+    else:
+        print(f"[DEBUG] Folder '{results_path}' does not exist and will be created.")
+
+    # Ensure the results folder exists now
+    try:
+        results_path.mkdir(parents=True, exist_ok=True)
+        print(f"[DEBUG] Created results folder: {results_path}")
+    except Exception as e:
+        print(f"[ERROR] Failed to create results folder '{results_path}': {e}")
+        sys.exit(1)
 
     input_file_path = Path(input_file).resolve()
+    print(f"[DEBUG] Resolved input_file_path: {input_file_path}")
     qs2_input = Path("qs2Adj_vs_Tp_vs_Y_200.in").resolve()
+    print(f"[DEBUG] Resolved qs2_input: {qs2_input}")
     ipglasma_exec = Path("ipglasma").resolve()
+    print(f"[DEBUG] Resolved ipglasma_exec: {ipglasma_exec}")
 
     event_counter = 0
     for job_id in range(num_jobs):
         job_path = results_path / f"job_{job_id}"
+        print(f"[DEBUG] Creating job folder: {job_path}")
         job_path.mkdir(parents=True, exist_ok=True)
 
         event_folders = []
 
         for _ in range(events_per_job):
             event_path = job_path / f"event_{event_counter}"
+            print(f"[DEBUG] Creating event folder: {event_path}")
             event_path.mkdir()
-
             # Setup files and links
-            (event_path / "ipglasma").symlink_to(ipglasma_exec)
+            ipglasma_link = event_path / "ipglasma"
+            qs2_link = event_path / "qs2Adj_vs_Tp_vs_Y_200.in"
+            print(f"[DEBUG] Symlinking ipglasma: {ipglasma_link} -> {ipglasma_exec}")
+            ipglasma_link.symlink_to(ipglasma_exec)
+            print(f"[DEBUG] Copying input file: {input_file_path} -> {event_path}")
             shutil.copy(input_file_path, event_path)
-            (event_path / "qs2Adj_vs_Tp_vs_Y_200.in").symlink_to(qs2_input)
+            print(f"[DEBUG] Symlinking qs2 input: {qs2_link} -> {qs2_input}")
+            qs2_link.symlink_to(qs2_input)
 
             event_folders.append(event_path.name)
             event_counter += 1
 
         # Write one job script to run all events in this job folder
         script_path = job_path / "submit_job.script"
+        print(f"[DEBUG] Writing job script: {script_path}")
         with open(script_path, "w") as script:
             script.write(f"""#!/usr/bin/env bash
 #SBATCH --job-name=job_{job_id}
@@ -61,6 +85,7 @@ export OMP_NUM_THREADS={threads_per_job}
 """)
             for event_name in event_folders:
                 script.write(f"cd {event_name} && ./ipglasma {input_file_path.name} && cd ..\n")
+        print(f"[DEBUG] Finished writing job script for job_{job_id}")
 
 def main():
     parser = argparse.ArgumentParser(description="Generate job/event structure for IP-Glasma submission.")
@@ -71,6 +96,7 @@ def main():
     parser.add_argument("--input-file", type=str, required=True, help="Path to ipglasma input file")
 
     args = parser.parse_args()
+    print(f"[DEBUG] Parsed arguments: {args}")
 
     generate_jobs(
         num_jobs=args.num_jobs,
