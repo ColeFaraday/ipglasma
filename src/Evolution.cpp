@@ -3581,6 +3581,10 @@ int Evolution::multiplicitynkxky(Lattice *lat, Group *group, Parameters *param,
   P = 0.13 + 0.32 * pow(param->getRoots() / 1000., 0.115); // in GeV
 
   ofstream foutMult(mult_name.c_str(), ios::out);
+
+  // Header
+  foutMult << "# tau [fm]  kT [GeV]  dN/d^2k [1/GeV^2]  dN2/d^2k, but sligthly different (?) [1/GeV^2]  Tpp [?]  b [fm]  Npart [dimensionless]" << endl;
+
   for (int ik = 0; ik < bins; ik++) {
     if (counter[ik] > 0) {
       n[ik] = n[ik] / static_cast<double>(counter[ik]);
