@@ -18,13 +18,24 @@ def print_help():
 
 def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False):
     """This function collects one IPGlasma event from a given event folder"""
+    print(f"[DEBUG] Processing event_id={event_id} in folder={event_folder}")
     file_name = "usedParameters{0}.dat".format(event_id)
     parafilename = path.join(event_folder, file_name)
+    print(f"[DEBUG] Looking for parameter file: {parafilename}")
     if not path.exists(parafilename):
         print("Error: can not find file : {}".format(parafilename))
         exit(1)
 
-    gtemp = hf.create_group("event-{0}".format(event_id))
+    group_name = "event-{0}".format(event_id)
+    print(f"[DEBUG] Attempting to create group: {group_name}")
+    try:
+        gtemp = hf.create_group(group_name)
+        print(f"[DEBUG] Group created: {group_name}")
+    except Exception as e:
+        print(f"[ERROR] Could not create group '{group_name}': {e}")
+        if group_name in hf:
+            print(f"[DEBUG] Group '{group_name}' already exists in HDF5 file.")
+        raise
     parafile  = open(parafilename)
     for iline, rawline in enumerate(parafile.readlines()):
         paraline = rawline.strip('\n')
@@ -33,20 +44,38 @@ def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False):
 
     file_name = "NcollList{0}.dat".format(event_id)
     filepath = path.join(event_folder, file_name)
+    print(f"[DEBUG] Checking for file: {filepath}")
     if path.isfile(filepath):
+        print(f"[DEBUG] Creating dataset for: {file_name}")
         dtemp = np.loadtxt(filepath)
         dtemp = np.nan_to_num(dtemp).reshape(-1, 2)
-        dset = gtemp.create_dataset("{0}".format(file_name), data=dtemp,
-                                    compression="gzip", compression_opts=9)
+        try:
+            dset = gtemp.create_dataset("{0}".format(file_name), data=dtemp,
+                                        compression="gzip", compression_opts=9)
+            print(f"[DEBUG] Dataset created: {file_name}")
+        except Exception as e:
+            print(f"[ERROR] Could not create dataset '{file_name}': {e}")
+            if file_name in gtemp:
+                print(f"[DEBUG] Dataset '{file_name}' already exists in group '{group_name}'.")
+            raise
         if deleteFlag: remove(filepath)
 
     file_name = "NpartList{0}.dat".format(event_id)
     filepath = path.join(event_folder, file_name)
+    print(f"[DEBUG] Checking for file: {filepath}")
     if path.isfile(filepath):
+        print(f"[DEBUG] Creating dataset for: {file_name}")
         dtemp = np.loadtxt(filepath)
         dtemp = np.nan_to_num(dtemp).reshape(-1, 4)
-        dset = gtemp.create_dataset("{0}".format(file_name), data=dtemp,
-                                    compression="gzip", compression_opts=9)
+        try:
+            dset = gtemp.create_dataset("{0}".format(file_name), data=dtemp,
+                                        compression="gzip", compression_opts=9)
+            print(f"[DEBUG] Dataset created: {file_name}")
+        except Exception as e:
+            print(f"[ERROR] Could not create dataset '{file_name}': {e}")
+            if file_name in gtemp:
+                print(f"[DEBUG] Dataset '{file_name}' already exists in group '{group_name}'.")
+            raise
         if deleteFlag: remove(filepath)
 
     file_name_pattern = "NpartdNdy-t"
@@ -54,6 +83,7 @@ def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False):
                                                 file_name_pattern, event_id)))
     for ifile, filepath in enumerate(filelist):
         filename = filepath.split("/")[-1]
+        print(f"[DEBUG] Creating dataset for: {filename}")
         dtemp    = np.genfromtxt(filepath, dtype='str')
         data     = np.zeros(len(dtemp))
         for idx in range(len(dtemp)):
@@ -61,8 +91,15 @@ def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False):
                 data[idx] = float(dtemp[idx])
             else:
                 data[idx] = 0.0
-        dset = gtemp.create_dataset("{0}".format(filename), data = data,
-                                    compression="gzip", compression_opts=9)
+        try:
+            dset = gtemp.create_dataset("{0}".format(filename), data = data,
+                                        compression="gzip", compression_opts=9)
+            print(f"[DEBUG] Dataset created: {filename}")
+        except Exception as e:
+            print(f"[ERROR] Could not create dataset '{filename}': {e}")
+            if filename in gtemp:
+                print(f"[DEBUG] Dataset '{filename}' already exists in group '{group_name}'.")
+            raise
         if deleteFlag: remove(filepath)
 
     file_name_pattern = "epsilon-u-Hydro-t"
@@ -70,14 +107,22 @@ def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False):
                                                 file_name_pattern, event_id)))
     for ifile, filepath in enumerate(filelist):
         filename = filepath.split("/")[-1]
+        print(f"[DEBUG] Creating dataset for: {filename}")
         dtemp    = np.loadtxt(filepath)
         dtemp    = np.nan_to_num(dtemp)
         x_size   = abs(dtemp[0, 1])*2.
         y_size   = abs(dtemp[0, 2])*2.
         data_cut = dtemp[:, 3:]
-        dset     = gtemp.create_dataset("{0}".format(filename),
-                                        data = data_cut,
-                                        compression="gzip", compression_opts=9)
+        try:
+            dset     = gtemp.create_dataset("{0}".format(filename),
+                                            data = data_cut,
+                                            compression="gzip", compression_opts=9)
+            print(f"[DEBUG] Dataset created: {filename}")
+        except Exception as e:
+            print(f"[ERROR] Could not create dataset '{filename}': {e}")
+            if filename in gtemp:
+                print(f"[DEBUG] Dataset '{filename}' already exists in group '{group_name}'.")
+            raise
         f = open(filepath)
         header = f.readline().strip('\n')
         dset.attrs.create("header", np.bytes_(header))
@@ -99,14 +144,22 @@ def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False):
                                                 file_name_pattern, event_id)))
     for ifile, filepath in enumerate(filelist):
         filename = filepath.split("/")[-1]
+        print(f"[DEBUG] Creating dataset for: {filename}")
         dtemp    = np.loadtxt(filepath)
         dtemp    = np.nan_to_num(dtemp)
         x_size   = abs(dtemp[0, 1])*2.
         y_size   = abs(dtemp[0, 2])*2.
         data_cut = dtemp[:, 2:]
-        dset     = gtemp.create_dataset("{0}".format(filename),
-                                        data=data_cut,
-                                        compression="gzip", compression_opts=9)
+        try:
+            dset     = gtemp.create_dataset("{0}".format(filename),
+                                            data=data_cut,
+                                            compression="gzip", compression_opts=9)
+            print(f"[DEBUG] Dataset created: {filename}")
+        except Exception as e:
+            print(f"[ERROR] Could not create dataset '{filename}': {e}")
+            if filename in gtemp:
+                print(f"[DEBUG] Dataset '{filename}' already exists in group '{group_name}'.")
+            raise
         f = open(filepath)
         header = f.readline().strip('\n')
         dset.attrs.create("header", np.bytes_(header))
