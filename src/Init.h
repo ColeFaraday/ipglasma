@@ -125,6 +125,9 @@ public:
                              const int Nq,
                              std::vector<double> &gauss_array);
   int sampleNumberOfPartons(Random *random, Parameters *param);
+
+  // Write nucleon or hotspot positions to a file (x y, header, space-separated, in fm)
+  void writeXYPositionsToFile(const std::vector<std::pair<double, double>>& positions, const std::string& filename, const std::string& header);
 };
 
 #endif  // Init_H

@@ -1588,6 +1588,52 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
   foutNEst << averageQs2min2 * a * a / hbarc / hbarc  <<  "         " << averageQs2Avg * a * a / hbarc / hbarc * static_cast<double>(count) << "         " << averageQs2 * a * a / hbarc / hbarc * static_cast<double>(count) << "         " << averageQs2min2 * a * a / hbarc / hbarc * pow(log(averageQs2* static_cast<double>(count)/averageQs2min2),2.) << "         " << a * a * static_cast<int>(count) << endl;
 
   foutNEst.close();
+
+  // Write nucleon or hotspot positions to a file (x y, header, space-separated, in fm)
+  void Init::writeXYPositionsToFile(const std::vector<std::pair<double, double>>& positions, const std::string& filename, const std::string& header) {
+      std::ofstream fout(filename);
+      if (!fout.is_open()) {
+          std::cerr << "Could not open file " << filename << " for writing!" << std::endl;
+          return;
+      }
+      fout << header << std::endl;
+      for (const auto& pos : positions) {
+          fout << pos.first << " " << pos.second << std::endl;
+      }
+      fout.close();
+  }
+
+  // ... existing code ...
+  // In setColorChargeDensity, after hotspot positions are generated for both nuclei, output positions
+  // ... existing code ...
+  // After xq1, yq1, xq2, yq2 are filled (after the two for-loops over A1 and A2)
+  // Collect nucleon positions
+  std::vector<std::pair<double, double>> nucleon_positions;
+  for (const auto& nuc : nucleusA_) {
+      nucleon_positions.emplace_back(nuc.x, nuc.y);
+  }
+  for (const auto& nuc : nucleusB_) {
+      nucleon_positions.emplace_back(nuc.x, nuc.y);
+  }
+  writeXYPositionsToFile(nucleon_positions, "initialNucleonPositions.dat", "# x y (fm)");
+
+  // Collect hotspot positions (absolute: nucleon + hotspot)
+  std::vector<std::pair<double, double>> hotspot_positions;
+  for (size_t i = 0; i < nucleusA_.size(); ++i) {
+      if (i < xq1.size()) {
+          for (size_t j = 0; j < xq1[i].size(); ++j) {
+              hotspot_positions.emplace_back(nucleusA_[i].x + xq1[i][j], nucleusA_[i].y + yq1[i][j]);
+          }
+      }
+  }
+  for (size_t i = 0; i < nucleusB_.size(); ++i) {
+      if (i < xq2.size()) {
+          for (size_t j = 0; j < xq2[i].size(); ++j) {
+              hotspot_positions.emplace_back(nucleusB_[i].x + xq2[i][j], nucleusB_[i].y + yq2[i][j]);
+          }
+      }
+  }
+  writeXYPositionsToFile(hotspot_positions, "initialHotspotPositions.dat", "# x y (fm)");
 }
 
 void Init::setV(Lattice *lat, Group *group, Parameters *param, Random *random) {
@@ -3526,4 +3572,17 @@ int Init::sampleNumberOfPartons(Random *random, Parameters *param) {
     }
     Nq += random->Poisson(param->getNqFluc());
     return(std::max(1, Nq));
+}
+
+void Init::writeXYPositionsToFile(const std::vector<std::pair<double, double>>& positions, const std::string& filename, const std::string& header) {
+    std::ofstream fout(filename);
+    if (!fout.is_open()) {
+        std::cerr << "Could not open file " << filename << " for writing!" << std::endl;
+        return;
+    }
+    fout << header << std::endl;
+    for (const auto& pos : positions) {
+        fout << pos.first << " " << pos.second << std::endl;
+    }
+    fout.close();
 }
