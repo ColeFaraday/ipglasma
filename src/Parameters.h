@@ -190,6 +190,7 @@ private:
   double d_min_;
   bool setWSDeformParams_, force_dmin_flag_;
   int outputCondensedGrid_ = 0; // 0: original, 1: condensed
+  double smallestEnergyGeV_ = 1e-6;
 
 public:
   // constructor:
@@ -440,6 +441,8 @@ public:
   int getMinimumQs2ST() { return minimumQs2ST; }
   void setOutputCondensedGrid(int x) { outputCondensedGrid_ = x; }
   int getOutputCondensedGrid() const { return outputCondensedGrid_; }
+  void setSmallestEnergyGeV(double x) { smallestEnergyGeV_ = x; }
+  double getSmallestEnergyGeV() const { return smallestEnergyGeV_; }
 
   void loadPosteriorParameterSetsFromFile(std::string posteriorFileName,
                                           std::vector<std::vector<float>> &ParamSet);

@@ -78,4 +78,5 @@ readInitialWilsonLines  0
 writeInitialWilsonLines  0
 writeOutputsToHDF5  0
 outputCondensedGrid  1
+smallestEnergyGeV  1e-6
 EndOfFile

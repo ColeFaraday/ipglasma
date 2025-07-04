@@ -25,6 +25,8 @@ IP-Glasma code with improved matrix exponential - openmp development
  	- 0: no
  	- 1: yes	
 
+smallestEnergyGeV  1e-6
+
 ---
 
 ## Codebase Overview
@@ -88,6 +90,7 @@ EndOfFile
 
 **Key parameters:**
 - `outputCondensedGrid`: Controls condensed output for Tmunu and epsilon-u files.
+- `smallestEnergyGeV`: Minimum energy density (in GeV) for output in condensed grid mode. Default is 1e-6.
 
 ---
 

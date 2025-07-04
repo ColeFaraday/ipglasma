@@ -659,18 +659,14 @@ void MyEigen::flowVelocity4D(Lattice *lat, Parameters *param, int it) {
 
             Etot += abs(hbarc * resultE * gfactor) * ha * ha * it * dtau * a;
             if (param->getOutputCondensedGrid()) {
-                if (abs(hbarc * resultE * gfactor) > small_eps) {
+                if (abs(hbarc * resultE * gfactor) > param->getSmallestEnergyGeV()) {
                     foutEps2 << ix << " " << iy << " " << abs(hbarc * resultE * gfactor)
                              << " " << resultutau << " " << resultux << " " << resultuy << " " << resultueta
                              << " " << resultpi00 * gfactor << " " << resultpi0x * gfactor
                              << " " << resultpi0y * gfactor << " " << resultpi0eta * gfactor
                              << " " << resultpixx * gfactor << " " << resultpixy * gfactor << " " << resultpixeta * gfactor
                              << " " << resultpiyy * gfactor << " " << resultpiyeta * gfactor << " " << resultpietaeta * gfactor << endl;
-                } else {
-                    // Optionally, print debug info as in Tmunu
-                    cout << "DEBUG: skipping because resultE * gfactor * hbarc = " << abs(hbarc * resultE * gfactor) << " < " << small_eps << endl;
-                    cout << "DEBUG: ix=" << ix << ", iy=" << iy << endl;
-                }
+                } 
             } else {
                 if (abs(hbarc * resultE * gfactor) > small_eps) {
                     foutEps2 << -(heta - 1) / 2. * deta + deta * ieta << " " << x
@@ -893,8 +889,8 @@ void MyEigen::flowVelocity4D(Lattice *lat, Parameters *param, int it) {
           }
           resultTetaeta = (1. - fracy) * x1 + fracy * x2;
 
-          if (param->getOutputCondensedTmunu()) {
-            if (resultT00 * gfactor * hbarc > small_eps) {
+          if (param->getOutputCondensedGrid()) {
+            if (resultT00 * gfactor * hbarc > param->getSmallestEnergyGeV()) {
               foutEps1 << ix << " " << iy << " " << resultT00 * gfactor * hbarc
                        << " " << resultTxx * gfactor * hbarc << " "
                        << resultTyy * gfactor * hbarc << " "
@@ -905,7 +901,10 @@ void MyEigen::flowVelocity4D(Lattice *lat, Parameters *param, int it) {
                        << -resultTxy * gfactor * hbarc << " "
                        << -tau0 * resultTyeta * gfactor * hbarc << " "
                        << -tau0 * resultTxeta * gfactor * hbarc << endl;
-            } 
+            } else {
+                cout << "DEBUG: skipping because resultT00 * gfactor * hbarc = " << resultT00 * gfactor * hbarc << " < " << param->getSmallestEnergyGeV() << endl;
+                cout << "DEBUG: ix=" << ix << ", iy=" << iy << endl;
+            }
           } else {
             if (resultT00 * gfactor * hbarc > small_eps) {
               foutEps1 << ix << " " << iy << " " << resultT00 * gfactor * hbarc
