@@ -1634,6 +1634,40 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
       }
   }
   writeXYPositionsToFile(hotspot_positions, "initialHotspotPositions.dat", "# x y (fm)");
+
+  // Output nucleon positions for projectile and target separately
+  std::vector<std::pair<double, double>> nucleon_positions_projectile;
+  for (const auto& nuc : nucleusA_) {
+      nucleon_positions_projectile.emplace_back(nuc.x, nuc.y);
+  }
+  writeXYPositionsToFile(nucleon_positions_projectile, "initialNucleonPositions_projectile.dat", "# x y (fm)");
+
+  std::vector<std::pair<double, double>> nucleon_positions_target;
+  for (const auto& nuc : nucleusB_) {
+      nucleon_positions_target.emplace_back(nuc.x, nuc.y);
+  }
+  writeXYPositionsToFile(nucleon_positions_target, "initialNucleonPositions_target.dat", "# x y (fm)");
+
+  // Output hotspot positions for projectile and target separately
+  std::vector<std::pair<double, double>> hotspot_positions_projectile;
+  for (size_t i = 0; i < nucleusA_.size(); ++i) {
+      if (i < xq1.size()) {
+          for (size_t j = 0; j < xq1[i].size(); ++j) {
+              hotspot_positions_projectile.emplace_back(nucleusA_[i].x + xq1[i][j], nucleusA_[i].y + yq1[i][j]);
+          }
+      }
+  }
+  writeXYPositionsToFile(hotspot_positions_projectile, "initialHotspotPositions_projectile.dat", "# x y (fm)");
+
+  std::vector<std::pair<double, double>> hotspot_positions_target;
+  for (size_t i = 0; i < nucleusB_.size(); ++i) {
+      if (i < xq2.size()) {
+          for (size_t j = 0; j < xq2[i].size(); ++j) {
+              hotspot_positions_target.emplace_back(nucleusB_[i].x + xq2[i][j], nucleusB_[i].y + yq2[i][j]);
+          }
+      }
+  }
+  writeXYPositionsToFile(hotspot_positions_target, "initialHotspotPositions_target.dat", "# x y (fm)");
 }
 
 void Init::setV(Lattice *lat, Group *group, Parameters *param, Random *random) {
