@@ -549,7 +549,7 @@ int readInput(Setup *setup, Parameters *param, int argc, char *argv[],
       param->loadPosteriorParameterSets(param->getSubNucleonParamType());
   }
   param->setOutputCondensedGrid(setup->IFind(file_name, "outputCondensedGrid"));
-  param->setSmallestEnergyGeV(setup->FFind(file_name, "smallestEnergyGeV", 1e-6));
+  param->setSmallestEnergyGeV(setup->IFind(file_name, "smallestEnergyGeV", 1e-6));
   if (rank == 0)
     cout << "done." << endl;
 
