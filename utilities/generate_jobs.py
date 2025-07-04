@@ -94,14 +94,12 @@ export OMP_NUM_THREADS={threads_per_job}
             for idx, event_name in enumerate(event_folders):
                 evid = job_id * events_per_job + idx
                 script.write(f"cd {event_name} && ./ipglasma {input_file_path.name} 1> run.log 2> run.err\n")
-                # Add the renaming and processing logic
-                script.write(f"\n# Rename and process output files for event {evid}\n")
+                # Add the renaming logic using mv
+                script.write(f"\n# Rename output files for event {evid}\n")
                 script.write(f"evid={evid}\n")
-                script.write(f"results_folder=.\n")
                 script.write(f"for ifile in *.dat; do\n")
                 script.write(f"    filename=$(echo ${{ifile}} | sed \"s/0.dat/${{evid}}.dat/\")\n")
-                script.write(f"    cat ${{ifile}} | sed 's/N\\/A/0.0/g' | sed 's/Q_s/#Q_s/' > ${{results_folder}}/${{filename}}\n")
-                script.write(f"    rm -fr ${{ifile}}\n")
+                script.write(f"    mv \"${{ifile}}\" \"${{filename}}\"\n")
                 script.write(f"done\n")
                 script.write(f"cd ..\n\n")
             print(f"[DEBUG] Finished writing job script for job_{job_id}")
