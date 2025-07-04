@@ -886,22 +886,37 @@ void MyEigen::flowVelocity4D(Lattice *lat, Parameters *param, int it) {
           }
           resultTetaeta = (1. - fracy) * x1 + fracy * x2;
 
-          if (resultT00 * gfactor * hbarc > small_eps) {
-            foutEps1 << ix << " " << iy << " " << resultT00 * gfactor * hbarc
-                     << " " << resultTxx * gfactor * hbarc << " "
-                     << resultTyy * gfactor * hbarc << " "
-                     << tau0 * tau0 * resultTetaeta * gfactor * hbarc << " "
-                     << -resultT0x * gfactor * hbarc << " "
-                     << -resultT0y * gfactor * hbarc << " "
-                     << -tau0 * resultT0eta * gfactor * hbarc << " "
-                     << -resultTxy * gfactor * hbarc << " "
-                     << -tau0 * resultTyeta * gfactor * hbarc << " "
-                     << -tau0 * resultTxeta * gfactor * hbarc << endl;
+          if (param->getOutputCondensedTmunu()) {
+            if (resultT00 * gfactor * hbarc > small_eps) {
+              foutEps1 << ix << " " << iy << " " << resultT00 * gfactor * hbarc
+                       << " " << resultTxx * gfactor * hbarc << " "
+                       << resultTyy * gfactor * hbarc << " "
+                       << tau0 * tau0 * resultTetaeta * gfactor * hbarc << " "
+                       << -resultT0x * gfactor * hbarc << " "
+                       << -resultT0y * gfactor * hbarc << " "
+                       << -tau0 * resultT0eta * gfactor * hbarc << " "
+                       << -resultTxy * gfactor * hbarc << " "
+                       << -tau0 * resultTyeta * gfactor * hbarc << " "
+                       << -tau0 * resultTxeta * gfactor * hbarc << endl;
+            }
           } else {
-            foutEps1 << ix << " " << iy << " " << small_eps << " "
-                     << small_eps / 2. << " " << small_eps / 2. << " " << 0.0
-                     << " " << 0.0 << " " << 0.0 << " " << 0.0 << " " << 0.0
-                     << " " << 0.0 << " " << 0.0 << endl;
+            if (resultT00 * gfactor * hbarc > small_eps) {
+              foutEps1 << ix << " " << iy << " " << resultT00 * gfactor * hbarc
+                       << " " << resultTxx * gfactor * hbarc << " "
+                       << resultTyy * gfactor * hbarc << " "
+                       << tau0 * tau0 * resultTetaeta * gfactor * hbarc << " "
+                       << -resultT0x * gfactor * hbarc << " "
+                       << -resultT0y * gfactor * hbarc << " "
+                       << -tau0 * resultT0eta * gfactor * hbarc << " "
+                       << -resultTxy * gfactor * hbarc << " "
+                       << -tau0 * resultTyeta * gfactor * hbarc << " "
+                       << -tau0 * resultTxeta * gfactor * hbarc << endl;
+            } else {
+              foutEps1 << ix << " " << iy << " " << small_eps << " "
+                       << small_eps / 2. << " " << small_eps / 2. << " " << 0.0
+                       << " " << 0.0 << " " << 0.0 << " " << 0.0 << " " << 0.0
+                       << " " << 0.0 << " " << 0.0 << endl;
+            }
           }
         } else {
           foutEps1 << ix << " " << iy << " " << small_eps << " "
