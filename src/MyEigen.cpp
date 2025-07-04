@@ -905,10 +905,7 @@ void MyEigen::flowVelocity4D(Lattice *lat, Parameters *param, int it) {
                        << -resultTxy * gfactor * hbarc << " "
                        << -tau0 * resultTyeta * gfactor * hbarc << " "
                        << -tau0 * resultTxeta * gfactor * hbarc << endl;
-            } else {
-              cout << "DEBUG: skipping because resultT00 * gfactor * hbarc = " << resultT00 * gfactor * hbarc << " < " << small_eps << endl;
-              cout << "DEBUG: ix=" << ix << ", iy=" << iy << endl;
-            }
+            } 
           } else {
             if (resultT00 * gfactor * hbarc > small_eps) {
               foutEps1 << ix << " " << iy << " " << resultT00 * gfactor * hbarc
