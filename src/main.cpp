@@ -1,4 +1,3 @@
-
 #include <cmath>
 #include <complex>
 #include <cstdlib>
@@ -549,6 +548,8 @@ int readInput(Setup *setup, Parameters *param, int argc, char *argv[],
   if (param->getSubNucleonParamType() > 0) {
       param->loadPosteriorParameterSets(param->getSubNucleonParamType());
   }
+  param->setOutputCondensedGrid(setup->IFind(file_name, "outputCondensedGrid"));
+  param->setSmallestEnergyGeV(setup->DFind(file_name, "smallestEnergyGeV"));
   if (rank == 0)
     cout << "done." << endl;
 

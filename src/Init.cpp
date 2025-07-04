@@ -1096,6 +1096,8 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
 
     ofstream foutNcoll(Ncoll_name.c_str(), ios::out);
 
+    // determination of Ncoll (&HSC)
+    // determination is done at the nucleon level, not the quark level
     if (param->getGaussianWounding() == 0) {
       for (int i = 0; i < A1; i++) {
         for (int j = 0; j < A2; j++) {
@@ -1104,14 +1106,16 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
           dij = dx * dx + dy * dy;
           if (dij < d2) {
             foutNcoll << (nucleusB_.at(j).x + nucleusA_.at(i).x) / 2. << " "
-                      << (nucleusB_.at(j).y + nucleusA_.at(i).y) / 2. << endl;
+                      << (nucleusB_.at(j).y + nucleusA_.at(i).y) / 2. << endl; // Location of the binary collision is the average transverse positiom of the nucleons
             Ncoll++;
             nucleusB_.at(j).collided = 1;
             nucleusA_.at(i).collided = 1;
           }
         }
       }
-    } else {
+    } 
+    // determination of Ncoll with Gaussian Wounding
+    else {
       double p;
       double G = 0.92;
       double ran;
@@ -1467,6 +1471,12 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
   cout << "Q_s^2(max) S_T = "
        << averageQs2 * a * a / hbarc / hbarc * static_cast<double>(count)
        << endl;
+  cout << "Count = "
+       << static_cast<int>(count)
+       << endl;
+  cout << "S_T (fm^2) = "
+       << a * a * static_cast<int>(count)
+       << endl;
   cout << "Q_s^2(avg) S_T = "
        << averageQs2Avg * a * a / hbarc / hbarc * static_cast<double>(count)
        << endl;
@@ -1574,8 +1584,8 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
 
   ofstream foutNEst(NEst_name.c_str(), ios::out);
 
-  foutNEst << "#Q_s^2(min) S_T  " <<  "Q_s^2(avg) S_T  " << "Q_s^2(max) S_T " << " Q_s^2(min) S_T Log^2( Q_s^2(max) / Q_s^2(min))  " << endl;
-  foutNEst << averageQs2min2 * a * a / hbarc / hbarc  <<  "         " << averageQs2Avg * a * a / hbarc / hbarc * static_cast<double>(count) << "         " << averageQs2 * a * a / hbarc / hbarc * static_cast<double>(count) << "         " << averageQs2min2 * a * a / hbarc / hbarc * pow(log(averageQs2* static_cast<double>(count)/averageQs2min2),2.) << endl;
+  foutNEst << "#Q_s^2(min) S_T  " <<  "Q_s^2(avg) S_T  " << "Q_s^2(max) S_T " << " Q_s^2(min) S_T Log^2( Q_s^2(max) / Q_s^2(min))  " << " S_T" << endl;
+  foutNEst << averageQs2min2 * a * a / hbarc / hbarc  <<  "         " << averageQs2Avg * a * a / hbarc / hbarc * static_cast<double>(count) << "         " << averageQs2 * a * a / hbarc / hbarc * static_cast<double>(count) << "         " << averageQs2min2 * a * a / hbarc / hbarc * pow(log(averageQs2* static_cast<double>(count)/averageQs2min2),2.) << "         " << a * a * static_cast<int>(count) << endl;
 
   foutNEst.close();
 }

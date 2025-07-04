@@ -4,7 +4,6 @@
 *.png
 *#
 *.pages
-*.py
 src/.DS_Store
 src/ipglasma
 src/ipglasma.dSYM/
@@ -14,3 +13,4 @@ ipglasma
 Tmunu
 *.dylib
 .DS_Store
+.vscode/settings.json
