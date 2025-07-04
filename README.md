@@ -82,12 +82,12 @@ size  720
 L  30.0
 Nc  3
 ...
-outputCondensedTmunu  1
+outputCondensedGrid  1
 EndOfFile
 ```
 
 **Key parameters:**
-- `outputCondensedTmunu`: Controls condensed output for Tmunu files.
+- `outputCondensedGrid`: Controls condensed output for Tmunu and epsilon-u files.
 
 ---
 

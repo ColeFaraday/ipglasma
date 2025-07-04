@@ -658,24 +658,31 @@ void MyEigen::flowVelocity4D(Lattice *lat, Parameters *param, int it) {
                               tau0 * tau0 * resultueta * resultueta);
 
             Etot += abs(hbarc * resultE * gfactor) * ha * ha * it * dtau * a;
-            if (abs(hbarc * resultE * gfactor) > 0.0000000001) {
-              foutEps2 << -(heta - 1) / 2. * deta + deta * ieta << " " << x
-                       << " " << y << " " << abs(hbarc * resultE * gfactor)
-                       << " " << resultutau << " " << resultux << " "
-                       << resultuy << " " << resultueta << " "
-                       << resultpi00 * gfactor << " " << resultpi0x * gfactor
-                       << " " << resultpi0y * gfactor << " "
-                       << resultpi0eta * gfactor << " " << resultpixx * gfactor
-                       << " " << resultpixy * gfactor << " "
-                       << resultpixeta * gfactor << " " << resultpiyy * gfactor
-                       << " " << resultpiyeta * gfactor << " "
-                       << resultpietaeta * gfactor << endl;
+            if (param->getOutputCondensedGrid()) {
+                if (abs(hbarc * resultE * gfactor) > small_eps) {
+                    foutEps2 << ix << " " << iy << " " << abs(hbarc * resultE * gfactor)
+                             << " " << resultutau << " " << resultux << " " << resultuy << " " << resultueta
+                             << " " << resultpi00 * gfactor << " " << resultpi0x * gfactor
+                             << " " << resultpi0y * gfactor << " " << resultpi0eta * gfactor
+                             << " " << resultpixx * gfactor << " " << resultpixy * gfactor << " " << resultpixeta * gfactor
+                             << " " << resultpiyy * gfactor << " " << resultpiyeta * gfactor << " " << resultpietaeta * gfactor << endl;
+                } else {
+                    // Optionally, print debug info as in Tmunu
+                    cout << "DEBUG: skipping because resultE * gfactor * hbarc = " << abs(hbarc * resultE * gfactor) << " < " << small_eps << endl;
+                    cout << "DEBUG: ix=" << ix << ", iy=" << iy << endl;
+                }
             } else {
-              foutEps2 << -(heta - 1) / 2. * deta + deta * ieta << " " << x
-                       << " " << y << " " << 0. << " " << 1. << " " << 0. << " "
-                       << 0. << " " << 0. << " " << 0. << " " << 0. << " " << 0.
-                       << " " << 0. << " " << 0. << " " << 0. << " " << 0.
-                       << " " << 0. << " " << 0. << " " << 0. << endl;
+                if (abs(hbarc * resultE * gfactor) > small_eps) {
+                    foutEps2 << -(heta - 1) / 2. * deta + deta * ieta << " " << x
+                             << " " << y << " " << abs(hbarc * resultE * gfactor)
+                             << " " << resultutau << " " << resultux << " " << resultuy << " " << resultueta
+                             << " " << resultpi00 * gfactor << " " << resultpi0x * gfactor
+                             << " " << resultpi0y * gfactor << " " << resultpi0eta * gfactor
+                             << " " << resultpixx * gfactor << " " << resultpixy * gfactor << " " << resultpixeta * gfactor
+                             << " " << resultpiyy * gfactor << " " << resultpiyeta * gfactor << " " << resultpietaeta * gfactor << endl;
+                } else {
+                    foutEps2 << -(heta - 1) / 2. * deta + deta * ieta << " " << x << " " << y << " " << small_eps << " " << small_eps / 2. << " " << small_eps / 2. << " " << 0.0 << " " << 0.0 << " " << 0.0 << " " << 0.0 << " " << 0.0 << " " << 0.0 << " " << 0.0 << " " << 0.0 << " " << 0.0 << " " << 0.0 << " " << 0.0 << endl;
+                }
             }
           } else {
             foutEps2 << -(heta - 1) / 2. * deta + deta * ieta << " " << x << " "
@@ -1143,7 +1150,7 @@ void MyEigen::flowVelocity4D(Lattice *lat, Parameters *param, int it) {
                      << " " << 0. << " " << 0. << endl;
             // foutEps4 << -(heta-1)/2.*deta+deta*ieta << " " << x << " " << y
             // << " "
-            //          << 0. << " " << 0. << " "  << 0. << " " << 0. << " " <<
+            //          << 0. << " " << 0. << "  << 0. << " " << 0. << " " <<
             //          0. << endl;
           }
         }

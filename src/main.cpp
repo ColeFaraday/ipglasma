@@ -548,7 +548,7 @@ int readInput(Setup *setup, Parameters *param, int argc, char *argv[],
   if (param->getSubNucleonParamType() > 0) {
       param->loadPosteriorParameterSets(param->getSubNucleonParamType());
   }
-  param->setOutputCondensedTmunu(setup->IFind(file_name, "outputCondensedTmunu"));
+  param->setOutputCondensedGrid(setup->IFind(file_name, "outputCondensedGrid"));
   if (rank == 0)
     cout << "done." << endl;
 

@@ -189,7 +189,7 @@ private:
   double beta3, beta4, gamma_;
   double d_min_;
   bool setWSDeformParams_, force_dmin_flag_;
-  int outputCondensedTmunu_ = 0; // 0: original, 1: condensed
+  int outputCondensedGrid_ = 0; // 0: original, 1: condensed
 
 public:
   // constructor:
@@ -438,8 +438,8 @@ public:
   }
   void setMinimumQs2ST(int x) { minimumQs2ST = x; }
   int getMinimumQs2ST() { return minimumQs2ST; }
-  void setOutputCondensedTmunu(int x) { outputCondensedTmunu_ = x; }
-  int getOutputCondensedTmunu() const { return outputCondensedTmunu_; }
+  void setOutputCondensedGrid(int x) { outputCondensedGrid_ = x; }
+  int getOutputCondensedGrid() const { return outputCondensedGrid_; }
 
   void loadPosteriorParameterSetsFromFile(std::string posteriorFileName,
                                           std::vector<std::vector<float>> &ParamSet);
