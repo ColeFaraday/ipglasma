@@ -103,8 +103,6 @@ export OMP_NUM_THREADS={threads_per_job}
                 script.write(f"    cat ${{ifile}} | sed 's/N\\/A/0.0/g' | sed 's/Q_s/#Q_s/' > ${{results_folder}}/${{filename}}\n")
                 script.write(f"    rm -fr ${{ifile}}\n")
                 script.write(f"done\n")
-                script.write(f"mv ../run.log ${{results_folder}}/\n")
-                script.write(f"mv ../run.err ${{results_folder}}/\n")
                 script.write(f"cd ..\n\n")
             print(f"[DEBUG] Finished writing job script for job_{job_id}")
 
