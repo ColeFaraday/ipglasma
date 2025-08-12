@@ -49,8 +49,8 @@ def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False, inc
             f"NcollList{event_id}.dat",
             f"NpartList{event_id}.dat",
             f"NpartdNdy-t*-{event_id}.dat",
-            f"epsilon-u-Hydro-t*-{event_id}.dat",
-            f"Tmunu-t*-{event_id}.dat"
+            # f"epsilon-u-Hydro-t*-{event_id}.dat",
+            # f"Tmunu-t*-{event_id}.dat"
         ]
 
     # Loop over all patterns
