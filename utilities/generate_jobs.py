@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 
 def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file):
-    walltime = "100:00"
+    walltime = "100:00:00"
     results_path = Path(results_folder).resolve()
     print(f"[DEBUG] Resolved results_path: {results_path}")
 
