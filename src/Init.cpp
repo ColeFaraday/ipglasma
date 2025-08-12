@@ -1589,24 +1589,6 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
 
   foutNEst.close();
 
-  // Write nucleon or hotspot positions to a file (x y, header, space-separated, in fm)
-  void Init::writeXYPositionsToFile(const std::vector<std::pair<double, double>>& positions, const std::string& filename, const std::string& header) {
-      std::ofstream fout(filename);
-      if (!fout.is_open()) {
-          std::cerr << "Could not open file " << filename << " for writing!" << std::endl;
-          return;
-      }
-      fout << header << std::endl;
-      for (const auto& pos : positions) {
-          fout << pos.first << " " << pos.second << std::endl;
-      }
-      fout.close();
-  }
-
-  // ... existing code ...
-  // In setColorChargeDensity, after hotspot positions are generated for both nuclei, output positions
-  // ... existing code ...
-  // After xq1, yq1, xq2, yq2 are filled (after the two for-loops over A1 and A2)
   // Collect nucleon positions
   std::vector<std::pair<double, double>> nucleon_positions;
   for (const auto& nuc : nucleusA_) {
