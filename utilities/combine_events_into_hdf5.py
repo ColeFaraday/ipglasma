@@ -61,7 +61,6 @@ def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False, inc
     # Loop over all patterns
     for pattern in include_patterns:
         filelist = glob(path.join(event_folder, pattern))
-        print(f"[DEBUG] Pattern '{pattern}' matched {len(filelist)} files: {[f.split('/')[-1] for f in filelist]}")
         for filepath in filelist:
             filename = filepath.split("/")[-1]
             if filename in gtemp:
