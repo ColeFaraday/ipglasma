@@ -3946,6 +3946,38 @@ void Init::characterizeProtonTypes(Parameters *param, Lattice *lat,
 
   // Output full g2mu2 map for this event
   outputG2mu2Map(param, lat);
+
+  // Output g2mu2Map split by hotspot contributions for projectile proton
+  if (param->getUseConstituentQuarkProton() > 0 && nucleusA_.size() == 1) {
+    // Only for single projectile proton
+    std::ofstream foutMap("g2mu2Map_hotspot_projectile_" + std::to_string(param->getEventId()) + ".dat", std::ios::out);
+    foutMap << "# x y hotspot_index g2mu2_contribution" << std::endl;
+    for (int ix = 0; ix < N; ix++) {
+        for (int iy = 0; iy < N; iy++) {
+            double x = -L / 2. + a * ix;
+            double y = -L / 2. + a * iy;
+            int localpos = ix * N + iy;
+            double g2mu2A = lat->cells[localpos]->getg2mu2A();
+            if (g2mu2A > 0) {
+                for (size_t iq = 0; iq < xq1[0].size(); iq++) {
+                    double xm = nucleusA_[0].x;
+                    double ym = nucleusA_[0].y;
+                    double bp2 = (xm + xq1[0][iq] - x) * (xm + xq1[0][iq] - x) +
+                                 (ym + yq1[0][iq] - y) * (ym + yq1[0][iq] - y);
+                    bp2 /= hbarc * hbarc;
+                    const double typical_BGq = param->getBGq();
+                    double contrib = exp(-bp2 / (2. * typical_BGq)) / (2. * M_PI * typical_BGq) /
+                                     static_cast<double>(xq1[0].size());
+                    double hotspot_g2mu2 = g2mu2A * contrib;
+                    if (hotspot_g2mu2 > 0) {
+                        foutMap << x << " " << y << " " << iq << " " << hotspot_g2mu2 << std::endl;
+                    }
+                }
+            }
+        }
+    }
+    foutMap.close();
+  }
 }
 
 void Init::outputG2mu2Map(Parameters *param, Lattice *lat) {
@@ -3964,6 +3996,9 @@ void Init::outputG2mu2Map(Parameters *param, Lattice *lat) {
       int localpos = ix * N + iy;
       double g2mu2A = lat->cells[localpos]->getg2mu2A();
       double g2mu2B = lat->cells[localpos]->getg2mu2B();
+      if (g2mu2A == 0 && g2mu2B == 0) {
+        continue; // Skip empty cells
+      }
       foutMap << x << " " << y << " " << g2mu2A << " " << g2mu2B << endl;
     }
   }
