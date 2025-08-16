@@ -135,6 +135,9 @@ public:
                              const std::vector< std::vector<double> > &yq1,
                              const std::vector< std::vector<double> > &xq2, 
                              const std::vector< std::vector<double> > &yq2);
+
+  // Output g2mu2 as a function of x, y for all cells
+  void outputG2mu2Map(Parameters *param, Lattice *lat);
 };
 
 #endif  // Init_H

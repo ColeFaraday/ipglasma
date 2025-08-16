@@ -349,6 +349,7 @@ void Init::sampleTA(Parameters *param, Random *random, Glauber *glauber) {
 
     // generate the file name
     ran = random->genrand64_real3(); // sample the file name uniformly
+                                      // (10,000 events per file)
     fileNumber = static_cast<int>(ran * 10 + 1);
 
     str_file.str("");
@@ -1542,6 +1543,7 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
   }
 
   if (param->getAverageQs() > 0 && param->getAverageQsAvg() > 0 &&
+     
       averageQs2 > 0 && param->getAverageQsmin() > 0 && averageQs2Avg > 0 &&
       alphas > 0 && Npart >= 2 && averageQs2min2 * a * a / hbarc / hbarc > param->getMinimumQs2ST())
     {
@@ -2159,7 +2161,7 @@ void Init::readV(Lattice *lat, Parameters *param, int format) {
         }
       if(std::abs(L - param->getL()) > 1e-5)
       {
-        messager << "# ERROR grid length, data has " << L
+        messager << "# ERROR grid length, data is " << L
         << " but you have specified " << param->getL();
          exit(0);
       }
@@ -2676,7 +2678,7 @@ void Init::init(Lattice *lat, Group *group, Parameters *param, Random *random,
             temp = group->getT(ai) * (Ux1pUx2 - UDx1pUDx2) +
                    group->getT(ai) * Ux1pUx2 * expNegAlpha -
                    group->getT(ai) * expAlpha * UDx1pUDx2;
-            // minus trace of temp gives -F_ai
+            // minus trace if temp gives -F_ai
             F[ai] = (-1.) * temp.trace();
           }
 
@@ -2795,6 +2797,7 @@ void Init::init(Lattice *lat, Group *group, Parameters *param, Random *random,
 
         Fold = 0.;
         lambda = 1.;
+
 #pragma omp simd reduction(+ : Fold)
         for (int ai = 0; ai < Nc2m1; ai++) {
           alphaSave[ai] = alpha[ai];
@@ -2851,7 +2854,7 @@ void Init::init(Lattice *lat, Group *group, Parameters *param, Random *random,
 
             for (int ai = 0; ai < Nc2m1; ai++) {
               in[ai] = (alpha[ai])
-                          .real(); // expmCoeff will calculate exp(i in[a]t[a])
+                          .real(); // expmCoeff wil calculate exp(i in[a]t[a])
             }
 
             U = tempNew.expmCoeff(in, Nc);
@@ -3165,7 +3168,6 @@ void Init::generate_nucleus_configuration_with_woods_saxon(
     y_array[i] = y_i;
     z_array[i] = z_i;
   }
-
   recenter_nucleus(x_array, y_array, z_array);
 
   for (unsigned int i = 0; i < r_array.size(); i++) {
@@ -3319,6 +3321,7 @@ void Init::generate_nucleus_configuration_with_deformed_woods_saxon_force_dmin(
         double r2 = (  (x_i - x_array[j])*(x_i - x_array[j])
                      + (y_i - y_array[j])*(y_i - y_array[j])
                      + (z_i - z_array[j])*(z_i - z_array[j]));
+
         if (r2 < d_min_sq) {
           reSampleFlag = true;
           break;
@@ -3499,9 +3502,9 @@ void Init::assignProtons(std::vector<ReturnValue> &nucleus, const int Z) {
     std::random_shuffle(nucleus.begin(), nucleus.end());
     for (unsigned int i = 0; i < nucleus.size(); i++) {
         if (static_cast<int>(i) < std::abs(Z)) {
-            nucleus.at(i).proton = 1;
+      nucleus.at(i).proton = 1;
         } else {
-            nucleus.at(i).proton = 0;
+      nucleus.at(i).proton = 0;
         }
     }
 }
@@ -3648,7 +3651,6 @@ void Init::characterizeProtonTypes(Parameters *param, Lattice *lat,
               double bp2 = (xm + xq1[i][iq] - x) * (xm + xq1[i][iq] - x) +
                           (ym + yq1[i][iq] - y) * (ym + yq1[i][iq] - y);
               bp2 /= hbarc * hbarc;
-              
               // Note: We don't have access to BGq1[i][iq] here, so use typical value
               const double typical_BGq = param->getBGq();
               totalContribution += exp(-bp2 / (2. * typical_BGq)) / (2. * M_PI * typical_BGq) /
@@ -3708,8 +3710,7 @@ void Init::characterizeProtonTypes(Parameters *param, Lattice *lat,
           double g2mu2A = lat->cells[localpos]->getg2mu2A();
           
           if (g2mu2A > 0) {
-            // Check if this nucleon is the dominant contributor to this cell
-            double maxContribution = 0.0;
+            double maxContribution = 0;
             int dominantNucleon = -1;
             
             for (size_t j = 0; j < nucleusA_.size(); ++j) {
@@ -3766,6 +3767,43 @@ void Init::characterizeProtonTypes(Parameters *param, Lattice *lat,
   }
   foutProtonType.close();
   
+  // --- Hotspot g2mu2 output for projectile proton ---
+  if (param->getUseConstituentQuarkProton() > 0 && nucleusA_.size() == 1) {
+    // Only for single projectile proton
+    std::vector<double> hotspot_g2mu2(xq1[0].size(), 0.0);
+    for (int ix = 0; ix < N; ix++) {
+      for (int iy = 0; iy < N; iy++) {
+        double x = -L / 2. + a * ix;
+        double y = -L / 2. + a * iy;
+        int localpos = ix * N + iy;
+        double g2mu2A = lat->cells[localpos]->getg2mu2A();
+        if (g2mu2A > 0) {
+          for (size_t iq = 0; iq < xq1[0].size(); iq++) {
+            double xm = nucleusA_[0].x;
+            double ym = nucleusA_[0].y;
+            double bp2 = (xm + xq1[0][iq] - x) * (xm + xq1[0][iq] - x) +
+                         (ym + yq1[0][iq] - y) * (ym + yq1[0][iq] - y);
+            bp2 /= hbarc * hbarc;
+            const double typical_BGq = param->getBGq();
+            double contrib = exp(-bp2 / (2. * typical_BGq)) / (2. * M_PI * typical_BGq) /
+                             static_cast<double>(xq1[0].size());
+            hotspot_g2mu2[iq] += g2mu2A * contrib;
+          }
+        }
+      }
+    }
+    // Output hotspot contributions
+    stringstream strHotspot_name;
+    strHotspot_name << "hotspot_g2mu2_projectile_" << param->getEventId() << ".dat";
+    string hotspot_name = strHotspot_name.str();
+    ofstream foutHotspot(hotspot_name.c_str(), ios::out);
+    foutHotspot << "# hotspot_index hotspot_x hotspot_y total_g2mu2_contribution" << endl;
+    for (size_t iq = 0; iq < xq1[0].size(); ++iq) {
+      foutHotspot << iq << " " << (nucleusA_[0].x + xq1[0][iq]) << " " << (nucleusA_[0].y + yq1[0][iq]) << " " << hotspot_g2mu2[iq] << endl;
+    }
+    foutHotspot.close();
+  }
+
   // Repeat the same logic for target nucleons
   vector<double> target_maxQs2(nucleusB_.size(), 0.0);
   vector<double> target_totalQs2(nucleusB_.size(), 0.0);
@@ -3849,7 +3887,7 @@ void Init::characterizeProtonTypes(Parameters *param, Lattice *lat,
           double g2mu2B = lat->cells[localpos]->getg2mu2B();
           
           if (g2mu2B > 0) {
-            double maxContribution = 0.0;
+            double maxContribution = 0;
             int dominantNucleon = -1;
             
             for (size_t j = 0; j < nucleusB_.size(); ++j) {
@@ -3905,4 +3943,29 @@ void Init::characterizeProtonTypes(Parameters *param, Lattice *lat,
                          << target_radius[i] << " " << target_cellCount[i] << endl;
   }
   foutProtonTypeTarget.close();
+
+  // Output full g2mu2 map for this event
+  outputG2mu2Map(param, lat);
+}
+
+void Init::outputG2mu2Map(Parameters *param, Lattice *lat) {
+  const int N = param->getSize();
+  const double L = param->getL();
+  const double a = L / N;
+  stringstream strMap_name;
+  strMap_name << "g2mu2Map_" << param->getEventId() << ".dat";
+  string map_name = strMap_name.str();
+  ofstream foutMap(map_name.c_str(), ios::out);
+  foutMap << "# x y g2mu2A g2mu2B" << endl;
+  for (int ix = 0; ix < N; ix++) {
+    for (int iy = 0; iy < N; iy++) {
+      double x = -L / 2. + a * ix;
+      double y = -L / 2. + a * iy;
+      int localpos = ix * N + iy;
+      double g2mu2A = lat->cells[localpos]->getg2mu2A();
+      double g2mu2B = lat->cells[localpos]->getg2mu2B();
+      foutMap << x << " " << y << " " << g2mu2A << " " << g2mu2B << endl;
+    }
+  }
+  foutMap.close();
 }
