@@ -128,6 +128,13 @@ public:
 
   // Write nucleon or hotspot positions to a file (x y, header, space-separated, in fm)
   void writeXYPositionsToFile(const std::vector<std::pair<double, double>>& positions, const std::string& filename, const std::string& header);
+  
+  // Characterize proton types based on color charge density
+  void characterizeProtonTypes(Parameters *param, Lattice *lat, 
+                             const std::vector< std::vector<double> > &xq1, 
+                             const std::vector< std::vector<double> > &yq1,
+                             const std::vector< std::vector<double> > &xq2, 
+                             const std::vector< std::vector<double> > &yq2);
 };
 
 #endif  // Init_H

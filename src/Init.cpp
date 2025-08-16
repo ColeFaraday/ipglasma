@@ -1650,6 +1650,9 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
       }
   }
   writeXYPositionsToFile(hotspot_positions_target, "initialHotspotPositions_target.dat", "# x y (fm)");
+  
+  // Characterize proton types
+  characterizeProtonTypes(param, lat, xq1, yq1, xq2, yq2);
 }
 
 void Init::setV(Lattice *lat, Group *group, Parameters *param, Random *random) {
@@ -2190,7 +2193,6 @@ void Init::readV(Lattice *lat, Parameters *param, int format) {
                 a = L/static_cast<double>(N);
               
                 double xtemp = a * ixIn - bb / 2.;
-
                 int ix = round(xtemp / a);
 
                 // cout << ixIn << " " << ix << endl;
@@ -3601,4 +3603,306 @@ void Init::writeXYPositionsToFile(const std::vector<std::pair<double, double>>& 
         fout << pos.first << " " << pos.second << std::endl;
     }
     fout.close();
+}
+
+// New function to characterize proton types based on color charge density
+void Init::characterizeProtonTypes(Parameters *param, Lattice *lat, 
+                                 const vector< vector<double> > &xq1, 
+                                 const vector< vector<double> > &yq1,
+                                 const vector< vector<double> > &xq2, 
+                                 const vector< vector<double> > &yq2) {
+  const int N = param->getSize();
+  const double L = param->getL();
+  const double a = L / N;
+  
+  // Initialize storage for projectile nucleon characteristics
+  vector<double> proton_maxQs2(nucleusA_.size(), 0.0);
+  vector<double> proton_totalQs2(nucleusA_.size(), 0.0);
+  vector<int> proton_cellCount(nucleusA_.size(), 0);
+  vector<double> proton_weightedX(nucleusA_.size(), 0.0);
+  vector<double> proton_weightedY(nucleusA_.size(), 0.0);
+  vector<double> proton_totalWeight(nucleusA_.size(), 0.0);
+  
+  // Loop over all lattice cells and determine which nucleons contribute
+  for (int ix = 0; ix < N; ix++) {
+    for (int iy = 0; iy < N; iy++) {
+      double x = -L / 2. + a * ix;
+      double y = -L / 2. + a * iy;
+      int localpos = ix * N + iy;
+      
+      double g2mu2A = lat->cells[localpos]->getg2mu2A();
+      if (g2mu2A > 0) {
+        // Find which projectile nucleon(s) contribute most to this cell
+        // Following the same logic as setColorChargeDensity
+        double maxContribution = 0.0;
+        int dominantNucleon = -1;
+        
+        for (size_t i = 0; i < nucleusA_.size(); ++i) {
+          double totalContribution = 0.0;
+          double xm = nucleusA_[i].x;
+          double ym = nucleusA_[i].y;
+          
+          if (param->getUseConstituentQuarkProton() > 0 && i < xq1.size()) {
+            // Use constituent quark model - sum over all hotspots in this nucleon
+            for (size_t iq = 0; iq < xq1[i].size(); iq++) {
+              double bp2 = (xm + xq1[i][iq] - x) * (xm + xq1[i][iq] - x) +
+                          (ym + yq1[i][iq] - y) * (ym + yq1[i][iq] - y);
+              bp2 /= hbarc * hbarc;
+              
+              // Note: We don't have access to BGq1[i][iq] here, so use typical value
+              const double typical_BGq = param->getBGq();
+              totalContribution += exp(-bp2 / (2. * typical_BGq)) / (2. * M_PI * typical_BGq) /
+                                 static_cast<double>(xq1[i].size());
+            }
+          } else {
+            // Use simple Gaussian nucleon model
+            const double BG = param->getBG();
+            double bp2 = (xm - x) * (xm - x) + (ym - y) * (ym - y);
+            bp2 /= hbarc * hbarc;
+            totalContribution = exp(-bp2 / (2. * BG)) / (2. * M_PI * BG);
+          }
+          
+          if (totalContribution > maxContribution) {
+            maxContribution = totalContribution;
+            dominantNucleon = i;
+          }
+        }
+        
+        // Assign this cell to the dominant nucleon
+        if (dominantNucleon >= 0) {
+          proton_cellCount[dominantNucleon]++;
+          proton_totalQs2[dominantNucleon] += g2mu2A;
+          if (g2mu2A > proton_maxQs2[dominantNucleon]) {
+            proton_maxQs2[dominantNucleon] = g2mu2A;
+          }
+          // Weight by color charge density for center-of-mass calculation
+          proton_weightedX[dominantNucleon] += x * g2mu2A;
+          proton_weightedY[dominantNucleon] += y * g2mu2A;
+          proton_totalWeight[dominantNucleon] += g2mu2A;
+        }
+      }
+    }
+  }
+  
+  // Calculate average Qs2 and RMS radius for each projectile nucleon
+  vector<double> proton_avgQs2(nucleusA_.size(), 0.0);
+  vector<double> proton_radius(nucleusA_.size(), 0.0);
+  
+  for (size_t i = 0; i < nucleusA_.size(); ++i) {
+    proton_avgQs2[i] = (proton_cellCount[i] > 0) ? proton_totalQs2[i] / proton_cellCount[i] : 0.0;
+    
+    // Calculate RMS radius if this nucleon has contributions
+    if (proton_totalWeight[i] > 0) {
+      double centerX = proton_weightedX[i] / proton_totalWeight[i];
+      double centerY = proton_weightedY[i] / proton_totalWeight[i];
+      
+      double rmsRadius = 0.0;
+      double totalWeightRMS = 0.0;
+      
+      // Loop through cells again to calculate RMS radius
+      for (int ix = 0; ix < N; ix++) {
+        for (int iy = 0; iy < N; iy++) {
+          double x = -L / 2. + a * ix;
+          double y = -L / 2. + a * iy;
+          int localpos = ix * N + iy;
+          double g2mu2A = lat->cells[localpos]->getg2mu2A();
+          
+          if (g2mu2A > 0) {
+            // Check if this nucleon is the dominant contributor to this cell
+            double maxContribution = 0.0;
+            int dominantNucleon = -1;
+            
+            for (size_t j = 0; j < nucleusA_.size(); ++j) {
+              double totalContribution = 0.0;
+              double xm = nucleusA_[j].x;
+              double ym = nucleusA_[j].y;
+              
+              if (param->getUseConstituentQuarkProton() > 0 && j < xq1.size()) {
+                for (size_t iq = 0; iq < xq1[j].size(); iq++) {
+                  double bp2 = (xm + xq1[j][iq] - x) * (xm + xq1[j][iq] - x) +
+                              (ym + yq1[j][iq] - y) * (ym + yq1[j][iq] - y);
+                  bp2 /= hbarc * hbarc;
+                  const double typical_BGq = param->getBGq();
+                  totalContribution += exp(-bp2 / (2. * typical_BGq)) / (2. * M_PI * typical_BGq) /
+                                     static_cast<double>(xq1[j].size());
+                }
+              } else {
+                const double BG = param->getBG();
+                double bp2 = (xm - x) * (xm - x) + (ym - y) * (ym - y);
+                bp2 /= hbarc * hbarc;
+                totalContribution = exp(-bp2 / (2. * BG)) / (2. * M_PI * BG);
+              }
+              
+              if (totalContribution > maxContribution) {
+                maxContribution = totalContribution;
+                dominantNucleon = j;
+              }
+            }
+            
+            if (dominantNucleon == static_cast<int>(i)) {
+              double r2 = (x - centerX) * (x - centerX) + (y - centerY) * (y - centerY);
+              rmsRadius += r2 * g2mu2A;
+              totalWeightRMS += g2mu2A;
+            }
+          }
+        }
+      }
+      proton_radius[i] = (totalWeightRMS > 0) ? sqrt(rmsRadius / totalWeightRMS) : 0.0;
+    }
+  }
+  
+  // Output projectile proton characteristics
+  stringstream strProtonType_name;
+  strProtonType_name << "protonTypes_projectile_" << param->getEventId() << ".dat";
+  string protonType_name = strProtonType_name.str();
+  
+  ofstream foutProtonType(protonType_name.c_str(), ios::out);
+  foutProtonType << "# nucleon_x nucleon_y max_g2mu2 avg_g2mu2 rms_radius cells_affected" << endl;
+  
+  for (size_t i = 0; i < nucleusA_.size(); ++i) {
+    foutProtonType << nucleusA_[i].x << " " << nucleusA_[i].y << " " 
+                   << proton_maxQs2[i] << " " << proton_avgQs2[i] << " " 
+                   << proton_radius[i] << " " << proton_cellCount[i] << endl;
+  }
+  foutProtonType.close();
+  
+  // Repeat the same logic for target nucleons
+  vector<double> target_maxQs2(nucleusB_.size(), 0.0);
+  vector<double> target_totalQs2(nucleusB_.size(), 0.0);
+  vector<int> target_cellCount(nucleusB_.size(), 0);
+  vector<double> target_weightedX(nucleusB_.size(), 0.0);
+  vector<double> target_weightedY(nucleusB_.size(), 0.0);
+  vector<double> target_totalWeight(nucleusB_.size(), 0.0);
+  
+  // Loop over all lattice cells for target nucleons
+  for (int ix = 0; ix < N; ix++) {
+    for (int iy = 0; iy < N; iy++) {
+      double x = -L / 2. + a * ix;
+      double y = -L / 2. + a * iy;
+      int localpos = ix * N + iy;
+      
+      double g2mu2B = lat->cells[localpos]->getg2mu2B();
+      if (g2mu2B > 0) {
+        double maxContribution = 0.0;
+        int dominantNucleon = -1;
+        
+        for (size_t i = 0; i < nucleusB_.size(); ++i) {
+          double totalContribution = 0.0;
+          double xm = nucleusB_[i].x;
+          double ym = nucleusB_[i].y;
+          
+          if (param->getUseConstituentQuarkProton() > 0 && i < xq2.size()) {
+            for (size_t iq = 0; iq < xq2[i].size(); iq++) {
+              double bp2 = (xm + xq2[i][iq] - x) * (xm + xq2[i][iq] - x) +
+                          (ym + yq2[i][iq] - y) * (ym + yq2[i][iq] - y);
+              bp2 /= hbarc * hbarc;
+              const double typical_BGq = param->getBGq();
+              totalContribution += exp(-bp2 / (2. * typical_BGq)) / (2. * M_PI * typical_BGq) /
+                                 static_cast<double>(xq2[i].size());
+            }
+          } else {
+            const double BG = param->getBG();
+            double bp2 = (xm - x) * (xm - x) + (ym - y) * (ym - y);
+            bp2 /= hbarc * hbarc;
+            totalContribution = exp(-bp2 / (2. * BG)) / (2. * M_PI * BG);
+          }
+          
+          if (totalContribution > maxContribution) {
+            maxContribution = totalContribution;
+            dominantNucleon = i;
+          }
+        }
+        
+        if (dominantNucleon >= 0) {
+          target_cellCount[dominantNucleon]++;
+          target_totalQs2[dominantNucleon] += g2mu2B;
+          if (g2mu2B > target_maxQs2[dominantNucleon]) {
+            target_maxQs2[dominantNucleon] = g2mu2B;
+          }
+          target_weightedX[dominantNucleon] += x * g2mu2B;
+          target_weightedY[dominantNucleon] += y * g2mu2B;
+          target_totalWeight[dominantNucleon] += g2mu2B;
+        }
+      }
+    }
+  }
+  
+  // Calculate average Qs2 and RMS radius for target nucleons
+  vector<double> target_avgQs2(nucleusB_.size(), 0.0);
+  vector<double> target_radius(nucleusB_.size(), 0.0);
+  
+  for (size_t i = 0; i < nucleusB_.size(); ++i) {
+    target_avgQs2[i] = (target_cellCount[i] > 0) ? target_totalQs2[i] / target_cellCount[i] : 0.0;
+    
+    if (target_totalWeight[i] > 0) {
+      double centerX = target_weightedX[i] / target_totalWeight[i];
+      double centerY = target_weightedY[i] / target_totalWeight[i];
+      
+      double rmsRadius = 0.0;
+      double totalWeightRMS = 0.0;
+      
+      for (int ix = 0; ix < N; ix++) {
+        for (int iy = 0; iy < N; iy++) {
+          double x = -L / 2. + a * ix;
+          double y = -L / 2. + a * iy;
+          int localpos = ix * N + iy;
+          double g2mu2B = lat->cells[localpos]->getg2mu2B();
+          
+          if (g2mu2B > 0) {
+            double maxContribution = 0.0;
+            int dominantNucleon = -1;
+            
+            for (size_t j = 0; j < nucleusB_.size(); ++j) {
+              double totalContribution = 0.0;
+              double xm = nucleusB_[j].x;
+              double ym = nucleusB_[j].y;
+              
+              if (param->getUseConstituentQuarkProton() > 0 && j < xq2.size()) {
+                for (size_t iq = 0; iq < xq2[j].size(); iq++) {
+                  double bp2 = (xm + xq2[j][iq] - x) * (xm + xq2[j][iq] - x) +
+                              (ym + yq2[j][iq] - y) * (ym + yq2[j][iq] - y);
+                  bp2 /= hbarc * hbarc;
+                  const double typical_BGq = param->getBGq();
+                  totalContribution += exp(-bp2 / (2. * typical_BGq)) / (2. * M_PI * typical_BGq) /
+                                     static_cast<double>(xq2[j].size());
+                }
+              } else {
+                const double BG = param->getBG();
+                double bp2 = (xm - x) * (xm - x) + (ym - y) * (ym - y);
+                bp2 /= hbarc * hbarc;
+                totalContribution = exp(-bp2 / (2. * BG)) / (2. * M_PI * BG);
+              }
+              
+              if (totalContribution > maxContribution) {
+                maxContribution = totalContribution;
+                dominantNucleon = j;
+              }
+            }
+            
+            if (dominantNucleon == static_cast<int>(i)) {
+              double r2 = (x - centerX) * (x - centerX) + (y - centerY) * (y - centerY);
+              rmsRadius += r2 * g2mu2B;
+              totalWeightRMS += g2mu2B;
+            }
+          }
+        }
+      }
+      target_radius[i] = (totalWeightRMS > 0) ? sqrt(rmsRadius / totalWeightRMS) : 0.0;
+    }
+  }
+  
+  // Output target proton characteristics
+  stringstream strProtonType_target_name;
+  strProtonType_target_name << "protonTypes_target_" << param->getEventId() << ".dat";
+  string protonType_target_name = strProtonType_target_name.str();
+  
+  ofstream foutProtonTypeTarget(protonType_target_name.c_str(), ios::out);
+  foutProtonTypeTarget << "# nucleon_x nucleon_y max_g2mu2 avg_g2mu2 rms_radius cells_affected" << endl;
+  
+  for (size_t i = 0; i < nucleusB_.size(); ++i) {
+    foutProtonTypeTarget << nucleusB_[i].x << " " << nucleusB_[i].y << " " 
+                         << target_maxQs2[i] << " " << target_avgQs2[i] << " " 
+                         << target_radius[i] << " " << target_cellCount[i] << endl;
+  }
+  foutProtonTypeTarget.close();
 }
