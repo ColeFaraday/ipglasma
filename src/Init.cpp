@@ -1065,6 +1065,7 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
                       (ym + yq2[i][iq] - y) * (ym + yq2[i][iq] - y);
                 bp2 /= hbarc * hbarc;
 
+                // Equation 7 & 8 from Schenke:2020mb. Includes fluctuations of the normalization of each of the T_q
                 T += exp(-bp2 / (2. * BGq2[i][iq])) / (2. * M_PI * BGq2[i][iq]) /
                      (static_cast<double>(xq2[i].size())) *
                      gauss2[i][iq];
