@@ -37,7 +37,7 @@ tDistNu  3
 smearQs  1
 smearingWidth  0.6
 protonAnisotropy  0
-roots  5020.0
+roots  200
 usePseudoRapidity  0
 Rapidity  0.0
 useFluctuatingx  1
@@ -56,14 +56,14 @@ Ny  50
 useSeedList  0
 seed  3
 useTimeForSeed  1
-Projectile  Pb
-Target  Pb
+Projectile  d
+Target  Au
 bmin  0.0
-bmax  15.0
+bmax  10.0
 lightNucleusOption  1
 useFixedNpart  0
 averageOverThisManyNuclei  1
-SigmaNN  67.0
+SigmaNN  42.0
 gaussianWounding  1
 inverseQsForMaxTime  0
 maxtime  0.4

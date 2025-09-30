@@ -56,8 +56,8 @@ Ny  50
 useSeedList  0
 seed  3
 useTimeForSeed  1
-Projectile  Pb
-Target  Pb
+Projectile  p
+Target  p
 bmin  0.0
 bmax  15.0
 lightNucleusOption  1
