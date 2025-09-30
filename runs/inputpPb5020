@@ -56,10 +56,10 @@ Ny  50
 useSeedList  0
 seed  3
 useTimeForSeed  1
-Projectile  Pb
+Projectile  p
 Target  Pb
 bmin  0.0
-bmax  25.0
+bmax  15.0
 lightNucleusOption  1
 useFixedNpart  0
 averageOverThisManyNuclei  1
@@ -72,7 +72,7 @@ LOutput  30
 sizeOutput  512
 etaSizeOutput  1
 detaOutput  0
-writeOutputs  1
+writeOutputs  3
 writeEvolution  0
 readInitialWilsonLines  0
 writeInitialWilsonLines  0
