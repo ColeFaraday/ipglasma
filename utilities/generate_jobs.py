@@ -5,10 +5,13 @@ import shutil
 from pathlib import Path
 import sys
 
-def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file):
+def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file, delete_patterns=None):
     walltime = "100:00:00"
     results_path = Path(results_folder).resolve()
     print(f"[DEBUG] Resolved results_path: {results_path}")
+    
+    if delete_patterns:
+        print(f"[DEBUG] File patterns to delete after ipglasma: {delete_patterns}")
 
     # Confirm and clear existing results folder
     if results_path.exists():
@@ -104,6 +107,13 @@ export OMP_NUM_THREADS={threads_per_job}
                 script.write(f"    filename=$(echo ${{ifile}} | sed \"s/0.dat/${{evid}}.dat/\")\n")
                 script.write(f"    mv \"${{ifile}}\" \"${{filename}}\"\n")
                 script.write(f"done\n")
+                
+                # Add file deletion logic if patterns are specified
+                if delete_patterns:
+                    script.write(f"\n# Delete specified file patterns for event {evid}\n")
+                    for pattern in delete_patterns:
+                        script.write(f"rm -f {pattern}\n")
+                
                 script.write(f"cd ..\n\n")
             print(f"[DEBUG] Finished writing job script for job_{job_id}")
 
@@ -114,6 +124,7 @@ def main():
     parser.add_argument("--events", type=int, required=True, help="Number of events per job group")
     parser.add_argument("--results-folder", type=str, required=True, help="Top-level folder for jobs")
     parser.add_argument("--input-file", type=str, required=True, help="Path to ipglasma input file")
+    parser.add_argument("--delete-patterns", nargs="*", help="File patterns to delete after ipglasma finishes (e.g., '*.tmp' '*.log')")
 
     args = parser.parse_args()
     print(f"[DEBUG] Parsed arguments: {args}")
@@ -123,7 +134,8 @@ def main():
         threads_per_job=args.threads,
         events_per_job=args.events,
         results_folder=args.results_folder,
-        input_file=args.input_file
+        input_file=args.input_file,
+        delete_patterns=args.delete_patterns
     )
 
 if __name__ == "__main__":

@@ -1,0 +1,41 @@
+# Example configuration file for parameter sweep
+# All parameters not listed here will be taken from the template input file
+
+# Path to the template input file (relative or absolute)
+input_template: "/home/frdcol002/hydro/IP-Glasma-only/ipglasma/runs/MAP/inputpp5020"
+
+# Means that each parameter is varied independently
+one_at_a_time: true
+
+# These ranges are based on the prior ranges in Mantysaari:2022ffw
+
+# Parameters to vary
+vary:
+  m:
+    values: [0.1, 0.25, 0.5]
+  
+  smearingWidth:
+    values: [0.4, 0.6, 0.8]
+
+  BG:
+    values: [2,4,6]
+
+  BGq:
+    values: [0.1, 0.5,1]
+
+  QsmuRatio:
+    values: [0.2, 0.6,1.0]
+
+  dqMin:
+    values: [0., 0.26, 0.5]
+
+  useConstituentQuarkProton:
+    values: [1,5,10]
+ 
+  
+# Job settings (passed to generate_jobs.py)
+job_settings:
+  num_jobs: 200           # Number of job scripts per parameter combination
+  threads: 1            # Threads per job
+  events: 10            # Events per job
+  results_folder: "/scratch/frdcol002/ipglasma/sensitivity_test/pp5020/"  # Top-level folder for all results

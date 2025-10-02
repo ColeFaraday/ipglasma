@@ -59,8 +59,14 @@ def generate_parameter_values(param_spec):
     else:
         raise ValueError(f"Invalid parameter specification: {param_spec}")
 
-def generate_parameter_combinations(vary_spec):
-    """Generate all combinations of varying parameters."""
+def generate_parameter_combinations(vary_spec, one_at_a_time=False):
+    """Generate all combinations of varying parameters.
+    
+    Args:
+        vary_spec: Dictionary of parameters to vary with their specifications
+        one_at_a_time: If True, vary one parameter at a time (keeping others at their first value).
+                      If False, generate Cartesian product of all parameters.
+    """
     param_names = []
     param_values_lists = []
     
@@ -68,14 +74,21 @@ def generate_parameter_combinations(vary_spec):
         param_names.append(param_name)
         param_values_lists.append(generate_parameter_values(param_spec))
     
-    # Generate Cartesian product of all parameter values
-    combinations = list(itertools.product(*param_values_lists))
-    
-    # Convert to list of dictionaries
     param_combinations = []
-    for combo in combinations:
-        param_dict = {name: value for name, value in zip(param_names, combo)}
-        param_combinations.append(param_dict)
+    
+    if one_at_a_time:
+        # Vary one parameter at a time, keeping others at their template values
+        for i, param_name in enumerate(param_names):
+            for value in param_values_lists[i]:
+                # Only include the parameter being varied; others will use template values
+                param_dict = {param_name: value}
+                param_combinations.append(param_dict)
+    else:
+        # Generate Cartesian product of all parameter values
+        combinations = list(itertools.product(*param_values_lists))
+        for combo in combinations:
+            param_dict = {name: value for name, value in zip(param_names, combo)}
+            param_combinations.append(param_dict)
     
     return param_combinations
 
@@ -102,6 +115,7 @@ def generate_jobs_with_varying_params(config_path):
     input_template_path = Path(config['input_template']).resolve()
     vary_spec = config.get('vary', {})
     job_settings = config['job_settings']
+    one_at_a_time = config.get('one_at_a_time', False)
     
     results_folder = Path(job_settings['results_folder']).resolve()
     num_jobs = job_settings['num_jobs']
@@ -110,6 +124,7 @@ def generate_jobs_with_varying_params(config_path):
     
     print(f"[INFO] Using template: {input_template_path}")
     print(f"[INFO] Results folder: {results_folder}")
+    print(f"[INFO] Parameter variation mode: {'One-at-a-time' if one_at_a_time else 'Cartesian product'}")
     
     # Check if results folder exists
     if results_folder.exists():
@@ -129,7 +144,7 @@ def generate_jobs_with_varying_params(config_path):
     print(f"[INFO] Parsed {len(base_params)} parameters from template")
     
     # Generate parameter combinations
-    param_combinations = generate_parameter_combinations(vary_spec)
+    param_combinations = generate_parameter_combinations(vary_spec, one_at_a_time)
     print(f"[INFO] Generated {len(param_combinations)} parameter combinations")
     
     # Store summary information

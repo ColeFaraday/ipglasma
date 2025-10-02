@@ -26,6 +26,11 @@ Create a YAML file with the following structure:
 # Path to template input file (all non-varying parameters come from here)
 input_template: "../runs/inputPbPb"
 
+# Parameter variation mode (optional, default is false)
+# If true: vary one parameter at a time (keeping others at their first value)
+# If false: generate Cartesian product of all parameters
+one_at_a_time: false
+
 # Parameters to vary
 vary:
   # Option 1: Range with step size
@@ -51,6 +56,25 @@ job_settings:
   events: 10            # Events per job
   results_folder: "results_sweep"  # Output directory
 ```
+
+### Parameter Variation Modes
+
+The script supports two modes for generating parameter combinations:
+
+1. **Cartesian Product Mode** (`one_at_a_time: false`, default):
+   - Generates all possible combinations of parameter values
+   - Example: If `m=[1,2,3]` and `g2mu=[0.1,0.2,0.3]`, this creates **9 combinations**:
+     - (m=1, g2mu=0.1), (m=1, g2mu=0.2), (m=1, g2mu=0.3)
+     - (m=2, g2mu=0.1), (m=2, g2mu=0.2), (m=2, g2mu=0.3)
+     - (m=3, g2mu=0.1), (m=3, g2mu=0.2), (m=3, g2mu=0.3)
+   - Best for exploring parameter interactions
+
+2. **One-at-a-Time Mode** (`one_at_a_time: true`):
+   - Varies one parameter at a time while keeping others at their **template values**
+   - Example: If template has `m=1, g2mu=0.1` and you vary `m=[1,2,3]` and `g2mu=[0.1,0.2,0.3]`, this creates **6 combinations**:
+     - (m=1, g2mu=0.1), (m=2, g2mu=0.1), (m=3, g2mu=0.1)  ← varying m, g2mu stays at template value
+     - (m=1, g2mu=0.1), (m=1, g2mu=0.2), (m=1, g2mu=0.3)  ← varying g2mu, m stays at template value
+   - Best for sensitivity analysis and understanding individual parameter effects
 
 ### Parameter Specification
 
