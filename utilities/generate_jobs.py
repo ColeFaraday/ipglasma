@@ -13,6 +13,9 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
     # Confirm and clear existing results folder
     if results_path.exists():
         print(f"[DEBUG] Folder '{results_path}' already exists.")
+        if not sys.stdin.isatty():
+            print(f"[ERROR] Folder '{results_path}' exists. Aborting (non-interactive mode).")
+            sys.exit(1)
         response = input(f"Folder '{results_path}' already exists. Delete it? [y/N]: ").strip().lower()
         if response == 'y':
             print(f"[DEBUG] Deleting existing folder: {results_path}")
