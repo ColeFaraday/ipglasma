@@ -10,8 +10,14 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
     results_path = Path(results_folder).resolve()
     print(f"[DEBUG] Resolved results_path: {results_path}")
     
-    if delete_patterns:
+    # Set default delete patterns if none provided
+    if delete_patterns is None:
+        delete_patterns = ["epsilon*", "Jazma-*", "eccentricities*"]
+        print(f"[DEBUG] Using default file patterns to delete after ipglasma: {delete_patterns}")
+    elif delete_patterns:
         print(f"[DEBUG] File patterns to delete after ipglasma: {delete_patterns}")
+    else:
+        print("[DEBUG] No file patterns will be deleted after ipglasma")
 
     # Confirm and clear existing results folder
     if results_path.exists():
@@ -124,7 +130,7 @@ def main():
     parser.add_argument("--events", type=int, required=True, help="Number of events per job group")
     parser.add_argument("--results-folder", type=str, required=True, help="Top-level folder for jobs")
     parser.add_argument("--input-file", type=str, required=True, help="Path to ipglasma input file")
-    parser.add_argument("--delete-patterns", nargs="*", help="File patterns to delete after ipglasma finishes (e.g., '*.tmp' '*.log')")
+    parser.add_argument("--delete-patterns", nargs="*", help="File patterns to delete after ipglasma finishes (e.g., '*.tmp' '*.log'). Default: epsilon*, Jazma-*, eccentricities*. Use --delete-patterns with no arguments to disable deletion.")
 
     args = parser.parse_args()
     print(f"[DEBUG] Parsed arguments: {args}")
