@@ -1180,3 +1180,1152 @@ Monitoring jobs and submitting remaining...
 Remaining jobs: 4060
 Checking every 60 seconds...
 
+[09:10:43] Active jobs: 140/140 | Submitted: 140/4200
+[09:11:47] Active jobs: 140/140 | Submitted: 140/4200
+[09:12:50] Active jobs: 140/140 | Submitted: 140/4200
+[09:13:53] Active jobs: 140/140 | Submitted: 140/4200
+[09:14:56] Active jobs: 140/140 | Submitted: 140/4200
+[09:15:59] Active jobs: 140/140 | Submitted: 140/4200
+[09:17:02] Active jobs: 140/140 | Submitted: 140/4200
+[09:18:05] Active jobs: 140/140 | Submitted: 140/4200
+[09:19:08] Active jobs: 140/140 | Submitted: 140/4200
+[09:20:11] Active jobs: 140/140 | Submitted: 140/4200
+[09:21:15] Active jobs: 140/140 | Submitted: 140/4200
+[09:22:18] Active jobs: 140/140 | Submitted: 140/4200
+[09:23:21] Active jobs: 140/140 | Submitted: 140/4200
+[09:24:24] Active jobs: 140/140 | Submitted: 140/4200
+[09:25:27] Active jobs: 140/140 | Submitted: 140/4200
+[09:26:30] Active jobs: 140/140 | Submitted: 140/4200
+[09:27:33] Active jobs: 140/140 | Submitted: 140/4200
+[09:28:36] Active jobs: 140/140 | Submitted: 140/4200
+[09:29:39] Active jobs: 140/140 | Submitted: 140/4200
+[09:30:42] Active jobs: 140/140 | Submitted: 140/4200
+[09:31:45] Active jobs: 140/140 | Submitted: 140/4200
+[09:32:49] Active jobs: 140/140 | Submitted: 140/4200
+[09:33:51] Active jobs: 140/140 | Submitted: 140/4200
+[09:34:54] Active jobs: 127/140 | Submitted: 140/4200
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_45
+sbatch output: Submitted batch job 298075
+exit_code: 0
+Submitted batch job 298075
+testing
+testing
+[09:34:54] Submitted job 141/4200 (ID: 298075) in job_45
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_46
+sbatch output: Submitted batch job 298076
+exit_code: 0
+Submitted batch job 298076
+testing
+testing
+[09:34:54] Submitted job 142/4200 (ID: 298076) in job_46
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_47
+sbatch output: Submitted batch job 298077
+exit_code: 0
+Submitted batch job 298077
+testing
+testing
+[09:34:54] Submitted job 143/4200 (ID: 298077) in job_47
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_48
+sbatch output: Submitted batch job 298078
+exit_code: 0
+Submitted batch job 298078
+testing
+testing
+[09:34:54] Submitted job 144/4200 (ID: 298078) in job_48
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_49
+sbatch output: Submitted batch job 298079
+exit_code: 0
+Submitted batch job 298079
+testing
+testing
+[09:34:54] Submitted job 145/4200 (ID: 298079) in job_49
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_5
+sbatch output: Submitted batch job 298080
+exit_code: 0
+Submitted batch job 298080
+testing
+testing
+[09:34:54] Submitted job 146/4200 (ID: 298080) in job_5
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_50
+sbatch output: Submitted batch job 298081
+exit_code: 0
+Submitted batch job 298081
+testing
+testing
+[09:34:54] Submitted job 147/4200 (ID: 298081) in job_50
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_51
+sbatch output: Submitted batch job 298082
+exit_code: 0
+Submitted batch job 298082
+testing
+testing
+[09:34:54] Submitted job 148/4200 (ID: 298082) in job_51
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_52
+sbatch output: Submitted batch job 298083
+exit_code: 0
+Submitted batch job 298083
+testing
+testing
+[09:34:54] Submitted job 149/4200 (ID: 298083) in job_52
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_53
+sbatch output: Submitted batch job 298084
+exit_code: 0
+Submitted batch job 298084
+testing
+testing
+[09:34:54] Submitted job 150/4200 (ID: 298084) in job_53
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_54
+sbatch output: Submitted batch job 298085
+exit_code: 0
+Submitted batch job 298085
+testing
+testing
+[09:34:55] Submitted job 151/4200 (ID: 298085) in job_54
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_55
+sbatch output: Submitted batch job 298086
+exit_code: 0
+Submitted batch job 298086
+testing
+testing
+[09:34:55] Submitted job 152/4200 (ID: 298086) in job_55
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_56
+sbatch output: Submitted batch job 298087
+exit_code: 0
+Submitted batch job 298087
+testing
+testing
+[09:34:55] Submitted job 153/4200 (ID: 298087) in job_56
+[09:35:58] Active jobs: 129/140 | Submitted: 153/4200
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_57
+sbatch output: Submitted batch job 298088
+exit_code: 0
+Submitted batch job 298088
+testing
+testing
+[09:35:58] Submitted job 154/4200 (ID: 298088) in job_57
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_58
+sbatch output: Submitted batch job 298089
+exit_code: 0
+Submitted batch job 298089
+testing
+testing
+[09:35:58] Submitted job 155/4200 (ID: 298089) in job_58
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_59
+sbatch output: Submitted batch job 298090
+exit_code: 0
+Submitted batch job 298090
+testing
+testing
+[09:35:58] Submitted job 156/4200 (ID: 298090) in job_59
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_6
+sbatch output: Submitted batch job 298091
+exit_code: 0
+Submitted batch job 298091
+testing
+testing
+[09:35:58] Submitted job 157/4200 (ID: 298091) in job_6
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_60
+sbatch output: Submitted batch job 298092
+exit_code: 0
+Submitted batch job 298092
+testing
+testing
+[09:35:58] Submitted job 158/4200 (ID: 298092) in job_60
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_61
+sbatch output: Submitted batch job 298093
+exit_code: 0
+Submitted batch job 298093
+testing
+testing
+[09:35:58] Submitted job 159/4200 (ID: 298093) in job_61
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_62
+sbatch output: Submitted batch job 298094
+exit_code: 0
+Submitted batch job 298094
+testing
+testing
+[09:35:58] Submitted job 160/4200 (ID: 298094) in job_62
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_63
+sbatch output: Submitted batch job 298095
+exit_code: 0
+Submitted batch job 298095
+testing
+testing
+[09:35:58] Submitted job 161/4200 (ID: 298095) in job_63
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_64
+sbatch output: Submitted batch job 298096
+exit_code: 0
+Submitted batch job 298096
+testing
+testing
+[09:35:58] Submitted job 162/4200 (ID: 298096) in job_64
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_65
+sbatch output: Submitted batch job 298097
+exit_code: 0
+Submitted batch job 298097
+testing
+testing
+[09:35:58] Submitted job 163/4200 (ID: 298097) in job_65
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_66
+sbatch output: Submitted batch job 298098
+exit_code: 0
+Submitted batch job 298098
+testing
+testing
+[09:35:58] Submitted job 164/4200 (ID: 298098) in job_66
+[09:37:01] Active jobs: 140/140 | Submitted: 164/4200
+[09:38:04] Active jobs: 99/140 | Submitted: 164/4200
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_67
+sbatch output: Submitted batch job 298104
+exit_code: 0
+Submitted batch job 298104
+testing
+testing
+[09:38:04] Submitted job 165/4200 (ID: 298104) in job_67
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_68
+sbatch output: Submitted batch job 298105
+exit_code: 0
+Submitted batch job 298105
+testing
+testing
+[09:38:04] Submitted job 166/4200 (ID: 298105) in job_68
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_69
+sbatch output: Submitted batch job 298106
+exit_code: 0
+Submitted batch job 298106
+testing
+testing
+[09:38:04] Submitted job 167/4200 (ID: 298106) in job_69
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_7
+sbatch output: Submitted batch job 298107
+exit_code: 0
+Submitted batch job 298107
+testing
+testing
+[09:38:04] Submitted job 168/4200 (ID: 298107) in job_7
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_70
+sbatch output: Submitted batch job 298108
+exit_code: 0
+Submitted batch job 298108
+testing
+testing
+[09:38:04] Submitted job 169/4200 (ID: 298108) in job_70
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_71
+sbatch output: Submitted batch job 298109
+exit_code: 0
+Submitted batch job 298109
+testing
+testing
+[09:38:04] Submitted job 170/4200 (ID: 298109) in job_71
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_72
+sbatch output: Submitted batch job 298110
+exit_code: 0
+Submitted batch job 298110
+testing
+testing
+[09:38:04] Submitted job 171/4200 (ID: 298110) in job_72
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_73
+sbatch output: Submitted batch job 298111
+exit_code: 0
+Submitted batch job 298111
+testing
+testing
+[09:38:04] Submitted job 172/4200 (ID: 298111) in job_73
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_74
+sbatch output: Submitted batch job 298112
+exit_code: 0
+Submitted batch job 298112
+testing
+testing
+[09:38:04] Submitted job 173/4200 (ID: 298112) in job_74
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_75
+sbatch output: Submitted batch job 298113
+exit_code: 0
+Submitted batch job 298113
+testing
+testing
+[09:38:04] Submitted job 174/4200 (ID: 298113) in job_75
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_76
+sbatch output: Submitted batch job 298114
+exit_code: 0
+Submitted batch job 298114
+testing
+testing
+[09:38:04] Submitted job 175/4200 (ID: 298114) in job_76
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_77
+sbatch output: Submitted batch job 298115
+exit_code: 0
+Submitted batch job 298115
+testing
+testing
+[09:38:04] Submitted job 176/4200 (ID: 298115) in job_77
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_78
+sbatch output: Submitted batch job 298116
+exit_code: 0
+Submitted batch job 298116
+testing
+testing
+[09:38:04] Submitted job 177/4200 (ID: 298116) in job_78
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_79
+sbatch output: Submitted batch job 298117
+exit_code: 0
+Submitted batch job 298117
+testing
+testing
+[09:38:04] Submitted job 178/4200 (ID: 298117) in job_79
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_8
+sbatch output: Submitted batch job 298118
+exit_code: 0
+Submitted batch job 298118
+testing
+testing
+[09:38:04] Submitted job 179/4200 (ID: 298118) in job_8
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_80
+sbatch output: Submitted batch job 298119
+exit_code: 0
+Submitted batch job 298119
+testing
+testing
+[09:38:04] Submitted job 180/4200 (ID: 298119) in job_80
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_81
+sbatch output: Submitted batch job 298120
+exit_code: 0
+Submitted batch job 298120
+testing
+testing
+[09:38:04] Submitted job 181/4200 (ID: 298120) in job_81
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_82
+sbatch output: Submitted batch job 298121
+exit_code: 0
+Submitted batch job 298121
+testing
+testing
+[09:38:04] Submitted job 182/4200 (ID: 298121) in job_82
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_83
+sbatch output: Submitted batch job 298122
+exit_code: 0
+Submitted batch job 298122
+testing
+testing
+[09:38:04] Submitted job 183/4200 (ID: 298122) in job_83
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_84
+sbatch output: Submitted batch job 298123
+exit_code: 0
+Submitted batch job 298123
+testing
+testing
+[09:38:04] Submitted job 184/4200 (ID: 298123) in job_84
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_85
+sbatch output: Submitted batch job 298124
+exit_code: 0
+Submitted batch job 298124
+testing
+testing
+[09:38:04] Submitted job 185/4200 (ID: 298124) in job_85
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_86
+sbatch output: Submitted batch job 298125
+exit_code: 0
+Submitted batch job 298125
+testing
+testing
+[09:38:04] Submitted job 186/4200 (ID: 298125) in job_86
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_87
+sbatch output: Submitted batch job 298126
+exit_code: 0
+Submitted batch job 298126
+testing
+testing
+[09:38:04] Submitted job 187/4200 (ID: 298126) in job_87
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_88
+sbatch output: Submitted batch job 298127
+exit_code: 0
+Submitted batch job 298127
+testing
+testing
+[09:38:04] Submitted job 188/4200 (ID: 298127) in job_88
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_89
+sbatch output: Submitted batch job 298128
+exit_code: 0
+Submitted batch job 298128
+testing
+testing
+[09:38:04] Submitted job 189/4200 (ID: 298128) in job_89
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_9
+sbatch output: Submitted batch job 298129
+exit_code: 0
+Submitted batch job 298129
+testing
+testing
+[09:38:04] Submitted job 190/4200 (ID: 298129) in job_9
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_90
+sbatch output: Submitted batch job 298130
+exit_code: 0
+Submitted batch job 298130
+testing
+testing
+[09:38:04] Submitted job 191/4200 (ID: 298130) in job_90
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_91
+sbatch output: Submitted batch job 298131
+exit_code: 0
+Submitted batch job 298131
+testing
+testing
+[09:38:04] Submitted job 192/4200 (ID: 298131) in job_91
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_92
+sbatch output: Submitted batch job 298132
+exit_code: 0
+Submitted batch job 298132
+testing
+testing
+[09:38:04] Submitted job 193/4200 (ID: 298132) in job_92
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_93
+sbatch output: Submitted batch job 298133
+exit_code: 0
+Submitted batch job 298133
+testing
+testing
+[09:38:04] Submitted job 194/4200 (ID: 298133) in job_93
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_94
+sbatch output: Submitted batch job 298134
+exit_code: 0
+Submitted batch job 298134
+testing
+testing
+[09:38:04] Submitted job 195/4200 (ID: 298134) in job_94
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_95
+sbatch output: Submitted batch job 298135
+exit_code: 0
+Submitted batch job 298135
+testing
+testing
+[09:38:04] Submitted job 196/4200 (ID: 298135) in job_95
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_96
+sbatch output: Submitted batch job 298136
+exit_code: 0
+Submitted batch job 298136
+testing
+testing
+[09:38:04] Submitted job 197/4200 (ID: 298136) in job_96
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_97
+sbatch output: Submitted batch job 298137
+exit_code: 0
+Submitted batch job 298137
+testing
+testing
+[09:38:04] Submitted job 198/4200 (ID: 298137) in job_97
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_98
+sbatch output: Submitted batch job 298138
+exit_code: 0
+Submitted batch job 298138
+testing
+testing
+[09:38:05] Submitted job 199/4200 (ID: 298138) in job_98
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_2/results/job_99
+sbatch output: Submitted batch job 298139
+exit_code: 0
+Submitted batch job 298139
+testing
+testing
+[09:38:05] Submitted job 200/4200 (ID: 298139) in job_99
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_0
+sbatch output: Submitted batch job 298140
+exit_code: 0
+Submitted batch job 298140
+testing
+testing
+[09:38:05] Submitted job 201/4200 (ID: 298140) in job_0
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_1
+sbatch output: Submitted batch job 298141
+exit_code: 0
+Submitted batch job 298141
+testing
+testing
+[09:38:05] Submitted job 202/4200 (ID: 298141) in job_1
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_10
+sbatch output: Submitted batch job 298142
+exit_code: 0
+Submitted batch job 298142
+testing
+testing
+[09:38:05] Submitted job 203/4200 (ID: 298142) in job_10
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_100
+sbatch output: Submitted batch job 298143
+exit_code: 0
+Submitted batch job 298143
+testing
+testing
+[09:38:05] Submitted job 204/4200 (ID: 298143) in job_100
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_101
+sbatch output: Submitted batch job 298144
+exit_code: 0
+Submitted batch job 298144
+testing
+testing
+[09:38:05] Submitted job 205/4200 (ID: 298144) in job_101
+[09:39:08] Active jobs: 110/140 | Submitted: 205/4200
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_102
+sbatch output: Submitted batch job 298146
+exit_code: 0
+Submitted batch job 298146
+testing
+testing
+[09:39:08] Submitted job 206/4200 (ID: 298146) in job_102
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_103
+sbatch output: Submitted batch job 298147
+exit_code: 0
+Submitted batch job 298147
+testing
+testing
+[09:39:08] Submitted job 207/4200 (ID: 298147) in job_103
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_104
+sbatch output: Submitted batch job 298148
+exit_code: 0
+Submitted batch job 298148
+testing
+testing
+[09:39:08] Submitted job 208/4200 (ID: 298148) in job_104
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_105
+sbatch output: Submitted batch job 298149
+exit_code: 0
+Submitted batch job 298149
+testing
+testing
+[09:39:08] Submitted job 209/4200 (ID: 298149) in job_105
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_106
+sbatch output: Submitted batch job 298150
+exit_code: 0
+Submitted batch job 298150
+testing
+testing
+[09:39:08] Submitted job 210/4200 (ID: 298150) in job_106
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_107
+sbatch output: Submitted batch job 298151
+exit_code: 0
+Submitted batch job 298151
+testing
+testing
+[09:39:08] Submitted job 211/4200 (ID: 298151) in job_107
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_108
+sbatch output: Submitted batch job 298152
+exit_code: 0
+Submitted batch job 298152
+testing
+testing
+[09:39:08] Submitted job 212/4200 (ID: 298152) in job_108
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_109
+sbatch output: Submitted batch job 298153
+exit_code: 0
+Submitted batch job 298153
+testing
+testing
+[09:39:08] Submitted job 213/4200 (ID: 298153) in job_109
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_11
+sbatch output: Submitted batch job 298154
+exit_code: 0
+Submitted batch job 298154
+testing
+testing
+[09:39:08] Submitted job 214/4200 (ID: 298154) in job_11
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_110
+sbatch output: Submitted batch job 298155
+exit_code: 0
+Submitted batch job 298155
+testing
+testing
+[09:39:08] Submitted job 215/4200 (ID: 298155) in job_110
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_111
+sbatch output: Submitted batch job 298156
+exit_code: 0
+Submitted batch job 298156
+testing
+testing
+[09:39:08] Submitted job 216/4200 (ID: 298156) in job_111
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_112
+sbatch output: Submitted batch job 298157
+exit_code: 0
+Submitted batch job 298157
+testing
+testing
+[09:39:08] Submitted job 217/4200 (ID: 298157) in job_112
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_113
+sbatch output: Submitted batch job 298158
+exit_code: 0
+Submitted batch job 298158
+testing
+testing
+[09:39:08] Submitted job 218/4200 (ID: 298158) in job_113
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_114
+sbatch output: Submitted batch job 298159
+exit_code: 0
+Submitted batch job 298159
+testing
+testing
+[09:39:08] Submitted job 219/4200 (ID: 298159) in job_114
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_115
+sbatch output: Submitted batch job 298160
+exit_code: 0
+Submitted batch job 298160
+testing
+testing
+[09:39:08] Submitted job 220/4200 (ID: 298160) in job_115
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_116
+sbatch output: Submitted batch job 298161
+exit_code: 0
+Submitted batch job 298161
+testing
+testing
+[09:39:08] Submitted job 221/4200 (ID: 298161) in job_116
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_117
+sbatch output: Submitted batch job 298162
+exit_code: 0
+Submitted batch job 298162
+testing
+testing
+[09:39:08] Submitted job 222/4200 (ID: 298162) in job_117
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_118
+sbatch output: Submitted batch job 298163
+exit_code: 0
+Submitted batch job 298163
+testing
+testing
+[09:39:08] Submitted job 223/4200 (ID: 298163) in job_118
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_119
+sbatch output: Submitted batch job 298164
+exit_code: 0
+Submitted batch job 298164
+testing
+testing
+[09:39:08] Submitted job 224/4200 (ID: 298164) in job_119
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_12
+sbatch output: Submitted batch job 298165
+exit_code: 0
+Submitted batch job 298165
+testing
+testing
+[09:39:08] Submitted job 225/4200 (ID: 298165) in job_12
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_120
+sbatch output: Submitted batch job 298166
+exit_code: 0
+Submitted batch job 298166
+testing
+testing
+[09:39:08] Submitted job 226/4200 (ID: 298166) in job_120
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_121
+sbatch output: Submitted batch job 298167
+exit_code: 0
+Submitted batch job 298167
+testing
+testing
+[09:39:08] Submitted job 227/4200 (ID: 298167) in job_121
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_122
+sbatch output: Submitted batch job 298168
+exit_code: 0
+Submitted batch job 298168
+testing
+testing
+[09:39:08] Submitted job 228/4200 (ID: 298168) in job_122
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_123
+sbatch output: Submitted batch job 298169
+exit_code: 0
+Submitted batch job 298169
+testing
+testing
+[09:39:08] Submitted job 229/4200 (ID: 298169) in job_123
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_124
+sbatch output: Submitted batch job 298170
+exit_code: 0
+Submitted batch job 298170
+testing
+testing
+[09:39:08] Submitted job 230/4200 (ID: 298170) in job_124
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_125
+sbatch output: Submitted batch job 298171
+exit_code: 0
+Submitted batch job 298171
+testing
+testing
+[09:39:08] Submitted job 231/4200 (ID: 298171) in job_125
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_126
+sbatch output: Submitted batch job 298172
+exit_code: 0
+Submitted batch job 298172
+testing
+testing
+[09:39:08] Submitted job 232/4200 (ID: 298172) in job_126
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_127
+sbatch output: Submitted batch job 298173
+exit_code: 0
+Submitted batch job 298173
+testing
+testing
+[09:39:08] Submitted job 233/4200 (ID: 298173) in job_127
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_128
+sbatch output: Submitted batch job 298174
+exit_code: 0
+Submitted batch job 298174
+testing
+testing
+[09:39:08] Submitted job 234/4200 (ID: 298174) in job_128
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_129
+sbatch output: Submitted batch job 298175
+exit_code: 0
+Submitted batch job 298175
+testing
+testing
+[09:39:08] Submitted job 235/4200 (ID: 298175) in job_129
+[09:40:11] Active jobs: 95/140 | Submitted: 235/4200
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_13
+sbatch output: Submitted batch job 298176
+exit_code: 0
+Submitted batch job 298176
+testing
+testing
+[09:40:11] Submitted job 236/4200 (ID: 298176) in job_13
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_130
+sbatch output: Submitted batch job 298177
+exit_code: 0
+Submitted batch job 298177
+testing
+testing
+[09:40:11] Submitted job 237/4200 (ID: 298177) in job_130
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_131
+sbatch output: Submitted batch job 298178
+exit_code: 0
+Submitted batch job 298178
+testing
+testing
+[09:40:11] Submitted job 238/4200 (ID: 298178) in job_131
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_132
+sbatch output: Submitted batch job 298179
+exit_code: 0
+Submitted batch job 298179
+testing
+testing
+[09:40:11] Submitted job 239/4200 (ID: 298179) in job_132
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_133
+sbatch output: Submitted batch job 298180
+exit_code: 0
+Submitted batch job 298180
+testing
+testing
+[09:40:11] Submitted job 240/4200 (ID: 298180) in job_133
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_134
+sbatch output: Submitted batch job 298181
+exit_code: 0
+Submitted batch job 298181
+testing
+testing
+[09:40:11] Submitted job 241/4200 (ID: 298181) in job_134
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_135
+sbatch output: Submitted batch job 298182
+exit_code: 0
+Submitted batch job 298182
+testing
+testing
+[09:40:11] Submitted job 242/4200 (ID: 298182) in job_135
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_136
+sbatch output: Submitted batch job 298183
+exit_code: 0
+Submitted batch job 298183
+testing
+testing
+[09:40:11] Submitted job 243/4200 (ID: 298183) in job_136
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_137
+sbatch output: Submitted batch job 298184
+exit_code: 0
+Submitted batch job 298184
+testing
+testing
+[09:40:11] Submitted job 244/4200 (ID: 298184) in job_137
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_138
+sbatch output: Submitted batch job 298185
+exit_code: 0
+Submitted batch job 298185
+testing
+testing
+[09:40:11] Submitted job 245/4200 (ID: 298185) in job_138
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_139
+sbatch output: Submitted batch job 298186
+exit_code: 0
+Submitted batch job 298186
+testing
+testing
+[09:40:11] Submitted job 246/4200 (ID: 298186) in job_139
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_14
+sbatch output: Submitted batch job 298187
+exit_code: 0
+Submitted batch job 298187
+testing
+testing
+[09:40:11] Submitted job 247/4200 (ID: 298187) in job_14
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_140
+sbatch output: Submitted batch job 298188
+exit_code: 0
+Submitted batch job 298188
+testing
+testing
+[09:40:11] Submitted job 248/4200 (ID: 298188) in job_140
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_141
+sbatch output: Submitted batch job 298189
+exit_code: 0
+Submitted batch job 298189
+testing
+testing
+[09:40:11] Submitted job 249/4200 (ID: 298189) in job_141
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_142
+sbatch output: Submitted batch job 298190
+exit_code: 0
+Submitted batch job 298190
+testing
+testing
+[09:40:11] Submitted job 250/4200 (ID: 298190) in job_142
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_143
+sbatch output: Submitted batch job 298191
+exit_code: 0
+Submitted batch job 298191
+testing
+testing
+[09:40:11] Submitted job 251/4200 (ID: 298191) in job_143
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_144
+sbatch output: Submitted batch job 298192
+exit_code: 0
+Submitted batch job 298192
+testing
+testing
+[09:40:11] Submitted job 252/4200 (ID: 298192) in job_144
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_145
+sbatch output: Submitted batch job 298193
+exit_code: 0
+Submitted batch job 298193
+testing
+testing
+[09:40:11] Submitted job 253/4200 (ID: 298193) in job_145
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_146
+sbatch output: Submitted batch job 298194
+exit_code: 0
+Submitted batch job 298194
+testing
+testing
+[09:40:11] Submitted job 254/4200 (ID: 298194) in job_146
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_147
+sbatch output: Submitted batch job 298195
+exit_code: 0
+Submitted batch job 298195
+testing
+testing
+[09:40:11] Submitted job 255/4200 (ID: 298195) in job_147
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_148
+sbatch output: Submitted batch job 298196
+exit_code: 0
+Submitted batch job 298196
+testing
+testing
+[09:40:11] Submitted job 256/4200 (ID: 298196) in job_148
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_149
+sbatch output: Submitted batch job 298197
+exit_code: 0
+Submitted batch job 298197
+testing
+testing
+[09:40:11] Submitted job 257/4200 (ID: 298197) in job_149
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_15
+sbatch output: Submitted batch job 298198
+exit_code: 0
+Submitted batch job 298198
+testing
+testing
+[09:40:11] Submitted job 258/4200 (ID: 298198) in job_15
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_150
+sbatch output: Submitted batch job 298199
+exit_code: 0
+Submitted batch job 298199
+testing
+testing
+[09:40:11] Submitted job 259/4200 (ID: 298199) in job_150
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_151
+sbatch output: Submitted batch job 298200
+exit_code: 0
+Submitted batch job 298200
+testing
+testing
+[09:40:11] Submitted job 260/4200 (ID: 298200) in job_151
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_152
+sbatch output: Submitted batch job 298201
+exit_code: 0
+Submitted batch job 298201
+testing
+testing
+[09:40:11] Submitted job 261/4200 (ID: 298201) in job_152
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_153
+sbatch output: Submitted batch job 298202
+exit_code: 0
+Submitted batch job 298202
+testing
+testing
+[09:40:11] Submitted job 262/4200 (ID: 298202) in job_153
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_154
+sbatch output: Submitted batch job 298203
+exit_code: 0
+Submitted batch job 298203
+testing
+testing
+[09:40:11] Submitted job 263/4200 (ID: 298203) in job_154
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_155
+sbatch output: Submitted batch job 298204
+exit_code: 0
+Submitted batch job 298204
+testing
+testing
+[09:40:11] Submitted job 264/4200 (ID: 298204) in job_155
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_156
+sbatch output: Submitted batch job 298205
+exit_code: 0
+Submitted batch job 298205
+testing
+testing
+[09:40:11] Submitted job 265/4200 (ID: 298205) in job_156
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_157
+sbatch output: Submitted batch job 298206
+exit_code: 0
+Submitted batch job 298206
+testing
+testing
+[09:40:11] Submitted job 266/4200 (ID: 298206) in job_157
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_158
+sbatch output: Submitted batch job 298207
+exit_code: 0
+Submitted batch job 298207
+testing
+testing
+[09:40:11] Submitted job 267/4200 (ID: 298207) in job_158
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_159
+sbatch output: Submitted batch job 298208
+exit_code: 0
+Submitted batch job 298208
+testing
+testing
+[09:40:11] Submitted job 268/4200 (ID: 298208) in job_159
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_16
+sbatch output: Submitted batch job 298209
+exit_code: 0
+Submitted batch job 298209
+testing
+testing
+[09:40:11] Submitted job 269/4200 (ID: 298209) in job_16
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_160
+sbatch output: Submitted batch job 298210
+exit_code: 0
+Submitted batch job 298210
+testing
+testing
+[09:40:11] Submitted job 270/4200 (ID: 298210) in job_160
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_161
+sbatch output: Submitted batch job 298211
+exit_code: 0
+Submitted batch job 298211
+testing
+testing
+[09:40:12] Submitted job 271/4200 (ID: 298211) in job_161
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_162
+sbatch output: Submitted batch job 298212
+exit_code: 0
+Submitted batch job 298212
+testing
+testing
+[09:40:12] Submitted job 272/4200 (ID: 298212) in job_162
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_163
+sbatch output: Submitted batch job 298213
+exit_code: 0
+Submitted batch job 298213
+testing
+testing
+[09:40:12] Submitted job 273/4200 (ID: 298213) in job_163
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_164
+sbatch output: Submitted batch job 298214
+exit_code: 0
+Submitted batch job 298214
+testing
+testing
+[09:40:12] Submitted job 274/4200 (ID: 298214) in job_164
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_165
+sbatch output: Submitted batch job 298215
+exit_code: 0
+Submitted batch job 298215
+testing
+testing
+[09:40:12] Submitted job 275/4200 (ID: 298215) in job_165
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_166
+sbatch output: Submitted batch job 298216
+exit_code: 0
+Submitted batch job 298216
+testing
+testing
+[09:40:12] Submitted job 276/4200 (ID: 298216) in job_166
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_167
+sbatch output: Submitted batch job 298217
+exit_code: 0
+Submitted batch job 298217
+testing
+testing
+[09:40:12] Submitted job 277/4200 (ID: 298217) in job_167
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_168
+sbatch output: Submitted batch job 298218
+exit_code: 0
+Submitted batch job 298218
+testing
+testing
+[09:40:12] Submitted job 278/4200 (ID: 298218) in job_168
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_169
+sbatch output: Submitted batch job 298219
+exit_code: 0
+Submitted batch job 298219
+testing
+testing
+[09:40:12] Submitted job 279/4200 (ID: 298219) in job_169
+start submit job
+job_dir: /scratch/frdcol002/ipglasma/sensitivity_test/pp5020/BG_4/results/job_17
+sbatch output: Submitted batch job 298220
+exit_code: 0
+Submitted batch job 298220
+testing
+testing
+[09:40:12] Submitted job 280/4200 (ID: 298220) in job_17

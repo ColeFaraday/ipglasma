@@ -126,29 +126,20 @@ cleanup_completed_jobs() {
 
 # Function to submit a job
 submit_job() {
-    echo "start submit job"
     local script_path=$1
     local job_dir=$(dirname "$script_path")
-
-    echo "job_dir: $job_dir"
 
     cd "$job_dir"
     local output
     output=$(sbatch -q "$queue" submit_job.script 2>&1)
-    echo "sbatch output: $output"
     local exit_code=$?
-
-    echo "exit_code: $exit_code"
 
     if [ $exit_code -eq 0 ]; then
         # Extract job ID from sbatch output (format: "Submitted batch job 12345")
         local job_id=$(echo "$output" | awk '{print $4}')
-        echo "Submitted batch job $job_id"
         echo "$job_id" > job_id
         submitted_jobs+=("$job_id")
-        echo "testing"
         submitted_count=$((submitted_count + 1))
-        echo "testing"
         echo "[$(date '+%H:%M:%S')] Submitted job $submitted_count/$total_jobs (ID: $job_id) in $(basename "$job_dir")"
         return 0
     else
