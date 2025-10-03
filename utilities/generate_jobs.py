@@ -12,7 +12,7 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
     
     # Set default delete patterns if none provided
     if delete_patterns is None:
-        delete_patterns = ["epsilon*", "Jazma-*", "eccentricities*"]
+        delete_patterns = ["epsilon*", "Jazma-*", "eccentricities*", "run.log"]
         print(f"[DEBUG] Using default file patterns to delete after ipglasma: {delete_patterns}")
     elif delete_patterns:
         print(f"[DEBUG] File patterns to delete after ipglasma: {delete_patterns}")
