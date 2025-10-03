@@ -1,0 +1,29 @@
+#!/bin/bash
+# Job name:
+#SBATCH --job-name=submission_handler
+#
+# Account:
+#SBATCH --account=physics
+#
+# Partition:
+#SBATCH --partition=ada
+#
+# Request one node:
+#SBATCH --ntasks=1
+#
+# Number of tasks per node:
+#SBATCH --cpus-per-task=1
+#
+# Wall clock limit:
+#SBATCH --time=200:00:00
+#
+# Mail
+#SBATCH --mail-user=frdcol002@myuct.ac.za
+#SBATCH --mail-type=BEGIN,END,FAIL
+#
+# Output and error files
+#SBATCH --output=submit.log
+#SBATCH --error=submit.err
+## Commands to run:
+
+utilities/submit_jobs_with_queue.sh "$@"

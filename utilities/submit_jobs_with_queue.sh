@@ -107,7 +107,7 @@ get_active_job_count() {
     for job_id in "${submitted_jobs[@]}"; do
         # Check if job still exists in queue
         if squeue -j "$job_id" &>/dev/null; then
-            ((count++))
+            count=$((count + 1))
         fi
     done
     echo $count
@@ -126,20 +126,29 @@ cleanup_completed_jobs() {
 
 # Function to submit a job
 submit_job() {
+    echo "start submit job"
     local script_path=$1
     local job_dir=$(dirname "$script_path")
-    
+
+    echo "job_dir: $job_dir"
+
     cd "$job_dir"
     local output
     output=$(sbatch -q "$queue" submit_job.script 2>&1)
+    echo "sbatch output: $output"
     local exit_code=$?
-    
+
+    echo "exit_code: $exit_code"
+
     if [ $exit_code -eq 0 ]; then
         # Extract job ID from sbatch output (format: "Submitted batch job 12345")
         local job_id=$(echo "$output" | awk '{print $4}')
+        echo "Submitted batch job $job_id"
         echo "$job_id" > job_id
         submitted_jobs+=("$job_id")
-        ((submitted_count++))
+        echo "testing"
+        submitted_count=$((submitted_count + 1))
+        echo "testing"
         echo "[$(date '+%H:%M:%S')] Submitted job $submitted_count/$total_jobs (ID: $job_id) in $(basename "$job_dir")"
         return 0
     else
@@ -156,7 +165,7 @@ echo "========================================"
 
 while [ $next_job_index -lt $total_jobs ] && [ $submitted_count -lt $max_active_jobs ]; do
     submit_job "${job_scripts[$next_job_index]}"
-    ((next_job_index++))
+    next_job_index=$((next_job_index + 1))
 done
 
 # If all jobs were submitted in initial batch, we're done
@@ -191,8 +200,8 @@ while [ $next_job_index -lt $total_jobs ]; do
     # Submit new jobs if we have capacity
     while [ $active_count -lt $max_active_jobs ] && [ $next_job_index -lt $total_jobs ]; do
         submit_job "${job_scripts[$next_job_index]}"
-        ((next_job_index++))
-        ((active_count++))
+        next_job_index=$((next_job_index + 1))
+        active_count=$((active_count + 1))
     done
     
     # Check if we're done
