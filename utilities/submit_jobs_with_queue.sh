@@ -5,6 +5,22 @@
 
 set -e
 
+# Cleanup function for graceful exit
+cleanup() {
+    local exit_code=$?
+    echo ""
+    echo "========================================"
+    echo "Script interrupted or completed"
+    echo "Submitted jobs: $submitted_count"
+    echo "Active jobs: ${#submitted_jobs[@]}"
+    echo "Use 'squeue -u \$USER' to monitor remaining jobs"
+    echo "========================================"
+    exit $exit_code
+}
+
+# Set up signal traps
+trap cleanup EXIT INT TERM
+
 usage="Usage: ./submit_jobs_with_queue.sh workFolder1 [workFolder2 ...] [--queue queue_name] [--max-jobs max_active_jobs]
 
 Arguments:
@@ -105,8 +121,8 @@ next_job_index=0
 get_active_job_count() {
     local count=0
     for job_id in "${submitted_jobs[@]}"; do
-        # Check if job still exists in queue
-        if squeue -j "$job_id" &>/dev/null; then
+        # Check if job still exists in queue (with timeout to avoid hanging)
+        if timeout 10 squeue -j "$job_id" &>/dev/null; then
             count=$((count + 1))
         fi
     done
@@ -117,7 +133,8 @@ get_active_job_count() {
 cleanup_completed_jobs() {
     local active_jobs=()
     for job_id in "${submitted_jobs[@]}"; do
-        if squeue -j "$job_id" &>/dev/null; then
+        # Check if job still exists in queue (with timeout to avoid hanging)
+        if timeout 10 squeue -j "$job_id" &>/dev/null; then
             active_jobs+=("$job_id")
         fi
     done
@@ -129,7 +146,12 @@ submit_job() {
     local script_path=$1
     local job_dir=$(dirname "$script_path")
 
-    cd "$job_dir"
+    # Change to job directory with error checking
+    if ! cd "$job_dir"; then
+        echo "[$(date '+%H:%M:%S')] ERROR: Cannot access directory $job_dir"
+        return 1
+    fi
+
     local output
     output=$(sbatch -q "$queue" submit_job.script 2>&1)
     local exit_code=$?
@@ -137,13 +159,29 @@ submit_job() {
     if [ $exit_code -eq 0 ]; then
         # Extract job ID from sbatch output (format: "Submitted batch job 12345")
         local job_id=$(echo "$output" | awk '{print $4}')
-        echo "$job_id" > job_id
+        
+        # Write job ID with retry logic to handle filesystem issues
+        local retry_count=0
+        local max_retries=3
+        while [ $retry_count -lt $max_retries ]; do
+            if echo "$job_id" > job_id 2>/dev/null; then
+                break
+            else
+                retry_count=$((retry_count + 1))
+                echo "[$(date '+%H:%M:%S')] Warning: Failed to write job_id (attempt $retry_count/$max_retries) in $job_dir"
+                if [ $retry_count -lt $max_retries ]; then
+                    sleep 1
+                fi
+            fi
+        done
+        
+        # Continue even if job_id file write failed - the job was still submitted successfully
         submitted_jobs+=("$job_id")
         submitted_count=$((submitted_count + 1))
-        echo "[$(date '+%H:%M:%S')] Submitted job $submitted_count/$total_jobs (ID: $job_id) in $(basename "$job_dir")"
+        echo "[$(date '+%H:%M:%S')] Submitted job $submitted_count/$total_jobs (ID: $job_id) in $job_dir"
         return 0
     else
-        echo "[$(date '+%H:%M:%S')] ERROR: Failed to submit job in $(basename "$job_dir"): $output"
+        echo "[$(date '+%H:%M:%S')] ERROR: Failed to submit job in $job_dir: $output"
         return 1
     fi
 }
@@ -155,8 +193,14 @@ echo "Initial job submission (up to $max_active_jobs jobs)"
 echo "========================================"
 
 while [ $next_job_index -lt $total_jobs ] && [ $submitted_count -lt $max_active_jobs ]; do
-    submit_job "${job_scripts[$next_job_index]}"
-    next_job_index=$((next_job_index + 1))
+    if submit_job "${job_scripts[$next_job_index]}"; then
+        # Job submitted successfully
+        next_job_index=$((next_job_index + 1))
+    else
+        # Job submission failed, skip this job and continue
+        echo "[$(date '+%H:%M:%S')] Skipping failed job, continuing with next..."
+        next_job_index=$((next_job_index + 1))
+    fi
 done
 
 # If all jobs were submitted in initial batch, we're done
@@ -190,9 +234,15 @@ while [ $next_job_index -lt $total_jobs ]; do
     
     # Submit new jobs if we have capacity
     while [ $active_count -lt $max_active_jobs ] && [ $next_job_index -lt $total_jobs ]; do
-        submit_job "${job_scripts[$next_job_index]}"
-        next_job_index=$((next_job_index + 1))
-        active_count=$((active_count + 1))
+        if submit_job "${job_scripts[$next_job_index]}"; then
+            # Job submitted successfully
+            next_job_index=$((next_job_index + 1))
+            active_count=$((active_count + 1))
+        else
+            # Job submission failed, skip this job and continue
+            echo "[$(date '+%H:%M:%S')] Skipping failed job, continuing with next..."
+            next_job_index=$((next_job_index + 1))
+        fi
     done
     
     # Check if we're done
