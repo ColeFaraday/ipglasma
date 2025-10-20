@@ -698,7 +698,7 @@ void MyEigen::flowVelocity4D(Lattice *lat, Parameters *param, int it) {
   //       foutEtot <<  Etot << endl;
   // foutEtot.close();
 
-  if (static_cast<int>(param->getWriteOutputs() / 4) == 1) {
+  if (static_cast<int>(param->getWriteOutputs() / 4) == 1 || param->getWriteOutputs() == 3) {
     double resultT00, resultT0x, resultT0y, resultT0eta, resultTxx, resultTxy;
     double resultTxeta, resultTyy, resultTyeta, resultTetaeta;
     stringstream strTmunu_name;
