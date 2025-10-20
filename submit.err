@@ -1,1 +1,699 @@
-utilities/submit_jobs_with_queue.sh: line 133: echo: write error: Stale file handle
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 401: local: can only be used in a function
+utilities/submit_jobs_with_queue.sh: line 405: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 409: [: -eq: unary operator expected
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+utilities/submit_jobs_with_queue.sh: line 261: completed_jobs.txt: No such file or directory
+utilities/submit_jobs_with_queue.sh: line 462: [: too many arguments
+slurmstepd: error: *** JOB 298415 ON srvrochpc102 CANCELLED AT 2025-10-03T14:03:07 ***

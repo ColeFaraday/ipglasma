@@ -3767,9 +3767,6 @@ int Evolution::multiplicitynkxky(Lattice *lat, Group *group, Parameters *param,
     multHad_name = strmultHad_name.str();
 
     ofstream foutdNdpt(multHad_name.c_str(), ios::out);
-    // Header for hadron differential spectrum
-    foutdNdpt << "# pT [GeV]  dN/dpT [1/GeV]  0  0  Tpp [?]  b [fm]" << endl;
-    
     for (int ih = 0; ih <= hbins; ih++) {
       if (ih % 10 == 0)
         foutdNdpt << ih * 20. / static_cast<double>(hbins) << " " << Nhgsl[ih]
