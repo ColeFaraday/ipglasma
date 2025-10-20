@@ -117,8 +117,9 @@ source activate iEBE-MUSIC
                 # Add file deletion logic if patterns are specified
                 if delete_patterns:
                     script.write(f"\n# Delete specified file patterns for event {evid}\n")
-                    for pattern in delete_patterns:
-                        script.write(f"rm -f {pattern}\n")
+                    # Join all patterns into a single rm command with space separation
+                    patterns_str = " ".join(delete_patterns)
+                    script.write(f"rm -f {patterns_str}\n")
                 
                 script.write(f"cd ..\n\n")
             print(f"[DEBUG] Finished writing job script for job_{job_id}")
@@ -130,7 +131,7 @@ def main():
     parser.add_argument("--events", type=int, required=True, help="Number of events per job group")
     parser.add_argument("--results-folder", type=str, required=True, help="Top-level folder for jobs")
     parser.add_argument("--input-file", type=str, required=True, help="Path to ipglasma input file")
-    parser.add_argument("--delete-patterns", nargs="*", help="File patterns to delete after ipglasma finishes (e.g., '*.tmp' '*.log'). Default: epsilon*, Jazma-*, eccentricities*. Use --delete-patterns with no arguments to disable deletion.")
+    parser.add_argument("--delete-patterns", nargs="*", help="File patterns to delete after ipglasma finishes (e.g., '*.tmp' '*.log'). Default: --delete-patterns: \"epsilon*\" \"Jazma-*\" \"eccentricities*\". Use --delete-patterns with no arguments to disable deletion.")
 
     args = parser.parse_args()
     print(f"[DEBUG] Parsed arguments: {args}")
