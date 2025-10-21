@@ -660,12 +660,13 @@ void MyEigen::flowVelocity4D(Lattice *lat, Parameters *param, int it) {
             Etot += abs(hbarc * resultE * gfactor) * ha * ha * it * dtau * a;
             if (param->getOutputCondensedGrid()) {
                 if (abs(hbarc * resultE * gfactor) > param->getSmallestEnergyGeV()) {
-                    foutEps2 << ix << " " << iy << " " << abs(hbarc * resultE * gfactor)
-                             << " " << resultutau << " " << resultux << " " << resultuy << " " << resultueta
-                             << " " << resultpi00 * gfactor << " " << resultpi0x * gfactor
-                             << " " << resultpi0y * gfactor << " " << resultpi0eta * gfactor
-                             << " " << resultpixx * gfactor << " " << resultpixy * gfactor << " " << resultpixeta * gfactor
-                             << " " << resultpiyy * gfactor << " " << resultpiyeta * gfactor << " " << resultpietaeta * gfactor << endl;
+                  foutEps2 << -(heta - 1) / 2. * deta + deta * ieta << " " << x
+                            << " " << y << " " << abs(hbarc * resultE * gfactor)
+                            << " " << resultutau << " " << resultux << " " << resultuy << " " << resultueta
+                            << " " << resultpi00 * gfactor << " " << resultpi0x * gfactor
+                            << " " << resultpi0y * gfactor << " " << resultpi0eta * gfactor
+                            << " " << resultpixx * gfactor << " " << resultpixy * gfactor << " " << resultpixeta * gfactor
+                            << " " << resultpiyy * gfactor << " " << resultpiyeta * gfactor << " " << resultpietaeta * gfactor << endl;
                 } 
             } else {
                 if (abs(hbarc * resultE * gfactor) > small_eps) {
