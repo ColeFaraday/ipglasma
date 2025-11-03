@@ -87,6 +87,7 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
                 simple_fragment_link = event_path / "simpleFragment.py"
                 print(f"[DEBUG] Symlinking ipglasma_fragment: {ipglasma_fragment_link} -> {ipglasma_fragment_exec}")
                 ipglasma_fragment_link.symlink_to(ipglasma_fragment_exec)
+                simple_fragment_link.symlink_to(simple_fragment_exec)
             # Create symlink to nucleusConfigurations in each event folder
             nucleus_src = Path(__file__).parent.parent / "nucleusConfigurations"
             nucleus_dst = event_path / "nucleusConfigurations"
@@ -133,7 +134,7 @@ source activate iEBE-MUSIC
                 # Add fragmentation step if enabled
                 if fragmentation:
                     script.write(f"\n# Run fragmentation for event {evid}\n")
-                    script.write(f"./ipglasma_fragment multiplicity-t0.4-${{evid}}.dat")
+                    script.write(f"./ipglasma_fragment multiplicity-t0.4-{evid}.dat")
                 
                 # Add file deletion logic if patterns are specified
                 if delete_patterns:
