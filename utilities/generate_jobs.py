@@ -5,8 +5,8 @@ import shutil
 from pathlib import Path
 import sys
 
-def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file, delete_patterns=None):
-    walltime = "100:00:00"
+def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file, delete_patterns=None, fragmentation=False):
+    walltime = "200:00:00"
     results_path = Path(results_folder).resolve()
     print(f"[DEBUG] Resolved results_path: {results_path}")
     
@@ -50,6 +50,12 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
     print(f"[DEBUG] Resolved qs2_input: {qs2_input}")
     ipglasma_exec = Path("ipglasma").resolve()
     print(f"[DEBUG] Resolved ipglasma_exec: {ipglasma_exec}")
+    
+    if fragmentation:
+        ipglasma_fragment_exec = Path("ipglasma_fragment").resolve()
+        simple_fragment_exec = Path("simpleFragment.py").resolve()
+        print(f"[DEBUG] Resolved ipglasma_fragment_exec: {ipglasma_fragment_exec}")
+        print(f"[DEBUG] Fragmentation mode enabled")
 
     event_counter = 0
     for job_id in range(num_jobs):
@@ -65,6 +71,8 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
             event_path.mkdir()
             # Setup files and links
             ipglasma_link = event_path / "ipglasma"
+            ipglasma_fragment_link = event_path / "ipglasma_fragment"
+            simple_fragment_link = event_path / "simpleFragment.py"
             qs2_link = event_path / "qs2Adj_vs_Tp_vs_Y_200.in"
             print(f"[DEBUG] Symlinking ipglasma: {ipglasma_link} -> {ipglasma_exec}")
             ipglasma_link.symlink_to(ipglasma_exec)
@@ -72,6 +80,13 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
             shutil.copy(input_file_path, event_path)
             print(f"[DEBUG] Symlinking qs2 input: {qs2_link} -> {qs2_input}")
             qs2_link.symlink_to(qs2_input)
+            
+            # Add fragmentation executable if needed
+            if fragmentation:
+                ipglasma_fragment_link = event_path / "ipglasma_fragment"
+                simple_fragment_link = event_path / "simpleFragment.py"
+                print(f"[DEBUG] Symlinking ipglasma_fragment: {ipglasma_fragment_link} -> {ipglasma_fragment_exec}")
+                ipglasma_fragment_link.symlink_to(ipglasma_fragment_exec)
             # Create symlink to nucleusConfigurations in each event folder
             nucleus_src = Path(__file__).parent.parent / "nucleusConfigurations"
             nucleus_dst = event_path / "nucleusConfigurations"
@@ -106,6 +121,7 @@ source activate iEBE-MUSIC
             for idx, event_name in enumerate(event_folders):
                 evid = job_id * events_per_job + idx
                 script.write(f"cd {event_name} && ./ipglasma {input_file_path.name} 1> run.log 2> run.err\n")
+                
                 # Add the renaming logic using mv
                 script.write(f"\n# Rename output files for event {evid}\n")
                 script.write(f"evid={evid}\n")
@@ -114,12 +130,18 @@ source activate iEBE-MUSIC
                 script.write(f"    mv \"${{ifile}}\" \"${{filename}}\"\n")
                 script.write(f"done\n")
                 
+                # Add fragmentation step if enabled
+                if fragmentation:
+                    script.write(f"\n# Run fragmentation for event {evid}\n")
+                    script.write(f"./ipglasma_fragment multiplicity-t0.4-${{evid}}.dat")
+                
                 # Add file deletion logic if patterns are specified
                 if delete_patterns:
                     script.write(f"\n# Delete specified file patterns for event {evid}\n")
                     # Join all patterns into a single rm command with space separation
                     patterns_str = " ".join(delete_patterns)
                     script.write(f"rm -f {patterns_str}\n")
+
                 
                 script.write(f"cd ..\n\n")
             print(f"[DEBUG] Finished writing job script for job_{job_id}")
@@ -132,6 +154,7 @@ def main():
     parser.add_argument("--results-folder", type=str, required=True, help="Top-level folder for jobs")
     parser.add_argument("--input-file", type=str, required=True, help="Path to ipglasma input file")
     parser.add_argument("--delete-patterns", nargs="*", help="File patterns to delete after ipglasma finishes (e.g., '*.tmp' '*.log'). Default: --delete-patterns: \"epsilon*\" \"Jazma-*\" \"eccentricities*\". Use --delete-patterns with no arguments to disable deletion.")
+    parser.add_argument("--fragmentation", action="store_true", help="Run ipglasma_fragment after ipglasma using multiplicity-t0.4-{evid}.dat")
 
     args = parser.parse_args()
     print(f"[DEBUG] Parsed arguments: {args}")
@@ -142,7 +165,8 @@ def main():
         events_per_job=args.events,
         results_folder=args.results_folder,
         input_file=args.input_file,
-        delete_patterns=args.delete_patterns
+        delete_patterns=args.delete_patterns,
+        fragmentation=args.fragmentation
     )
 
 if __name__ == "__main__":

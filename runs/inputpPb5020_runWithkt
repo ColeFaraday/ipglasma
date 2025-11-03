@@ -1,7 +1,7 @@
 mode  1
 readMultFromFile  0
-size  400
-L 6
+size  800
+L 12
 Nc  3
 m  0.2
 rmax  10.0
@@ -77,6 +77,6 @@ writeEvolution  0
 readInitialWilsonLines  0
 writeInitialWilsonLines  0
 writeOutputsToHDF5  0
-outputCondensedGrid  1
+outputCondensedGrid  0
 smallestEnergyGeV  1e-6
 EndOfFile
