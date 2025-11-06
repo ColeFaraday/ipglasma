@@ -56,7 +56,7 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
     print(f"[DEBUG] Resolved ipglasma_exec: {ipglasma_exec}")
     
     if fragmentation:
-        ipglasma_fragment_exec = Path("ipglasma_fragment").resolve()
+        ipglasma_fragment_exec = Path("ipglasma_fragment_multiple").resolve()
         simple_fragment_exec = Path("simpleFragment.py").resolve()
         print(f"[DEBUG] Resolved ipglasma_fragment_exec: {ipglasma_fragment_exec}")
         print(f"[DEBUG] Fragmentation mode enabled")
@@ -79,7 +79,7 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
             event_path.mkdir()
             # Setup files and links
             ipglasma_link = event_path / "ipglasma"
-            ipglasma_fragment_link = event_path / "ipglasma_fragment"
+            ipglasma_fragment_link = event_path / "ipglasma_fragment_multiple"
             simple_fragment_link = event_path / "simpleFragment.py"
             qs2_link = event_path / "qs2Adj_vs_Tp_vs_Y_200.in"
             print(f"[DEBUG] Symlinking ipglasma: {ipglasma_link} -> {ipglasma_exec}")
@@ -153,7 +153,7 @@ source activate iEBE-MUSIC
                 # Add fragmentation step if enabled
                 if fragmentation:
                     script.write(f"\n# Run fragmentation for event {evid}\n")
-                    script.write(f"./ipglasma_fragment multiplicity-t0.4-{evid}.dat")
+                    script.write(f"./ipglasma_fragment_multiple --ff MAPFF10NLOPIsum,MAPFF10NNLOPIsum,NNFF10_PIp_nlo,NNFF10_PIsum_lo,NNFF10_PIsum_nlo,NNFF10_PIsum_nnlo,NPC23_PIsum_nlo multiplicity-t0.4-{evid}.dat")
                 
                 # Add file deletion logic if patterns are specified
                 if delete_patterns:
