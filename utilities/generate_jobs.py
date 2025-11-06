@@ -7,6 +7,8 @@ import sys
 
 # Constants for temperature executable and EOS folder
 TEMPERATURE_EXEC_PATH = Path("~/hydro/IPGlasma_wrapper/temperature_profile").expanduser().resolve()
+FRAGMENTATION_EXEC_PATH = Path("/home/frdcol002/hydro/IP-Glasma-only/simpleFragment/ipglasma_fragment_multiple").expanduser().resolve()
+SIMPLE_FRAGMENTATION_EXEC_PATH = Path("/home/frdcol002/hydro/IP-Glasma-only/simpleFragment/simpleFragment.py").expanduser().resolve()
 EOS_FOLDER_PATH = Path("~/hydro/IPGlasma_wrapper/EOS").expanduser().resolve()
 
 def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file, delete_patterns=None, fragmentation=False, temperature=False):
@@ -16,7 +18,7 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
     
     # Set default delete patterns if none provided
     if delete_patterns is None:
-        delete_patterns = ["Jazma-*", "eccentricities*", "run.log"]
+        delete_patterns = ["epsilon*", "Jazma-*", "eccentricities*", "run.log"]
         print(f"[DEBUG] Using default file patterns to delete after ipglasma: {delete_patterns}")
     elif delete_patterns:
         print(f"[DEBUG] File patterns to delete after ipglasma: {delete_patterns}")
@@ -56,9 +58,10 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
     print(f"[DEBUG] Resolved ipglasma_exec: {ipglasma_exec}")
     
     if fragmentation:
-        ipglasma_fragment_exec = Path("ipglasma_fragment_multiple").resolve()
-        simple_fragment_exec = Path("simpleFragment.py").resolve()
+        ipglasma_fragment_exec = FRAGMENTATION_EXEC_PATH
+        simple_fragment_exec = SIMPLE_FRAGMENTATION_EXEC_PATH
         print(f"[DEBUG] Resolved ipglasma_fragment_exec: {ipglasma_fragment_exec}")
+        print(f"[DEBUG] Resolved simple_fragment_exec: {simple_fragment_exec}")
         print(f"[DEBUG] Fragmentation mode enabled")
     if temperature:
         print(f"[DEBUG] Temperature mode enabled")
@@ -91,7 +94,7 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
             
             # Add fragmentation executable if needed
             if fragmentation:
-                ipglasma_fragment_link = event_path / "ipglasma_fragment"
+                ipglasma_fragment_link = event_path / "ipglasma_fragment_multiple"
                 simple_fragment_link = event_path / "simpleFragment.py"
                 print(f"[DEBUG] Symlinking ipglasma_fragment: {ipglasma_fragment_link} -> {ipglasma_fragment_exec}")
                 ipglasma_fragment_link.symlink_to(ipglasma_fragment_exec)
@@ -154,7 +157,14 @@ source activate iEBE-MUSIC
                 if fragmentation:
                     script.write(f"\n# Run fragmentation for event {evid}\n")
                     script.write(f"./ipglasma_fragment_multiple --ff MAPFF10NLOPIsum,MAPFF10NNLOPIsum,NNFF10_PIp_nlo,NNFF10_PIsum_lo,NNFF10_PIsum_nlo,NNFF10_PIsum_nnlo,NPC23_PIsum_nlo multiplicity-t0.4-{evid}.dat")
-                
+
+                # Compute temperature profiles
+                if temperature:
+                    script.write(f"\n# Compute temperature profile for event {evid}\n")
+                    # Run for each epsilon-u-Hydro-t* file
+                    for tfile in ["epsilon-u-Hydro-t0.004*.dat", "epsilon-u-Hydro-t0.1*.dat", "epsilon-u-Hydro-t0.2*.dat", "epsilon-u-Hydro-t0.4*.dat"]:
+                        script.write(f"./temperature_profile {tfile} --condensed\n")
+
                 # Add file deletion logic if patterns are specified
                 if delete_patterns:
                     script.write(f"\n# Delete specified file patterns for event {evid}\n")
