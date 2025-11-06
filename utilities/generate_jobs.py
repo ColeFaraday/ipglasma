@@ -5,14 +5,18 @@ import shutil
 from pathlib import Path
 import sys
 
-def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file, delete_patterns=None, fragmentation=False):
+# Constants for temperature executable and EOS folder
+TEMPERATURE_EXEC_PATH = Path("~/hydro/IPGlasma_wrapper/temperature_profile").expanduser().resolve()
+EOS_FOLDER_PATH = Path("~/hydro/IPGlasma_wrapper/EOS").expanduser().resolve()
+
+def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file, delete_patterns=None, fragmentation=False, temperature=False):
     walltime = "200:00:00"
     results_path = Path(results_folder).resolve()
     print(f"[DEBUG] Resolved results_path: {results_path}")
     
     # Set default delete patterns if none provided
     if delete_patterns is None:
-        delete_patterns = ["epsilon*", "Jazma-*", "eccentricities*", "run.log"]
+        delete_patterns = ["Jazma-*", "eccentricities*", "run.log"]
         print(f"[DEBUG] Using default file patterns to delete after ipglasma: {delete_patterns}")
     elif delete_patterns:
         print(f"[DEBUG] File patterns to delete after ipglasma: {delete_patterns}")
@@ -56,6 +60,10 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
         simple_fragment_exec = Path("simpleFragment.py").resolve()
         print(f"[DEBUG] Resolved ipglasma_fragment_exec: {ipglasma_fragment_exec}")
         print(f"[DEBUG] Fragmentation mode enabled")
+    if temperature:
+        print(f"[DEBUG] Temperature mode enabled")
+        print(f"[DEBUG] Resolved temperature_profile exec: {TEMPERATURE_EXEC_PATH}")
+        print(f"[DEBUG] Resolved EOS folder: {EOS_FOLDER_PATH}")
 
     event_counter = 0
     for job_id in range(num_jobs):
@@ -88,6 +96,17 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
                 print(f"[DEBUG] Symlinking ipglasma_fragment: {ipglasma_fragment_link} -> {ipglasma_fragment_exec}")
                 ipglasma_fragment_link.symlink_to(ipglasma_fragment_exec)
                 simple_fragment_link.symlink_to(simple_fragment_exec)
+            # Add temperature executable and EOS folder if needed
+            if temperature:
+                temperature_exec_link = event_path / "temperature_profile"
+                eos_link = event_path / "EOS"
+                print(f"[DEBUG] Symlinking temperature_profile: {temperature_exec_link} -> {TEMPERATURE_EXEC_PATH}")
+                temperature_exec_link.symlink_to(TEMPERATURE_EXEC_PATH)
+                if not eos_link.exists():
+                    print(f"[DEBUG] Symlinking EOS folder: {eos_link} -> {EOS_FOLDER_PATH}")
+                    eos_link.symlink_to(EOS_FOLDER_PATH)
+                else:
+                    print(f"[DEBUG] EOS symlink already exists: {eos_link}")
             # Create symlink to nucleusConfigurations in each event folder
             nucleus_src = Path(__file__).parent.parent / "nucleusConfigurations"
             nucleus_dst = event_path / "nucleusConfigurations"
@@ -156,6 +175,7 @@ def main():
     parser.add_argument("--input-file", type=str, required=True, help="Path to ipglasma input file")
     parser.add_argument("--delete-patterns", nargs="*", help="File patterns to delete after ipglasma finishes (e.g., '*.tmp' '*.log'). Default: --delete-patterns: \"epsilon*\" \"Jazma-*\" \"eccentricities*\". Use --delete-patterns with no arguments to disable deletion.")
     parser.add_argument("--fragmentation", action="store_true", help="Run ipglasma_fragment after ipglasma using multiplicity-t0.4-{evid}.dat")
+    parser.add_argument("--temperature", action="store_true", help="Symlink temperature_profile and EOS folder into each event folder")
 
     args = parser.parse_args()
     print(f"[DEBUG] Parsed arguments: {args}")
@@ -167,7 +187,8 @@ def main():
         results_folder=args.results_folder,
         input_file=args.input_file,
         delete_patterns=args.delete_patterns,
-        fragmentation=args.fragmentation
+        fragmentation=args.fragmentation,
+        temperature=args.temperature
     )
 
 if __name__ == "__main__":
