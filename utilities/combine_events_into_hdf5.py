@@ -53,8 +53,10 @@ def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False, inc
             f"meanpt{event_id}.dat",
             f"multiplicity-t*-{event_id}.dat",
             f"multiplicityHadrons{event_id}.dat",
+            f"multiplicityHadrons{event_id}.dat",
             f"hadron_spectrum_hessian_*.dat",
             f"hadron_spectrum_central.dat",
+            f"hadron_spectrum_*central.dat",
             # f"epsilon-u-Hydro-t*-{event_id}.dat",
             # f"Tmunu-t*-{event_id}.dat"
         ]
