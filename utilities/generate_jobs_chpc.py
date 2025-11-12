@@ -112,7 +112,7 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
                     print(f"[DEBUG] EOS symlink already exists: {eos_link}")
             # Create symlink to nucleusConfigurations in each event folder
             nucleus_src = Path(__file__).parent.parent / "nucleusConfigurations"
-						print("Nucleus src: ", nucleus_src)
+            print("Nucleus src: ", nucleus_src)
             nucleus_dst = event_path / "nucleusConfigurations"
             if not nucleus_dst.exists():
                 print(f"[DEBUG] Symlinking nucleusConfigurations: {nucleus_dst} -> {nucleus_src}")
