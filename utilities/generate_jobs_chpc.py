@@ -6,10 +6,10 @@ from pathlib import Path
 import sys
 
 # Constants for temperature executable and EOS folder
-TEMPERATURE_EXEC_PATH = Path("~/hydro/IPGlasma_wrapper/temperature_profile").expanduser().resolve()
-FRAGMENTATION_EXEC_PATH = Path("/home/frdcol002/hydro/IP-Glasma-only/simpleFragment/ipglasma_fragment_multiple").expanduser().resolve()
-SIMPLE_FRAGMENTATION_EXEC_PATH = Path("/home/frdcol002/hydro/IP-Glasma-only/simpleFragment/simpleFragment.py").expanduser().resolve()
-EOS_FOLDER_PATH = Path("~/hydro/IPGlasma_wrapper/EOS").expanduser().resolve()
+TEMPERATURE_EXEC_PATH = Path("/home/cfaraday/HardSoftCorrelations/IPGlasma/IPGlasma_wrapper/temperature_profile").expanduser().resolve()
+FRAGMENTATION_EXEC_PATH = Path("/home/cfaraday/HardSoftCorrelations/IPGlasma/simpleFragment/ipglasma_fragment_multiple").expanduser().resolve()
+SIMPLE_FRAGMENTATION_EXEC_PATH = Path("/home/cfaraday/HardSoftCorrelations/IPGlasma/simpleFragment/simpleFragment.py").expanduser().resolve()
+EOS_FOLDER_PATH = Path("/home/cfaraday/HardSoftCorrelations/IPGlasma/IPGlasma_wrapper/EOS").expanduser().resolve()
 
 def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file, delete_patterns=None, fragmentation=False, temperature=False):
     walltime = "200:00:00"
