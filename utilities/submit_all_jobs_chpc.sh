@@ -2,7 +2,7 @@
 # available partitions can be found on uct HPC website: https://hex.uct.ac.za/db/. Use ada in most circumstances.
 # Adapted from https://github.com/chunshen1987/iEBE-MUSIC
 
-usage="./submit_all_jobs.sh workFolder [queue_name]"
+usage="./submit_all_jobs.sh workFolder"
 
 workFolder=$1
 
@@ -21,7 +21,7 @@ for jobdir in job_*; do
     if [ -d "$jobdir" ]; then
         echo "submit job in " ${workFolder}/${jobdir}
         cd ${jobdir}
-        qsub submit_job.script | awk {'print $4'} > job_id
+        qsub submit_job.script > job_id
         cd ..
         ((Numjobs++))
     fi
