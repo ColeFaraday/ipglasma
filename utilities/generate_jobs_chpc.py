@@ -1,4 +1,4 @@
-#!/mnt/lustre/users/cfaraday/iEBE-MUSIC/bin/python3
+#!/mnt/lustre/users/cfaraday/envs/iebe-music/bin/python3
 
 import argparse
 import shutil
