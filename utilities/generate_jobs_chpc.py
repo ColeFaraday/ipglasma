@@ -11,8 +11,7 @@ FRAGMENTATION_EXEC_PATH = Path("/home/cfaraday/HardSoftCorrelations/IPGlasma/sim
 SIMPLE_FRAGMENTATION_EXEC_PATH = Path("/home/cfaraday/HardSoftCorrelations/IPGlasma/simpleFragment/simpleFragment.py").expanduser().resolve()
 EOS_FOLDER_PATH = Path("/home/cfaraday/HardSoftCorrelations/IPGlasma/IPGlasma_wrapper/EOS").expanduser().resolve()
 
-def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file, delete_patterns=None, fragmentation=False, temperature=False):
-    walltime = "200:00:00"
+def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file, delete_patterns=None, fragmentation=False, temperature=False, walltime="200:00:00"):
     results_path = Path(results_folder).resolve()
     print(f"[DEBUG] Resolved results_path: {results_path}")
     
@@ -189,6 +188,7 @@ def main():
     parser.add_argument("--delete-patterns", nargs="*", help="File patterns to delete after ipglasma finishes (e.g., '*.tmp' '*.log'). Default: --delete-patterns: 'epsilon*' 'Jazma-*' 'eccentricities*'. Use --delete-patterns with no arguments to disable deletion.")
     parser.add_argument("--fragmentation", action="store_true", help="Run ipglasma_fragment after ipglasma using multiplicity-t0.4-{evid}.dat")
     parser.add_argument("--temperature", action="store_true", help="Symlink temperature_profile and EOS folder into each event folder")
+    parser.add_argument("--walltime", type=str, default="48:00:00", help="Walltime for each job script (PBS format, e.g. 24:00:00)")
 
     args = parser.parse_args()
     print(f"[DEBUG] Parsed arguments: {args}")
@@ -201,7 +201,8 @@ def main():
         input_file=args.input_file,
         delete_patterns=args.delete_patterns,
         fragmentation=args.fragmentation,
-        temperature=args.temperature
+        temperature=args.temperature,
+        walltime=args.walltime
     )
 
 if __name__ == "__main__":
