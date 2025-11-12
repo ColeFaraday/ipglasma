@@ -136,6 +136,9 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
 #PBS -o job.log
 #PBS -V
 
+module load chpc/fftw/3.3.6-pl1/gcc-6.1.0
+module load chpc/earth/GSL/2.7
+export LD_LIBRARY_PATH=$FFTW_LIB_PATH:$GSL_LIB_PATH:$LD_LIBRARY_PATH
 cd $PBS_O_WORKDIR
 source activate iEBE-MUSIC
 
