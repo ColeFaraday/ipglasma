@@ -31,7 +31,7 @@ for (( i=0; i<numScripts; i++ )); do
 #!/usr/bin/env bash
 #PBS -N batch_${i}
 #PBS -P PHYS0974
-#PBS -l select=1:ncpus=${chunkSize}:mpiprocs=${chunkSize}
+#PBS -l select=1:ncpus=1:mpiprocs=1
 #PBS -l walltime=48:00:00
 #PBS -J 0-$((chunkSize - 1))
 #PBS -V
