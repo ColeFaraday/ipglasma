@@ -34,16 +34,14 @@ for (( i=0; i<numScripts; i++ )); do
 #PBS -l select=1:ncpus=${chunkSize}:mpiprocs=${chunkSize}
 #PBS -l walltime=48:00:00
 #PBS -J 0-$((chunkSize - 1))
-#PBS -o array_${i}_\${PBS_ARRAY_INDEX}.log
-#PBS -e array_${i}_\${PBS_ARRAY_INDEX}.err
 #PBS -V
 
 module load chpc/fftw/3.3.6-pl1/gcc-6.1.0
 module load chpc/earth/GSL/2.7
 export LD_LIBRARY_PATH=\$FFTW_LIB_PATH:\$GSL_LIB_PATH:\$LD_LIBRARY_PATH
 
-source activate iEBE-MUSIC
-cd \$PBS_O_WORKDIR
+source /mnt/lustre/users/cfaraday/envs/iebe-music/bin/activate
+cd /mnt/lustre/users/cfaraday/ipglasma/OO_5360_testing_parallel/
 
 jobDirs=(${jobDirs[@]:$start:$chunkSize})
 jobDir=\${jobDirs[\$PBS_ARRAY_INDEX]}

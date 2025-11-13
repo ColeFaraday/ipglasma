@@ -127,21 +127,6 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
         print(f"[DEBUG] Writing job script: {script_path}")
         with open(script_path, "w") as script:
             script.write(f"""#!/usr/bin/env bash
-#PBS -N job_{job_id}
-#PBS -P PHYS0974
-#PBS -l select=1:ncpus={threads_per_job}:mpiprocs=1
-#PBS -l walltime={walltime}
-#PBS -e job.err
-#PBS -o job.log
-#PBS -V
-
-module load chpc/fftw/3.3.6-pl1/gcc-6.1.0
-module load chpc/earth/GSL/2.7
-export LD_LIBRARY_PATH=$FFTW_LIB_PATH:$GSL_LIB_PATH:$LD_LIBRARY_PATH
-cd $PBS_O_WORKDIR
-source activate iEBE-MUSIC
-
-# export OMP_NUM_THREADS={threads_per_job}
 """)
             for idx, event_name in enumerate(event_folders):
                 evid = job_id * events_per_job + idx
