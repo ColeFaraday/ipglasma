@@ -41,7 +41,7 @@ module load chpc/earth/GSL/2.7
 export LD_LIBRARY_PATH=\$FFTW_LIB_PATH:\$GSL_LIB_PATH:\$LD_LIBRARY_PATH
 
 source /mnt/lustre/users/cfaraday/envs/iebe-music/bin/activate
-cd /mnt/lustre/users/cfaraday/ipglasma/OO_5360_testing_parallel/
+cd ${workFolder} || exit 1
 
 jobDirs=(${jobDirs[@]:$start:$chunkSize})
 jobDir=\${jobDirs[\$PBS_ARRAY_INDEX]}
