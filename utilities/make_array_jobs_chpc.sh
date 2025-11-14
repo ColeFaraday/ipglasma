@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# Usage: ./make_array_jobs_chpc.sh <workFolder> <cores_per_job>
-# Example: ./make_array_jobs_chpc.sh /path/to/sim 40
+# Usage: ./make_array_jobs_chpc.sh <workFolder> <cores_per_job> <queue>
+# Example: ./make_array_jobs_chpc.sh /path/to/sim 40 normal
 # A single job script that submits many jobs in parallel
 
 workFolder=$1
 coresPerJob=$2
+queue=$3
 
 if [ -z "$workFolder" ] || [ -z "$coresPerJob" ]; then
-    echo "Usage: $0 <workFolder> <cores_per_job>"
+    echo "Usage: $0 <workFolder> <cores_per_job> <queue>"
     exit 1
 fi
 
@@ -36,8 +37,8 @@ for (( i=0; i<numScripts; i++ )); do
 #!/usr/bin/env bash
 #PBS -N batch_${i}
 #PBS -P PHYS0974
-#PBS -q normal
-#PBS -l select=1:ncpus=${coresPerJob}:mpiprocs=${coresPerJob}
+#PBS -q ${queue}
+#PBS -l select=1:ncpus=${coresPerJob}:mpiprocs=1
 #PBS -l walltime=48:00:00
 #PBS -V
 
