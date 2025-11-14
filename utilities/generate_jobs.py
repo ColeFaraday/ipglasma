@@ -139,7 +139,7 @@ def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, inp
 module load python/miniconda3-py3.12
 source activate iEBE-MUSIC
 
-export OMP_NUM_THREADS=1
+# export OMP_NUM_THREADS=1
 """)
             for idx, event_name in enumerate(event_folders):
                 evid = job_id * events_per_job + idx
