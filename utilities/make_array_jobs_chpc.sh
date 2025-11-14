@@ -45,6 +45,10 @@ for (( i=0; i<numScripts; i++ )); do
 module load chpc/fftw/3.3.6-pl1/gcc-6.1.0
 module load chpc/earth/GSL/2.7
 export LD_LIBRARY_PATH=\$FFTW_LIB_PATH:\$GSL_LIB_PATH:\$LD_LIBRARY_PATH
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export NUMEXPR_NUM_THREADS=1
 
 source /mnt/lustre/users/cfaraday/envs/iebe-music/bin/activate
 cd ${workFolder} || exit 1
