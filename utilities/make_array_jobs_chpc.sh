@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Usage: ./make_array_jobs_chpc.sh <workFolder> <cores_per_job>
 # Example: ./make_array_jobs_chpc.sh /path/to/sim 40
+# A single job script that submits many jobs in parallel
 
 workFolder=$1
 coresPerJob=$2
@@ -16,7 +17,7 @@ jobDirs=(job_*)
 numJobs=${#jobDirs[@]}
 numScripts=$(( (numJobs + coresPerJob - 1) / coresPerJob ))
 
-echo "Creating $numScripts PBS array scripts for $numJobs jobs (max $coresPerJob per array job)."
+echo "Creating $numScripts PBS scripts for $numJobs jobs (max $coresPerJob tasks per script)."
 
 for (( i=0; i<numScripts; i++ )); do
     start=$(( i * coresPerJob ))
@@ -26,14 +27,18 @@ for (( i=0; i<numScripts; i++ )); do
     fi
     chunkSize=$(( end - start + 1 ))
 
-    scriptName="submit_array_${i}.pbs"
+    scriptName="submit_batch_${i}.pbs"
+
+    # Extract slice of job directories
+    slice=("${jobDirs[@]:$start:$chunkSize}")
+
     cat > "$scriptName" <<EOF
 #!/usr/bin/env bash
 #PBS -N batch_${i}
 #PBS -P PHYS0974
-#PBS -l select=1:ncpus=1:mpiprocs=1
+#PBS -q normal
+#PBS -l select=1:ncpus=${coresPerJob}:mpiprocs=${coresPerJob}
 #PBS -l walltime=48:00:00
-#PBS -J 0-$((chunkSize - 1))
 #PBS -V
 
 module load chpc/fftw/3.3.6-pl1/gcc-6.1.0
@@ -43,13 +48,16 @@ export LD_LIBRARY_PATH=\$FFTW_LIB_PATH:\$GSL_LIB_PATH:\$LD_LIBRARY_PATH
 source /mnt/lustre/users/cfaraday/envs/iebe-music/bin/activate
 cd ${workFolder} || exit 1
 
-jobDirs=(${jobDirs[@]:$start:$chunkSize})
-jobDir=\${jobDirs[\$PBS_ARRAY_INDEX]}
+jobDirs=(${slice[@]})
 
-cd "\$jobDir" || exit 1
-echo "Running in \$jobDir"
-bash submit_job.script
+for d in "\${jobDirs[@]}"; do
+    echo "Running in \$d"
+    ( cd "\$d" && bash submit_job.script ) &
+done
+
+wait
+echo "All tasks finished."
 EOF
 
-    echo "  Created $scriptName with $chunkSize array elements."
+    echo "  Created $scriptName handling ${chunkSize} tasks."
 done
