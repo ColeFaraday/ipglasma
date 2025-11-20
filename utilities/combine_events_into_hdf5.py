@@ -19,13 +19,13 @@ def print_help():
 def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False, include_patterns=None):
     """This function collects one IPGlasma event from a given event folder"""
     print(f"[DEBUG] Processing event_id={event_id} in folder={event_folder}")
-    # Always include usedParameters file as attributes
-    file_name = f"usedParameters{event_id}.dat"
-    parafilename = path.join(event_folder, file_name)
-    print(f"[DEBUG] Looking for parameter file: {parafilename}")
-    if not path.exists(parafilename):
-        print(f"Error: can not find file : {parafilename}")
+    # Find any usedParameters file in the folder (may not match event_id due to symlinking)
+    param_files = glob(path.join(event_folder, "usedParameters*.dat"))
+    if not param_files:
+        print(f"Error: can not find any usedParameters*.dat file in {event_folder}")
         exit(1)
+    parafilename = param_files[0]  # Use the first (should be only one)
+    print(f"[DEBUG] Found parameter file: {parafilename}")
 
     group_name = f"event-{event_id}"
     print(f"[DEBUG] Attempting to create group: {group_name}")
@@ -44,21 +44,21 @@ def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False, inc
     if deleteFlag: remove(parafilename)
 
     # Default patterns if not provided
+    # Use wildcards to match any event ID (handles symlinked folders with different IDs)
     if include_patterns is None:
         include_patterns = [
-            f"NcollList{event_id}.dat",
-            f"NpartList{event_id}.dat",
-            f"NpartdNdy-t*-{event_id}.dat",
-            f"NgluonEstimators{event_id}.dat", 
-            f"meanpt{event_id}.dat",
-            f"multiplicity-t*-{event_id}.dat",
-            f"multiplicityHadrons{event_id}.dat",
-            f"multiplicityHadrons{event_id}.dat",
-            f"hadron_spectrum_hessian_*.dat",
-            f"hadron_spectrum_central.dat",
-            f"hadron_spectrum_*central.dat",
-            # f"epsilon-u-Hydro-t*-{event_id}.dat",
-            # f"Tmunu-t*-{event_id}.dat"
+            "NcollList*.dat",
+            "NpartList*.dat",
+            "NpartdNdy-t*.dat",
+            "NgluonEstimators*.dat", 
+            "meanpt*.dat",
+            "multiplicity-t*.dat",
+            "multiplicityHadrons*.dat",
+            "hadron_spectrum_hessian_*.dat",
+            "hadron_spectrum_central.dat",
+            "hadron_spectrum_*central.dat",
+            # "epsilon-u-Hydro-t*.dat",
+            # "Tmunu-t*.dat"
         ]
 
     # Loop over all patterns
@@ -160,24 +160,44 @@ def collect_one_IPGlasma_event(event_folder, event_id, hf, deleteFlag=False, inc
             if deleteFlag: remove(filepath)
 
 
-def collect_IPGlasma_events(results_folder, include_patterns=None):
+def collect_IPGlasma_events(results_folder, include_patterns=None, output_filename=None):
     """This function collects IPGlasma events in results_folder (recursive for job/event structure)"""
     import glob as _glob
+    from os import path as ospath
     results_name = results_folder.split("/")[-1]
     if results_name == "":
         results_name = results_folder.split("/")[-2]
+    
+    # Use custom output filename if provided
+    if output_filename is not None:
+        h5_path = output_filename if output_filename.endswith('.h5') else f"{output_filename}.h5"
+    else:
+        h5_path = f"{results_name}.h5"
+    
+    # Check if output file already exists
+    if ospath.exists(h5_path):
+        print(f"\n[WARNING] Output file '{h5_path}' already exists!")
+        response = input("Do you want to delete it and proceed? [y/N]: ").strip().lower()
+        if response not in ['y', 'yes']:
+            print("Aborted. Please specify a different output file or remove the existing file manually.")
+            sys.exit(0)
+        else:
+            print(f"Removing existing file: {h5_path}")
+            remove(h5_path)
+    
     results_path = path.abspath(path.join(".", results_folder))
     # Recursively find all usedParameters*.dat files in job_*/event_*/
     event_param_files = _glob.glob(path.join(results_path, "job_*/event_*/usedParameters*.dat"), recursive=True)
     nev = len(event_param_files)
 
-    print("collect {0} to {1}.h5 ... ".format(results_folder, results_name))
-    hf = h5py.File("{0}.h5".format(results_name), "w")
+    print("collect {0} to {1} ... ".format(results_folder, h5_path))
+    hf = h5py.File(h5_path, "w")
 
     for ievent, event_param_path in enumerate(event_param_files):
         print("processing {0:d}/{1:d} ... ".format(ievent+1, nev))
         event_folder = path.dirname(event_param_path)
-        event_id = event_param_path.split("usedParameters")[-1].split(".dat")[0]
+        # Get event ID from folder name (e.g., event_123 -> 123)
+        event_id = path.basename(event_folder).split("event_")[-1]
         collect_one_IPGlasma_event(event_folder, event_id, hf, include_patterns=include_patterns)
 
 
@@ -292,7 +312,9 @@ def main():
         if args.MPI_flag:
             collect_IPGlasma_events_MPI(args.results_folder_name, include_patterns)
         else:
-            collect_IPGlasma_events(args.results_folder_name, include_patterns)
+            # Use output_filename if provided and not default
+            output_file = args.output_filename if args.output_filename != "RESULTS" else None
+            collect_IPGlasma_events(args.results_folder_name, include_patterns, output_file)
 
 
 if __name__ == "__main__":
