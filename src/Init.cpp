@@ -561,7 +561,9 @@ void Init::readInNucleusConfigs(const int nucleusA,
     bool readFlag = true;
     if (nucleusA == 3) {
         fileName = "He3.bin.in";
-    } else if (nucleusA == 12) {
+    } if (nucleusA == 4) {
+        fileName = "He4.bin.in";
+    }  else if (nucleusA == 12) {
         if (lightNucleusOption == 2) {
             fileName = "C12_VMC.bin.in";
         } else if (lightNucleusOption == 3) {
