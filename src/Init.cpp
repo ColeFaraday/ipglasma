@@ -179,14 +179,20 @@ void Init::sampleTA(Parameters *param, Random *random, Glauber *glauber) {
           nucleusB_);
     }
   } else if (param->getNucleonPositionsFromFile() == 1) {
+      std::cerr << "[DEBUG] getNucleonPositionsFromFile == 1" << std::endl;
+      std::cerr << "[DEBUG] nucleonPosArrA_.size() = " << nucleonPosArrA_.size() << std::endl;
+      std::cerr << "[DEBUG] nucleonPosArrB_.size() = " << nucleonPosArrB_.size() << std::endl;
       if (nucleonPosArrA_.size() > 0) {
           double ran2 =random->genrand64_real3();
           int nucleusNumber = static_cast<int>(ran2 * nucleonPosArrA_.size());
           std::cout << "using nucleus Number = " << nucleusNumber << std::endl;
+          std::cerr << "[DEBUG] nucleusA1 = " << glauber->nucleusA1() << std::endl;
           for (int iA = 0; iA < glauber->nucleusA1(); iA++) {
               rv.x = nucleonPosArrA_[nucleusNumber][3*iA];
               rv.y = nucleonPosArrA_[nucleusNumber][3*iA + 1];
               rv.z = nucleonPosArrA_[nucleusNumber][3*iA + 2];
+              std::cerr << "[DEBUG] NucleusA nucleon " << iA << ": x=" << rv.x 
+                        << " y=" << rv.y << " z=" << rv.z << std::endl;
               rv.collided = 0;
               if (iA % 2 == 0) {
                 rv.proton = 0;
@@ -197,6 +203,11 @@ void Init::sampleTA(Parameters *param, Random *random, Glauber *glauber) {
           }
           assignProtons(nucleusA_, glauber->nucleusZ1());
           recenter_nucleus(nucleusA_);
+          std::cerr << "[DEBUG] After recenter, nucleusA_ positions:" << std::endl;
+          for (size_t i = 0; i < nucleusA_.size(); i++) {
+              std::cerr << "[DEBUG]   nucleon " << i << ": x=" << nucleusA_[i].x 
+                        << " y=" << nucleusA_[i].y << " z=" << nucleusA_[i].z << std::endl;
+          }
       } else {
           // no configurations, sample with Woods-Saxon
           messager << "configuration file for A = " << glauber->nucleusA1()
@@ -220,10 +231,13 @@ void Init::sampleTA(Parameters *param, Random *random, Glauber *glauber) {
           double ran2 =random->genrand64_real3();
           int nucleusNumber = static_cast<int>(ran2 * nucleonPosArrB_.size());
           std::cout << "using nucleus Number = " << nucleusNumber << std::endl;
+          std::cerr << "[DEBUG] nucleusA2 = " << glauber->nucleusA2() << std::endl;
           for (int iA = 0; iA < glauber->nucleusA2(); iA++) {
               rv.x = nucleonPosArrB_[nucleusNumber][3*iA];
               rv.y = nucleonPosArrB_[nucleusNumber][3*iA + 1];
               rv.z = nucleonPosArrB_[nucleusNumber][3*iA + 2];
+              std::cerr << "[DEBUG] NucleusB nucleon " << iA << ": x=" << rv.x 
+                        << " y=" << rv.y << " z=" << rv.z << std::endl;
               rv.collided = 0;
               if (iA % 2 == 0) {
                 rv.proton = 0;
@@ -234,6 +248,11 @@ void Init::sampleTA(Parameters *param, Random *random, Glauber *glauber) {
           }
           assignProtons(nucleusB_, glauber->nucleusZ2());
           recenter_nucleus(nucleusB_);
+          std::cerr << "[DEBUG] After recenter, nucleusB_ positions:" << std::endl;
+          for (size_t i = 0; i < nucleusB_.size(); i++) {
+              std::cerr << "[DEBUG]   nucleon " << i << ": x=" << nucleusB_[i].x 
+                        << " y=" << nucleusB_[i].y << " z=" << nucleusB_[i].z << std::endl;
+          }
       } else {
           // no configurations, sample with Woods-Saxon
           messager << "configuration file for A = " << glauber->nucleusA2()
@@ -592,7 +611,12 @@ void Init::readInNucleusConfigs(const int nucleusA,
     fileName = path + fileName;
     messager << "read in nucleus configurations from " << fileName;
     messager.flush("info");
+    std::cerr << "[DEBUG] readInNucleusConfigs: nucleusA=" << nucleusA 
+              << ", fileName=" << fileName << std::endl;
     std::ifstream inFile(fileName, std::ios::binary);
+    if (!inFile.is_open()) {
+        std::cerr << "[DEBUG] ERROR: Could not open file " << fileName << std::endl;
+    }
     while (true) {
         vector<float> tempPos;
         for (int i = 0; i < nucleusA; i++) {
@@ -609,6 +633,15 @@ void Init::readInNucleusConfigs(const int nucleusA,
     inFile.close();
     messager << "read in " << nucleonPosArr.size() << " configurations.";
     messager.flush("info");
+    std::cerr << "[DEBUG] Read " << nucleonPosArr.size() << " configurations" << std::endl;
+    if (nucleonPosArr.size() > 0) {
+        std::cerr << "[DEBUG] First config has " << nucleonPosArr[0].size() << " floats" << std::endl;
+        std::cerr << "[DEBUG] First few values: ";
+        for (size_t i = 0; i < std::min(nucleonPosArr[0].size(), (size_t)12); i++) {
+            std::cerr << nucleonPosArr[0][i] << " ";
+        }
+        std::cerr << std::endl;
+    }
 }
 
 
@@ -1098,12 +1131,21 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
 
     ofstream foutNcoll(Ncoll_name.c_str(), ios::out);
 
+    std::cerr << "[DEBUG] Computing Ncoll: A1=" << A1 << ", A2=" << A2 << std::endl;
+    std::cerr << "[DEBUG] nucleusA_.size()=" << nucleusA_.size() 
+              << ", nucleusB_.size()=" << nucleusB_.size() << std::endl;
+    std::cerr << "[DEBUG] d2 (collision threshold) = " << d2 << " fm^2" << std::endl;
+    
     if (param->getGaussianWounding() == 0) {
       for (int i = 0; i < A1; i++) {
         for (int j = 0; j < A2; j++) {
           dx = nucleusB_.at(j).x - nucleusA_.at(i).x;
           dy = nucleusB_.at(j).y - nucleusA_.at(i).y;
           dij = dx * dx + dy * dy;
+          std::cerr << "[DEBUG] Pair (i=" << i << ", j=" << j << "): "
+                    << "A[" << i << "]=(" << nucleusA_.at(i).x << "," << nucleusA_.at(i).y << ") "
+                    << "B[" << j << "]=(" << nucleusB_.at(j).x << "," << nucleusB_.at(j).y << ") "
+                    << "dij=" << dij << " d2=" << d2 << std::endl;
           if (dij < d2) {
             foutNcoll << (nucleusB_.at(j).x + nucleusA_.at(i).x) / 2. << " "
                       << (nucleusB_.at(j).y + nucleusA_.at(i).y) / 2. << endl;
