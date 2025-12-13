@@ -82,6 +82,28 @@ void Glauber::FindNucleusData2(Nucleus *nucleus, string name,
     nucleus->beta3 = 0.;
     nucleus->beta4 = 0.0;
     nucleus->gamma = 0.;
+  } else if (name.compare("Li6") == 0) {
+    nucleus->A = 6.;
+    nucleus->Z = 3.;
+    densityFunction = "3Fermi";
+    nucleus->R_WS = 1.355;
+    nucleus->w_WS = 0.;
+    nucleus->a_WS = 0.584;
+    nucleus->beta2 = 0.0;
+    nucleus->beta3 = 0.;
+    nucleus->beta4 = 0.0;
+    nucleus->gamma = 0.;
+  } else if (name.compare("B10") == 0) {
+    nucleus->A = 10.;
+    nucleus->Z = 5.;
+    densityFunction = "3Fermi";
+    nucleus->R_WS = 2.367;
+    nucleus->w_WS = 0.;
+    nucleus->a_WS = 0.349;
+    nucleus->beta2 = 0.0;
+    nucleus->beta3 = 0.;
+    nucleus->beta4 = 0.0;
+    nucleus->gamma = 0.;
   } else if (name.compare("d") == 0) {
     nucleus->A = 2;
     nucleus->Z = 1;
