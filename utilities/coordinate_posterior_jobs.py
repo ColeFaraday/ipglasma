@@ -2,6 +2,11 @@
 """
 Coordinator script to sequentially submit and monitor posterior sample jobs.
 Submits one posterior_sample_XXX folder at a time, waits for completion, then moves to the next.
+
+This version can detect already-completed posterior samples and skip them.
+Completion heuristic (as requested): in the first job_* folder, look at the last event_* folder
+by numeric order; if it contains a file matching multiplicity-t0.4-*.dat, consider the whole
+posterior_sample_* complete.
 """
 
 import argparse
@@ -10,6 +15,66 @@ import time
 import re
 from pathlib import Path
 import sys
+
+
+_JOB_DIR_RE = re.compile(r"^job_(\d+)$")
+_EVENT_DIR_RE = re.compile(r"^event_(\d+)$")
+
+
+def _numeric_suffix(path: Path, pattern: re.Pattern):
+    match = pattern.match(path.name)
+    if not match:
+        return None
+    try:
+        return int(match.group(1))
+    except ValueError:
+        return None
+
+
+def get_first_job_dir(posterior_path: Path):
+    """Return the first job_* directory (by numeric order) under posterior_path, or None."""
+    job_dirs = []
+    for candidate in posterior_path.iterdir():
+        if not candidate.is_dir():
+            continue
+        idx = _numeric_suffix(candidate, _JOB_DIR_RE)
+        if idx is not None:
+            job_dirs.append((idx, candidate))
+    if not job_dirs:
+        return None
+    job_dirs.sort(key=lambda x: x[0])
+    return job_dirs[0][1]
+
+
+def get_last_event_dir(job_path: Path):
+    """Return the last event_* directory (by numeric order) under job_path, or None."""
+    event_dirs = []
+    for candidate in job_path.iterdir():
+        if not candidate.is_dir():
+            continue
+        idx = _numeric_suffix(candidate, _EVENT_DIR_RE)
+        if idx is not None:
+            event_dirs.append((idx, candidate))
+    if not event_dirs:
+        return None
+    event_dirs.sort(key=lambda x: x[0])
+    return event_dirs[-1][1]
+
+
+def is_posterior_folder_completed(posterior_path: Path):
+    """Determine whether a posterior_sample_* folder is already complete.
+
+    Heuristic: first job_* dir -> last event_* dir -> presence of multiplicity-t0.4-*.dat.
+    """
+    first_job = get_first_job_dir(posterior_path)
+    if first_job is None:
+        return False
+
+    last_event = get_last_event_dir(first_job)
+    if last_event is None:
+        return False
+
+    return any(last_event.glob("multiplicity-t0.4-*.dat"))
 
 def get_running_jobs(job_ids):
     """Check which job IDs are still running/pending in slurm queue."""
@@ -105,6 +170,11 @@ def main():
         default=None,
         help="Path to submit_all_jobs.sh (default: auto-detect in utilities/)"
     )
+    parser.add_argument(
+        "--submit",
+        action="store_true",
+        help="Actually submit and monitor jobs. Default is dry-run (print what would run)."
+    )
     
     args = parser.parse_args()
     
@@ -126,6 +196,7 @@ def main():
     print(f"[INFO] Base folder: {base_path}")
     print(f"[INFO] Submit script: {submit_script}")
     print(f"[INFO] Check interval: {args.check_interval} minutes")
+    print(f"[INFO] Mode: {'SUBMIT' if args.submit else 'DRY-RUN'}")
     
     # Find all posterior_sample_* folders
     posterior_folders = sorted(base_path.glob("posterior_sample_*"))
@@ -136,11 +207,45 @@ def main():
     print(f"[INFO] Found {len(posterior_folders)} posterior sample folders")
     for folder in posterior_folders:
         print(f"  - {folder.name}")
+
+    # Decide which folders still need to run
+    folders_to_run = []
+    skipped_folders = []
+    for folder in posterior_folders:
+        try:
+            if is_posterior_folder_completed(folder):
+                skipped_folders.append(folder)
+            else:
+                folders_to_run.append(folder)
+        except Exception as e:
+            # If detection fails, be conservative and include it to run (or at least report it).
+            print(f"[WARNING] Could not determine completion for {folder.name}: {e}")
+            folders_to_run.append(folder)
+
+    print(f"[INFO] Skipping {len(skipped_folders)} completed folders")
+    print(f"[INFO] Would run {len(folders_to_run)} folders")
+
+    if not args.submit:
+        if skipped_folders:
+            print("\n[SKIP] Completed posterior samples:")
+            for folder in skipped_folders:
+                first_job = get_first_job_dir(folder)
+                last_event = get_last_event_dir(first_job) if first_job else None
+                detail = ""
+                if first_job and last_event:
+                    detail = f" (checked {first_job.name}/{last_event.name})"
+                print(f"  - {folder.name}{detail}")
+
+        print("\n[RUN] Posterior samples that would be submitted:")
+        for folder in folders_to_run:
+            print(f"  - {folder.name}")
+        print("\n[INFO] Dry-run complete. Re-run with --submit to actually submit/monitor.")
+        return
     
     # Process each posterior folder sequentially
-    for idx, posterior_folder in enumerate(posterior_folders, 1):
+    for idx, posterior_folder in enumerate(folders_to_run, 1):
         print(f"\n{'#'*60}")
-        print(f"# Processing folder {idx}/{len(posterior_folders)}: {posterior_folder.name}")
+        print(f"# Processing folder {idx}/{len(folders_to_run)}: {posterior_folder.name}")
         print(f"{'#'*60}")
         
         # Submit jobs

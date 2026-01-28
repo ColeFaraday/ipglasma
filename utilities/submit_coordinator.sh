@@ -8,11 +8,11 @@
 #SBATCH -e coordinator.err
 #SBATCH -o coordinator.log
 
-# Usage: sbatch submit_coordinator.sh /path/to/base/folder
+# Usage: sbatch submit_coordinator.sh /path/to/base/folder [coordinator-args...]
 # where base/folder contains posterior_sample_001, posterior_sample_002, etc.
 
 if [ -z "$1" ]; then
-    echo "Usage: sbatch submit_coordinator.sh /path/to/base/folder"
+    echo "Usage: sbatch submit_coordinator.sh /path/to/base/folder [coordinator-args...]"
     exit 1
 fi
 
@@ -25,7 +25,7 @@ echo "Starting coordinator for: ${BASE_FOLDER}"
 echo "Script directory: ${SCRIPT_DIR}"
 echo "Start time: $(date)"
 
-# Run the coordinator Python script
-python3 "${SCRIPT_DIR}/coordinate_posterior_jobs.py" "${BASE_FOLDER}"
+# Run the coordinator Python script (pass through all args)
+python3 "${SCRIPT_DIR}/coordinate_posterior_jobs.py" "$@"
 
 echo "Coordinator finished at: $(date)"
