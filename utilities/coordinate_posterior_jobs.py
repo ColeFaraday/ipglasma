@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 Coordinator script to sequentially submit and monitor posterior sample jobs.
 Submits one posterior_sample_XXX folder at a time, waits for completion, then moves to the next.
@@ -198,8 +198,8 @@ def main():
     print(f"[INFO] Check interval: {args.check_interval} minutes")
     print(f"[INFO] Mode: {'SUBMIT' if args.submit else 'DRY-RUN'}")
     
-    # Find all posterior_sample_* folders
-    posterior_folders = sorted(base_path.glob("posterior_sample_*"))
+    # Find all posterior_sample_* folders (directories only)
+    posterior_folders = sorted([f for f in base_path.glob("posterior_sample_*") if f.is_dir()])
     if not posterior_folders:
         print(f"[ERROR] No posterior_sample_* folders found in {base_path}")
         sys.exit(1)
