@@ -1485,6 +1485,7 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
 
   cout << "Area = " << a * a * count << " fm^2" << endl;
 
+  //BIAS: here is where you'd check if it matches the acceptance criteria
   cout << "Average Qs(max) = " << param->getAverageQs() << " GeV" << endl;
   cout << "Average Qs(avg) = " << param->getAverageQsAvg() << " GeV" << endl;
   cout << "Average Qs(min) = " << param->getAverageQsmin() << " GeV" << endl;
@@ -1541,9 +1542,10 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
     alphas = param->getg() * param->getg() / 4. / M_PI;
   }
 
-  if (param->getAverageQs() > 0 && param->getAverageQsAvg() > 0 &&
+    if (param->getAverageQs() > 0 && param->getAverageQsAvg() > 0 &&
       averageQs2 > 0 && param->getAverageQsmin() > 0 && averageQs2Avg > 0 &&
-      alphas > 0 && Npart >= 2 && averageQs2min2 * a * a / hbarc / hbarc > param->getMinimumQs2ST())
+      alphas > 0 && Npart >= 2 && averageQs2min2 * a * a / hbarc / hbarc > param->getMinimumQs2ST() && param->getLoopQs2() == 0)
+      // Output Qs2 values to CSV if looping (append one line per event)
     {
       param->setSuccess(1);
       stringstream strup_name;
@@ -1574,6 +1576,36 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
   if ( averageQs2min2 * a * a / hbarc / hbarc < param->getMinimumQs2ST()) 
     cout << " **** Rejected event - Qsmin^2 S_T=" << averageQs2min2 * a * a / hbarc / hbarc << " too small ( < " << param->getMinimumQs2ST() << ")." << endl;
 
+  if (param->getLoopQs2() > 0) {
+    double Qs2MinSperp = averageQs2min2 * a * a / hbarc / hbarc;
+    double Qs2AvgSperp = averageQs2Avg * a * a / hbarc / hbarc * static_cast<double>(count);
+    double Qs2MaxSperp = averageQs2 * a * a / hbarc / hbarc * static_cast<double>(count);
+    double Sperp = a * a * static_cast<double>(count);
+    if(std::isnan(Qs2MinSperp) || std::isnan(Qs2AvgSperp) || std::isnan(Qs2MaxSperp) || std::isnan(Sperp)) {
+      cout << " **** Rejected event - NaN values in Qs2 or S_T." << endl;
+      
+    } else {
+      std::string csvFile = "Qs2_loop_output.csv";
+      // Write header if file does not exist
+      std::ifstream checkFile(csvFile.c_str());
+      bool fileExists = checkFile.good();
+      checkFile.close();
+      std::ofstream fout(csvFile.c_str(), std::ios::app);
+      if (!fileExists) {
+        fout << "event_id,b_fm,Npart,Ncoll,Qs2MinSperp,Qs2AvgSperp,Qs2MaxSperp,Sperp_fm2" << std::endl;
+      }
+      fout << param->getEventId() << "," << b << "," << Npart << "," << Ncoll << ","
+          << Qs2MinSperp << "," << Qs2AvgSperp << "," << Qs2MaxSperp << "," << Sperp << std::endl;
+      fout.close();
+      std::cout << "[loopQs2] Appended Qs2 values to " << csvFile << std::endl;
+      param->incrementLoopQs2Counter();
+      std::cout << "[loopQs2] Completed " << param->getLoopQs2Counter() << " / " << param->getLoopQs2() << " loops." << std::endl;
+      if (param->getLoopQs2Counter() >= param->getLoopQs2()) {
+        std::cout << "[loopQs2] Reached target of " << param->getLoopQs2() << " loops. Exiting." << std::endl;
+        exit(0);
+      }
+    }
+  }
 
   param->setalphas(alphas);
 

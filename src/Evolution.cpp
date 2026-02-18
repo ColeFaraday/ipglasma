@@ -2959,6 +2959,7 @@ int Evolution::multiplicity(Lattice *lat, Group *group, Parameters *param,
     }
   }
 
+  //BIAS: this is where I'd restart if its not accepted
   if (dNdeta == 0.) {
     cout << "No collision happened on rank " << param->getMPIRank()
          << ". Restarting with new random number..." << endl;

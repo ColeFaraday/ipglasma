@@ -550,6 +550,7 @@ int readInput(Setup *setup, Parameters *param, int argc, char *argv[],
   }
   param->setOutputCondensedGrid(setup->IFind(file_name, "outputCondensedGrid"));
   param->setSmallestEnergyGeV(setup->DFind(file_name, "smallestEnergyGeV"));
+  param->setLoopQs2(setup->DFind(file_name, "loopQs2"));
   if (rank == 0)
     cout << "done." << endl;
 

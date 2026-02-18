@@ -191,6 +191,8 @@ private:
   bool setWSDeformParams_, force_dmin_flag_;
   int outputCondensedGrid_ = 0; // 0: original, 1: condensed
   double smallestEnergyGeV_ = 1e-6;
+  int loopQs2_ = 0; // if >0, loop through events without full evolution, output Qs2 values
+  int loopQs2Counter_ = 0; // tracks how many Qs2 loop iterations have been completed
 
 public:
   // constructor:
@@ -441,8 +443,13 @@ public:
   int getMinimumQs2ST() { return minimumQs2ST; }
   void setOutputCondensedGrid(int x) { outputCondensedGrid_ = x; }
   int getOutputCondensedGrid() const { return outputCondensedGrid_; }
+
   void setSmallestEnergyGeV(double x) { smallestEnergyGeV_ = x; }
   double getSmallestEnergyGeV() const { return smallestEnergyGeV_; }
+  void setLoopQs2(int x) { loopQs2_ = x; }
+  int getLoopQs2() const { return loopQs2_; }
+  int getLoopQs2Counter() const { return loopQs2Counter_; }
+  void incrementLoopQs2Counter() { loopQs2Counter_++; }
 
   void loadPosteriorParameterSetsFromFile(std::string posteriorFileName,
                                           std::vector<std::vector<float>> &ParamSet);
