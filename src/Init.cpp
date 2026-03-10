@@ -574,7 +574,11 @@ void Init::readNuclearQs(Parameters *param) {
 void Init::readInNucleusConfigs(const int nucleusA,
                                 const int lightNucleusOption,
                                 vector< vector<float> > &nucleonPosArr) {
+    messager << "read in nucleus configurations for A = " << nucleusA
+             << ", lightNucleusOption = " << lightNucleusOption << "\n";
     if (nucleonPosArr.size() > 0) return;
+    messager << "made it past the return statement";
+    messager.flush("info");
     std::string path = "nucleusConfigurations/";
     std::string fileName;
     bool readFlag = true;
@@ -609,6 +613,8 @@ void Init::readInNucleusConfigs(const int nucleusA,
     } else {
         readFlag = false;
     }
+
+    messager << "readFlag: " << readFlag << "\n";
 
     if (!readFlag) return;
 
@@ -2337,13 +2343,17 @@ void Init::init(Lattice *lat, Group *group, Parameters *param, Random *random,
   if (param->getUseNucleus() == 1) {
     readNuclearQs(param);
   }
-
+  messager << "nucleonPosArrA.size()=" << nucleonPosArrA_.size() << " nucleonPosArrB_.size()=" << nucleonPosArrB_.size() << "\n";
+  messager << "Just before readInNucleusConfigs";
+  messager.flush("info");
   readInNucleusConfigs(static_cast<int>(glauber->nucleusA1()),
                        param->getlightNucleusOption(),
                        nucleonPosArrA_);
   readInNucleusConfigs(static_cast<int>(glauber->nucleusA2()),
                        param->getlightNucleusOption(),
                        nucleonPosArrB_);
+  messager << "Just after readInNucleusConfigs";
+  messager.flush("info");
 
   // sample nucleon positions
   nucleusA_.clear();
