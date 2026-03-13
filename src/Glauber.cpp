@@ -85,11 +85,11 @@ void Glauber::FindNucleusData2(Nucleus *nucleus, string name,
   } else if (name.compare("B10") == 0) {
     nucleus->A = 10.;
     nucleus->Z = 5.;
-    densityFunction = "readFromFile";
-    nucleus->R_WS = 0;
-    nucleus->w_WS = 0;
-    nucleus->a_WS = 0;
-    nucleus->beta2 = 0.0;
+    densityFunction = "3Fermi";
+    nucleus->R_WS = 2.367;
+    nucleus->w_WS = 0.;
+    nucleus->a_WS = 0.349;
+    nucleus->beta2 = 0.8;
     nucleus->beta3 = 0.;
     nucleus->beta4 = 0.0;
     nucleus->gamma = 0.;
