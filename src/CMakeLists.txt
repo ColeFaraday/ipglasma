@@ -18,6 +18,8 @@ set (SOURCES
     Parameters.cpp
     )
 
+set (SAMPLER_EXENAME "ipglasma_nucleon_sampler")
+
 set(CompileFlags "")
 if (APPLE)
     set(CompileFlags "${CompileFlags} -DAPPLE")
@@ -42,3 +44,8 @@ else ()
     target_link_libraries (${exename} ${GSL_LIBRARIES} ${MPI_CXX_LIBRARIES} ${FFTW_LIBRARIES})
     install(TARGETS ${exename} DESTINATION ${CMAKE_HOME_DIRECTORY})
 endif ()
+
+add_executable(${SAMPLER_EXENAME} nucleon_sampler_main.cpp ${SOURCES})
+set_target_properties(${SAMPLER_EXENAME} PROPERTIES COMPILE_FLAGS "${CompileFlags} -DDISABLEMPI")
+target_link_libraries(${SAMPLER_EXENAME} ${GSL_LIBRARIES} ${FFTW_LIBRARIES})
+install(TARGETS ${SAMPLER_EXENAME} DESTINATION ${CMAKE_HOME_DIRECTORY})
