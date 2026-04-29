@@ -14,3 +14,6 @@ ipglasma
 Tmunu
 *.dylib
 .DS_Store
+.idea
+ipglasma_nucleon_sampler
+samples/
