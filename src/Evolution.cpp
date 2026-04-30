@@ -432,19 +432,19 @@ void Evolution::run(Lattice *lat, BufferLattice *bufferlat, Group *group,
   evolvePhi(lat, bufferlat, param, dtau, 0.);
   evolveU(lat, bufferlat, param, dtau, 0.);
 
-  int itmax = static_cast<int>(maxtime/(a*dtau) + 0.1);
-  int it0   = static_cast<int>(0.1/(a*dtau) + 0.1);
-  int it1   = static_cast<int>(0.2/(a*dtau) + 0.1);
-  int it2   = static_cast<int>(0.4/(a*dtau) + 0.1);
-  int it3   = static_cast<int>(0.6/(a*dtau) + 0.1);
+  int itmax = static_cast<int>(maxtime / (a * dtau) + 0.1);
+  int it0 = static_cast<int>(0.1 / (a * dtau) + 0.1);
+  int it1 = static_cast<int>(0.2 / (a * dtau) + 0.1);
+  int it2 = static_cast<int>(0.4 / (a * dtau) + 0.1);
+  int it3 = static_cast<int>(0.6 / (a * dtau) + 0.1);
 
   cout << "Starting evolution" << endl;
   cout << "itmax=" << itmax << endl;
 
   // do evolution
   for (int it = 1; it <= itmax; it++) {
-    if (it == 1 || it == it0 || it == it1 || it == it2
-        || it == it3 || it == itmax) {
+    if (it == 1 || it == it0 || it == it1 || it == it2 || it == it3 ||
+        it == itmax) {
       Tmunu(lat, param, it);
       // computes flow velocity and correct energy density
       u(lat, param, it);
@@ -648,12 +648,12 @@ void Evolution::run(Lattice *lat, BufferLattice *bufferlat, Group *group,
     }
 
     int success = 1;
-    if (it == 1 || it == it0 || it == it1 || it == it2
-        || it == it3 || it == itmax) {
+    if (it == 1 || it == it0 || it == it1 || it == it2 || it == it3 ||
+        it == itmax) {
       eccentricity(lat, param, it, 0.0, 0);
-      //eccentricity(lat, param, it, 0.1, 0);
-      //eccentricity(lat, param, it, 1., 0);
-      //eccentricity(lat, param, it, 10., 0);
+      // eccentricity(lat, param, it, 0.1, 0);
+      // eccentricity(lat, param, it, 1., 0);
+      // eccentricity(lat, param, it, 10., 0);
 
       // success = multiplicity(lat, group, param, it);
       // Cole: writes the dN/dkt (and other things) to file
@@ -1451,9 +1451,9 @@ void Evolution::eccentricity(Lattice *lat, Parameters *param, int it,
       {
         weight = 0.;
       } else {
-        //weight = lat->cells[pos]->getEpsilon() * gfactor;
-        weight = (lat->cells[pos]->getEpsilon()*lat->cells[pos]->getutau()
-                  *gfactor);
+        // weight = lat->cells[pos]->getEpsilon() * gfactor;
+        weight = (lat->cells[pos]->getEpsilon() * lat->cells[pos]->getutau() *
+                  gfactor);
         area += a * a;
         sum += 1;
         avgeden += lat->cells[pos]->getEpsilon() * hbarc * gfactor; // GeV/fm^3
@@ -1594,9 +1594,9 @@ void Evolution::eccentricity(Lattice *lat, Parameters *param, int it,
       {
         weight = 0.;
       } else {
-        //weight = lat->cells[pos]->getEpsilon() * gfactor;
-        weight = (lat->cells[pos]->getEpsilon()*lat->cells[pos]->getutau()
-                  *gfactor);
+        // weight = lat->cells[pos]->getEpsilon() * gfactor;
+        weight = (lat->cells[pos]->getEpsilon() * lat->cells[pos]->getutau() *
+                  gfactor);
       }
 
       rA = sqrt(x * x + y * y);
@@ -1741,9 +1741,9 @@ void Evolution::eccentricity(Lattice *lat, Parameters *param, int it,
       {
         weight = 0.;
       } else {
-        //weight = lat->cells[pos]->getEpsilon() * gfactor;
-        weight = (lat->cells[pos]->getEpsilon()*lat->cells[pos]->getutau()
-                  *gfactor);
+        // weight = lat->cells[pos]->getEpsilon() * gfactor;
+        weight = (lat->cells[pos]->getEpsilon() * lat->cells[pos]->getutau() *
+                  gfactor);
       }
 
       y = -L / 2. + a * iy - avy2;
@@ -3566,7 +3566,8 @@ int Evolution::multiplicitynkxky(Lattice *lat, Group *group, Parameters *param,
       if (i != 0 && j != 0) {
         Nkxky[pos] += nkt * N * N / M_PI / M_PI / 2. / 2.;
       }
-      if (param->getWriteOutputs() == 2)
+      if (param->getWriteOutputs() == 2 &&
+          ((Nkxky[pos] * a / hbarc * a / hbarc) > 1e-6))
         foutNkxky << 2. * sin(kx / 2.) / a * hbarc << " "
                   << 2. * sin(ky / 2.) / a * hbarc << " "
                   << Nkxky[pos] * a / hbarc * a / hbarc << "\n";
@@ -3583,7 +3584,9 @@ int Evolution::multiplicitynkxky(Lattice *lat, Group *group, Parameters *param,
   ofstream foutMult(mult_name.c_str(), ios::out);
 
   // Header
-  foutMult << "# tau [fm]  kT [GeV]  dN/d^2k [1/GeV^2]  dN2/d^2k, but sligthly different (?) [1/GeV^2]  Tpp [?]  b [fm]  Npart [dimensionless]" << endl;
+  foutMult << "# tau [fm]  kT [GeV]  dN/d^2k [1/GeV^2]  dN2/d^2k, but sligthly "
+              "different (?) [1/GeV^2]  Tpp [?]  b [fm]  Npart [dimensionless]"
+           << endl;
 
   for (int ik = 0; ik < bins; ik++) {
     if (counter[ik] > 0) {
@@ -3666,11 +3669,11 @@ int Evolution::multiplicitynkxky(Lattice *lat, Group *group, Parameters *param,
 
   foutMult.close();
 
-  double dNdetaHadrons     = 0;
-  double dNdetaHadronsCut  = 0;
+  double dNdetaHadrons = 0;
+  double dNdetaHadronsCut = 0;
   double dNdetaHadronsCut2 = 0;
-  double dEdetaHadrons     = 0;
-  double dEdetaHadronsCut  = 0;
+  double dEdetaHadrons = 0;
+  double dEdetaHadronsCut = 0;
   double dEdetaHadronsCut2 = 0;
 
   // compute hadrons using fragmentation function
