@@ -19,3 +19,6 @@ current_sims_list.txt
 */submit.log
 simpleFragment.py
 ipglasma_fragment
+.idea
+samples/
+ipglasma_nucleon_sampler
