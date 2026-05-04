@@ -261,6 +261,17 @@ def main():
             
         print(f"\n[INFO] Created {len(indices)} posterior sample folders in {base_results}")
         sys.exit(0)
+    else:
+        generate_jobs(
+            num_jobs=args.num_jobs,
+            threads_per_job=args.threads,
+            events_per_job=args.events,
+            results_folder=args.results_folder,
+            input_file=args.input_file,
+            delete_patterns=args.delete_patterns,
+            fragmentation=args.fragmentation,
+            temperature=args.temperature
+        )
 
 if __name__ == "__main__":
     main()
