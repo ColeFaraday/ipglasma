@@ -326,8 +326,18 @@ int main(int argc, char *argv[]) {
       BufferLattice bufferlat(param->getNc(), param->getSize());
       messager.info("Lattice generated.");
 
+    // count how many impact parameters had to be sampled before one was
+    // accepted (the accepted one is included in the count). Needed to turn
+    // per-event yields into cross sections:
+    //   sigma_acc = pi*(bmax^2-bmin^2) * N_events / sum_events(nAttempts)
+    // NOTE: this only counts b values drawn by init.init(). If useFixedNpart
+    // is switched on, Init::init resamples b internally and those draws are
+    // NOT counted here, which invalidates the formula above.
+    int nAttempts = 0;
+
     while (param->getSuccess() == 0) {
       param->setSuccess(0);
+      nAttempts++;
 
       // initialize gsl random number generator (used for non-Gaussian
       // distributions)
@@ -348,6 +358,21 @@ int main(int argc, char *argv[]) {
       // do the CYM evolution of the initialized fields using parmeters in param
       evolution.run(&lat, &bufferlat, &group, param);
 
+    }
+
+    {
+      stringstream strattempts_name;
+      strattempts_name << "attempts" << param->getEventId() << ".dat";
+      ofstream foutAttempts(strattempts_name.str().c_str(), ios::out);
+      foutAttempts << "# eventId nAttempts b bmin bmax samplebFromLinear "
+                   << "SigmaNN L size Projectile Target" << endl;
+      foutAttempts << param->getEventId() << " " << nAttempts << " "
+                   << param->getb() << " " << param->getbmin() << " "
+                   << param->getbmax() << " " << param->getLinearb() << " "
+                   << param->getSigmaNN() << " " << param->getL() << " "
+                   << param->getSize() << " " << param->getProjectile() << " "
+                   << param->getTarget() << endl;
+      foutAttempts.close();
     }
 
 #ifndef DISABLEMPI
