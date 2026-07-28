@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=coordinator
+#SBATCH --job-name=coordinator_2
 #SBATCH --account=physics
 #SBATCH --partition=ada
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH -t 200:00:00
-#SBATCH -e coordinator.err
-#SBATCH -o coordinator.log
+#SBATCH -e coordinator_2.err
+#SBATCH -o coordinator_2.log
+#SBATCH --dependency=afterany:947974
 
 # Usage: sbatch submit_coordinator.sh /path/to/base/folder [coordinator-args...]
 # where base/folder contains posterior_sample_001, posterior_sample_002, etc.

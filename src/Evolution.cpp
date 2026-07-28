@@ -3567,7 +3567,7 @@ int Evolution::multiplicitynkxky(Lattice *lat, Group *group, Parameters *param,
         Nkxky[pos] += nkt * N * N / M_PI / M_PI / 2. / 2.;
       }
       if (param->getWriteOutputs() == 2 &&
-          ((Nkxky[pos] * a / hbarc * a / hbarc) > 1e-6))
+          ((Nkxky[pos] * a / hbarc * a / hbarc) > 0.0))
         foutNkxky << 2. * sin(kx / 2.) / a * hbarc << " "
                   << 2. * sin(ky / 2.) / a * hbarc << " "
                   << Nkxky[pos] * a / hbarc * a / hbarc << "\n";

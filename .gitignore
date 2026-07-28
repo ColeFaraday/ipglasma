@@ -22,3 +22,7 @@ ipglasma_fragment
 .idea
 samples/
 ipglasma_nucleon_sampler
+slurm*
+*.err
+*.log
+*.h5

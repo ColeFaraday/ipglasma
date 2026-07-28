@@ -11,7 +11,7 @@ FRAGMENTATION_EXEC_PATH = Path("/home/frdcol002/hydro/IP-Glasma-only/simpleFragm
 SIMPLE_FRAGMENTATION_EXEC_PATH = Path("/home/frdcol002/hydro/IP-Glasma-only/simpleFragment/simpleFragment.py").expanduser().resolve()
 EOS_FOLDER_PATH = Path("~/hydro/IPGlasma_wrapper/EOS").expanduser().resolve()
 
-def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file, delete_patterns=None, fragmentation=False, temperature=False):
+def generate_jobs(num_jobs, threads_per_job, events_per_job, results_folder, input_file, delete_patterns=None, fragmentation=False, temperature=False, compressNkxky=""):
     walltime = "200:00:00"
     results_path = Path(results_folder).resolve()
     print(f"[DEBUG] Resolved results_path: {results_path}")
@@ -180,6 +180,11 @@ source activate iEBE-MUSIC
                     # Join all patterns into a single rm command with space separation
                     patterns_str = " ".join(delete_patterns)
                     script.write(f"rm -f {patterns_str}\n")
+                if compressNkxky != "":
+                    this_script_path = Path(__file__).resolve().parent
+                    script.write(f"# Compress nkxky\n")
+                    script.write(f"{this_script_path}/compress_nkxky.py {compressNkxky}-{job_id}.h5 ./\n\n")
+
 
                 
                 script.write(f"cd ..\n\n")
@@ -197,6 +202,9 @@ def main():
     parser.add_argument("--fragmentation", action="store_true", help="Run ipglasma_fragment after ipglasma using multiplicity-t0.4-{evid}.dat")
     parser.add_argument("--temperature", action="store_true", help="Symlink temperature_profile and EOS folder into each event folder")
     parser.add_argument("--posterior-sample", type=int, nargs=2, default=None, metavar=('START', 'END'), help="If set, generate posterior sample folders with SubNucleonParamSet from START to END (inclusive, 1-based)")
+    parser.add_argument("--compress-nkxky", type=str, default=False, help="Compresses nkxky output to h5 (pass HDF5 path)")
+
+
 
     args = parser.parse_args()
     print(f"[DEBUG] Parsed arguments: {args}")
@@ -243,6 +251,7 @@ def main():
             # Create subfolder for this posterior sample
             posterior_folder = base_results / f"posterior_sample_{idx:03d}"
             print(f"\n[INFO] Generating posterior sample {i}/{len(indices)} (SubNucleonParamSet={idx})")
+
             
             # Call generate_jobs with modified parameters
             generate_jobs(
@@ -253,7 +262,8 @@ def main():
                 input_file=temp_input.name,
                 delete_patterns=args.delete_patterns,
                 fragmentation=args.fragmentation,
-                temperature=args.temperature
+                temperature=args.temperature,
+                compressNkxky = args.compress_nkxky
             )
             
             # Clean up temp file
@@ -270,7 +280,8 @@ def main():
             input_file=args.input_file,
             delete_patterns=args.delete_patterns,
             fragmentation=args.fragmentation,
-            temperature=args.temperature
+            temperature=args.temperature,
+            compressNkxky = args.compress_nkxky
         )
 
 if __name__ == "__main__":
