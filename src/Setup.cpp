@@ -91,6 +91,40 @@ unsigned long long int Setup::ULLIFind(string file_name, string st) {
   return (unsigned long long int)(f + 0.5);
 } /* IFind */
 
+// Checks whether a key is present, without exiting if it is not.
+bool Setup::HasKey(string file_name, string st) {
+  ifstream input(file_name.c_str());
+  if (!input)
+    return false;
+  string s, xstr;
+  while (input >> s) {
+    if (s.compare("EndOfFile") == 0)
+      break;
+    if (!(input >> xstr))
+      break;
+    if (s.compare(st) == 0) {
+      input.close();
+      return true;
+    }
+  }
+  input.close();
+  return false;
+} /* HasKey */
+
+// Reads a double, returning def if the key is absent.
+double Setup::DFindOpt(string file_name, string st, double def) {
+  if (!HasKey(file_name, st))
+    return def;
+  return DFind(file_name, st);
+} /* DFindOpt */
+
+// Reads an integer, returning def if the key is absent.
+int Setup::IFindOpt(string file_name, string st, int def) {
+  if (!HasKey(file_name, st))
+    return def;
+  return IFind(file_name, st);
+} /* IFindOpt */
+
 int Setup::IsFile(string file_name) {
   FILE *temp;
 

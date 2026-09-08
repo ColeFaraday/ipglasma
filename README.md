@@ -123,6 +123,86 @@ EndOfFile
 
 ---
 
+## Cross section mode (`crossSectionOnly`)
+
+Measures only the inelastic cross section, without generating events.
+
+An event is classified as inelastic entirely inside
+`Init::setColorChargeDensity`; the Wilson lines, the forward lightcone solve
+and the CYM evolution that normally follow have no bearing on that decision.
+Setting `crossSectionOnly 1` stops each trial as soon as the decision is known
+and repeats the sampling instead, which is ~10^3 times cheaper per accepted
+event. It reproduces the full pipeline's accept/reject decision trial for
+trial on a fixed seed.
+
+```
+crossSectionOnly       1     # measure sigma_inel only, generate no events
+crossSectionTrials     10000 # independent trials per MPI rank
+crossSectionVerbose    0     # 1 keeps the per-trial output (very noisy)
+crossSectionDumpTrials 0     # 1 writes per-trial b, outcome and Q_s,min^2 S_T
+```
+
+`crossSectionDumpTrials` writes `trials<rank>.dat`. With a fixed seed the trial
+sequence is reproducible across parameter values, so two runs that differ only
+in (say) `QsTableTmin` can be compared trial by trial. That paired
+(common-random-number) comparison is far more precise than differencing two
+independent means -- in practice it turns a ~12% error on a ratio into ~0.3%.
+
+`crossSection<rank>.dat` also reports `<Q_s,min^2 S_T>` and
+`dsigmady_arb = sigma_inel * <Q_s,min^2 S_T>`. Since `Q_s,min^2 S_T` controls
+dN/dy at leading order, that column is the production cross section up to a
+constant which cancels in any ratio -- useful because sigma_inel and
+`<dN/dy>` respond to the threshold in opposite directions and largely cancel
+in their product.
+
+Outputs, one pair per rank:
+
+- `crossSection<rank>.dat` -- `sigma_inel` in mb with its statistical error,
+  the trial and success counts, and the parameter set used.
+- `PinelOfB<rank>.dat` -- `P_inel(b)` binned in impact parameter, with binomial
+  errors. Multiple ranks are combined by summing the trial and success columns.
+
+The estimator is the fixed-trial form, which is unbiased. With
+`samplebFromLinearDistribution 1` (b sampled with pdf `2b/(bmax^2-bmin^2)`),
+
+    sigma_inel = pi (bmax^2 - bmin^2) * nInelastic / nTrials,
+
+and with uniform b sampling, `sigma_inel = 2 pi (bmax-bmin) <b*I>`. This is
+preferable to `N_events / sum(nAttempts)` from the normal event loop, which is
+a ratio of random variables and is biased at O(1/N).
+
+### The interaction threshold (`QsTableTmin`)
+
+The elastic/inelastic decision reduces to: *is there at least one lattice cell
+where both nuclei have non-zero colour charge?* A cell's `g^2 mu^2` is zero
+when `getNuclearQs2` returns zero, which happens when the nucleon thickness
+`T_p` falls below a threshold `tau`. Historically `tau` was simply the lower
+edge of the tabulated `Q_s(T_p, y)` -- for `qs2Adj_vs_Tp_vs_Y_200.in` that is
+`1e-4 GeV^2`, i.e. `Q_s = 39.7 MeV`, which is a property of the table file
+rather than a physics choice.
+
+`QsTableTmin` makes it an input so its effect can be quantified:
+
+```
+QsTableTmin  -1        # <= 0: use the table's lower edge (historical default)
+QsTableTmin  2.661e-3  # Q_s = 0.2 GeV, the same scale as the regulator m
+```
+
+The value is in GeV^2 and is clamped to the table's lower edge, since the table
+cannot be extrapolated downwards. The threshold actually in force, and the
+`Q_s` it corresponds to, are printed at startup and recorded in
+`usedParameters*.dat`.
+
+Note also that `sigma_inel` is capped at `4 * SigmaNN` and `P_inel(b)` vanishes
+beyond `2*sqrt(0.1*SigmaNN/pi)` (2.92 fm at `SigmaNN 67`), because acceptance
+additionally requires a cell within `sqrt(sigma_NN/pi)` of a collided nucleon
+of *both* nuclei. Setting `bmax` just above that bound costs no accuracy and
+avoids sampling impact parameters that can never be accepted.
+
+See `runs/inputpp5020_crossSection` for a worked example.
+
+---
+
 ## Utilities
 
 - **generate_jobs.py**: Automates job and event folder creation for batch runs.

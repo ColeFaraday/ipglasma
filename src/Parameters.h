@@ -192,6 +192,27 @@ private:
   int outputCondensedGrid_ = 0; // 0: original, 1: condensed
   double smallestEnergyGeV_ = 1e-6;
 
+  // Threshold tau on the nuclear thickness T_p [GeV^2]: getNuclearQs2 returns
+  // zero below it, so g^2mu^2 vanishes there and the cell cannot contribute to
+  // the interaction region. This is the operative elastic/inelastic threshold.
+  // <= 0 means "use the lower edge of the Q_s table" (Tlist[0] = 1e-4 GeV^2),
+  // which is the historical behaviour.
+  double QsTableTmin_ = -1.;
+  // Q_s,min^2 S_T of the last configuration (dimensionless). This is the
+  // leading-order controller of the produced gluon multiplicity, so it lets
+  // the cross section mode report d(sigma)/dy as well as sigma_inel.
+  double Qs2minST_ = 0.;
+  // 1 -> measure only sigma_inel: skip Wilson lines, the forward lightcone
+  // solve and the CYM evolution, and repeat the sampling instead.
+  int crossSectionOnly_ = 0;
+  int crossSectionTrials_ = 10000; // independent trials per MPI rank
+  int crossSectionVerbose_ = 0;    // 1 -> do not silence per-trial output
+  // 1 -> dump per-trial b, outcome and Q_s,min^2 S_T. With a fixed seed the
+  // trial sequence is reproducible across parameter values, so two runs can
+  // be compared trial by trial (paired/common-random-number analysis), which
+  // is far more precise than comparing their independent means.
+  int crossSectionDumpTrials_ = 0;
+
 public:
   // constructor:
   Parameters(){};
@@ -437,6 +458,19 @@ public:
   int getShiftConstituentQuarkProtonOrigin() {
     return shiftConstituentQuarkProtonOrigin;
   }
+  void setQs2minST(double x) { Qs2minST_ = x; }
+  double getQs2minST() { return Qs2minST_; }
+  void setQsTableTmin(double x) { QsTableTmin_ = x; }
+  double getQsTableTmin() { return QsTableTmin_; }
+  void setCrossSectionOnly(int x) { crossSectionOnly_ = x; }
+  int getCrossSectionOnly() { return crossSectionOnly_; }
+  void setCrossSectionTrials(int x) { crossSectionTrials_ = x; }
+  int getCrossSectionTrials() { return crossSectionTrials_; }
+  void setCrossSectionDumpTrials(int x) { crossSectionDumpTrials_ = x; }
+  int getCrossSectionDumpTrials() { return crossSectionDumpTrials_; }
+  void setCrossSectionVerbose(int x) { crossSectionVerbose_ = x; }
+  int getCrossSectionVerbose() { return crossSectionVerbose_; }
+
   void setMinimumQs2ST(int x) { minimumQs2ST = x; }
   int getMinimumQs2ST() { return minimumQs2ST; }
   void setOutputCondensedGrid(int x) { outputCondensedGrid_ = x; }

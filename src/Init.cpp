@@ -442,6 +442,11 @@ void Init::sampleTA(Parameters *param, Random *random, Glauber *glauber) {
 
 
 void Init::readNuclearQs(Parameters *param) {
+  // The table is a fixed input file, so read it only once. (It used to be
+  // re-read on every call, i.e. on every rejected impact parameter, which
+  // dominates the runtime of the cross section mode.)
+  if (QsTableLoaded_)
+    return;
   // steps in qs0 and Y in the file
   // double y[iymaxNuc];
   // double qs0[ibmax];
@@ -479,6 +484,32 @@ void Init::readNuclearQs(Parameters *param) {
          << std::endl;
     exit(1);
   }
+  QsTableLoaded_ = true;
+
+  // Establish the threshold tau below which getNuclearQs2 returns zero.
+  //
+  // This is the operative elastic/inelastic threshold of the whole code: a
+  // cell with T_p < tau gets g^2mu^2 = 0, and an event is accepted as
+  // inelastic only if at least one cell has g^2mu^2 > 0 for *both* nuclei
+  // (see the success condition in setColorChargeDensity). Historically tau was
+  // whatever the lower edge of the Q_s table happened to be -- 1e-4 GeV^2 for
+  // qs2Adj_vs_Tp_vs_Y_200.in, which corresponds to Q_s ~ 40 MeV. Making it an
+  // input allows that choice to be varied and its effect quantified.
+  //
+  // The table cannot be extrapolated below its lower edge, so clamp there.
+  TpMin_ = param->getQsTableTmin();
+  if (TpMin_ <= 0.) {
+    TpMin_ = Tlist[0];
+  } else if (TpMin_ < Tlist[0]) {
+    std::cout << "[Init::readNuclearQs] WARNING: QsTableTmin = " << TpMin_
+              << " GeV^2 lies below the lower edge of the table ("
+              << Tlist[0] << " GeV^2). Clamping to the table edge."
+              << std::endl;
+    TpMin_ = Tlist[0];
+  }
+  std::cout << "Interaction threshold: T_p >= " << TpMin_ << " GeV^2"
+            << " (Q_s(y=0) = " << sqrt(getNuclearQs2(TpMin_, 0.)) << " GeV)"
+            << std::endl;
 }
 
 // void Init::readNuclearQs(Parameters *param)
@@ -715,7 +746,9 @@ double Init::getNuclearQs2(double T, double y) {
     return value;
   }
 
-  if (T < Tlist[0]) {
+  // Below the threshold there is no color charge: this is what makes a
+  // collision elastic. TpMin_ defaults to Tlist[0] (the table's lower edge).
+  if (T < TpMin_) {
     check = 1;
     return 0.;
   }
@@ -767,6 +800,7 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
 
   int Npart = 0;
   int Ncoll = 0;
+  param->setQs2minST(0.);
   double g2mu2A, g2mu2B;
   double b = param->getb();
   double r;
@@ -1094,7 +1128,13 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
     string Ncoll_name;
     Ncoll_name = strNcoll_name.str();
 
-    ofstream foutNcoll(Ncoll_name.c_str(), ios::out);
+    // In cross section mode these per-event lists are never consumed and
+    // would be rewritten on every trial, so skip the I/O entirely.
+    const bool writeLists = (param->getCrossSectionOnly() != 1);
+
+    ofstream foutNcoll;
+    if (writeLists)
+      foutNcoll.open(Ncoll_name.c_str(), ios::out);
 
     // determination of Ncoll (&HSC)
     // determination is done at the nucleon level, not the quark level
@@ -1105,8 +1145,9 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
           dy = nucleusB_.at(j).y - nucleusA_.at(i).y;
           dij = dx * dx + dy * dy;
           if (dij < d2) {
-            foutNcoll << (nucleusB_.at(j).x + nucleusA_.at(i).x) / 2. << " "
-                      << (nucleusB_.at(j).y + nucleusA_.at(i).y) / 2. << endl; // Location of the binary collision is the average transverse positiom of the nucleons
+            if (writeLists)
+              foutNcoll << (nucleusB_.at(j).x + nucleusA_.at(i).x) / 2. << " "
+                        << (nucleusB_.at(j).y + nucleusA_.at(i).y) / 2. << endl; // Location of the binary collision is the average transverse positiom of the nucleons
             Ncoll++;
             nucleusB_.at(j).collided = 1;
             nucleusA_.at(i).collided = 1;
@@ -1131,8 +1172,9 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
           ran = random->genrand64_real1();
 
           if (ran < p) {
-            foutNcoll << (nucleusB_.at(j).x + nucleusA_.at(i).x) / 2. << " "
-                      << (nucleusB_.at(j).y + nucleusA_.at(i).y) / 2. << endl;
+            if (writeLists)
+              foutNcoll << (nucleusB_.at(j).x + nucleusA_.at(i).x) / 2. << " "
+                        << (nucleusB_.at(j).y + nucleusA_.at(i).y) / 2. << endl;
             Ncoll++;
             nucleusB_.at(j).collided = 1;
             nucleusA_.at(i).collided = 1;
@@ -1148,20 +1190,22 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
     string Npart_name;
     Npart_name = strNpart_name.str();
 
-    ofstream foutNpart(Npart_name.c_str(), ios::out);
+    if (writeLists) {
+      ofstream foutNpart(Npart_name.c_str(), ios::out);
 
-    for (int i = 0; i < A1; i++) {
-      foutNpart << nucleusA_.at(i).x << " " << nucleusA_.at(i).y << " "
-                << nucleusA_.at(i).proton << " " << nucleusA_.at(i).collided
-                << endl;
+      for (int i = 0; i < A1; i++) {
+        foutNpart << nucleusA_.at(i).x << " " << nucleusA_.at(i).y << " "
+                  << nucleusA_.at(i).proton << " " << nucleusA_.at(i).collided
+                  << endl;
+      }
+      foutNpart << endl;
+      for (int i = 0; i < A2; i++) {
+        foutNpart << nucleusB_.at(i).x << " " << nucleusB_.at(i).y << " "
+                  << nucleusB_.at(i).proton << " " << nucleusB_.at(i).collided
+                  << endl;
+      }
+      foutNpart.close();
     }
-    foutNpart << endl;
-    for (int i = 0; i < A2; i++) {
-      foutNpart << nucleusB_.at(i).x << " " << nucleusB_.at(i).y << " "
-                << nucleusB_.at(i).proton << " " << nucleusB_.at(i).collided
-                << endl;
-    }
-    foutNpart.close();
 
     // in p+p assume that they collided in any case
     if (A1 == 1 && A2 == 1) {
@@ -1452,16 +1496,30 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
     }
   }
 
-  averageQs /= static_cast<double>(count);
-  averageQs2 /= static_cast<double>(count);
-  averageQs2Avg /= static_cast<double>(count);
-  averageQs2min /= static_cast<double>(count);
+  if (count == 0) {
+    // No cell lies within sqrt(sigma_NN/pi) of a collided nucleon of both
+    // nuclei, so there is no interaction region and the event is not
+    // inelastic. This used to divide 0/0 and rely on the resulting NaN
+    // failing the "> 0" tests below; that is undefined behaviour under
+    // -Ofast (-ffinite-math-only), which the GNU build uses.
+    averageQs = 0.;
+    averageQs2 = 0.;
+    averageQs2Avg = 0.;
+    averageQs2min = 0.;
+  } else {
+    averageQs /= static_cast<double>(count);
+    averageQs2 /= static_cast<double>(count);
+    averageQs2Avg /= static_cast<double>(count);
+    averageQs2min /= static_cast<double>(count);
+  }
 
   param->setAverageQs(sqrt(averageQs2));
   param->setAverageQsAvg(sqrt(averageQs2Avg));
   param->setAverageQsmin(sqrt(averageQs2min));
 
   param->setTpp(Tpp);
+  // Q_s,min^2 S_T: sum over cells of min(Q_sA^2, Q_sB^2), dimensionless.
+  param->setQs2minST(averageQs2min2 * a * a / hbarc / hbarc);
 
   messager << "N_part=" << Npart;
   messager.flush("info");
@@ -1546,6 +1604,7 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
       alphas > 0 && Npart >= 2 && averageQs2min2 * a * a / hbarc / hbarc > param->getMinimumQs2ST())
     {
       param->setSuccess(1);
+      if (param->getCrossSectionOnly() != 1) {
       stringstream strup_name;
       strup_name << "usedParameters" << param->getEventId() << ".dat";
       string up_name;
@@ -1570,12 +1629,16 @@ void Init::setColorChargeDensity(Lattice *lat, Parameters *param,
       } else
         fout1 << "using fixed coupling alpha_s=" << param->getalphas() << endl;
       fout1.close();
+      }
     }
   if ( averageQs2min2 * a * a / hbarc / hbarc < param->getMinimumQs2ST()) 
     cout << " **** Rejected event - Qsmin^2 S_T=" << averageQs2min2 * a * a / hbarc / hbarc << " too small ( < " << param->getMinimumQs2ST() << ")." << endl;
 
 
   param->setalphas(alphas);
+
+  if (param->getCrossSectionOnly() == 1)
+    return;
 
   stringstream strNEst_name;
   strNEst_name << "NgluonEstimators" << param->getEventId() << ".dat";
@@ -2368,6 +2431,14 @@ void Init::init(Lattice *lat, Group *group, Parameters *param, Random *random,
            << ". Restarting with new random number..." << endl;
       return;
     }
+
+    // The elastic/inelastic decision is complete at this point: it is made
+    // entirely by setColorChargeDensity. Everything below -- Wilson lines,
+    // the forward lightcone solve, and the CYM evolution driven from main --
+    // is irrelevant to it, so the cross section mode stops here.
+    if (param->getCrossSectionOnly() == 1)
+      return;
+
     // sample color charges and find Wilson lines V_A and V_B
     setV(lat, group, param, random);
   }

@@ -40,6 +40,11 @@ private:
   double Qs2Nuclear[iTpmax][iymaxNuc];
   double Tlist[iTpmax];
 
+  // Effective threshold tau on T_p [GeV^2] used by getNuclearQs2. Set in
+  // readNuclearQs from Parameters::getQsTableTmin(), defaulting to Tlist[0].
+  double TpMin_ = 0.;
+  bool QsTableLoaded_ = false; // the Q_s table is a fixed file: read it once
+
   double As[1];
 
   std::vector< vector<float> > nucleonPosArrA_;
@@ -65,6 +70,7 @@ public:
   std::vector<complex<double>> solveAxb(Parameters *param, complex<double> *A,
                                         complex<double> *b);
   double getNuclearQs2(double Qs2atZeroY, double y);
+  double getTpMin() const { return TpMin_; }
   void setColorChargeDensity(Lattice *lat, Parameters *param, Random *random,
                              Glauber *glauber);
   void setV(Lattice *lat, Group *group, Parameters *param, Random *random);

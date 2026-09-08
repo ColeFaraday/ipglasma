@@ -33,6 +33,7 @@ int readInput(Setup *setup, Parameters *param, int argc, char *argv[],
               int rank);
 void display_logo();
 void writeparams(Parameters *param);
+void runCrossSectionMode(Parameters *param, Random *random, int rank);
 
 // main program 1
 int main(int argc, char *argv[]) {
@@ -114,6 +115,20 @@ int main(int argc, char *argv[]) {
     messager << "Random seed on rank " << rank << " = " << seedList[rank]
              << " read from list.";
     messager.flush("info");
+  }
+
+  // Cross section mode: no events are generated, so bypass the event loop.
+  if (param->getCrossSectionOnly() == 1) {
+    if (rank == 0)
+      display_logo();
+    runCrossSectionMode(param, random, rank);
+    delete random;
+    delete param;
+#ifndef DISABLEMPI
+    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Finalize();
+#endif
+    return 0;
   }
 
   // event loop starts ...
@@ -417,6 +432,238 @@ int main(int argc, char *argv[]) {
   return 1;
 }
 
+
+// ---------------------------------------------------------------------------
+// Cross section mode.
+//
+// Measures only the inelastic nucleon-nucleon cross section. The
+// elastic/inelastic decision is made entirely inside
+// Init::setColorChargeDensity; the Wilson lines, the forward lightcone solve
+// and the CYM evolution that normally follow have no influence on it, so this
+// path skips all of them (see the early return in Init::init) and simply
+// repeats the sampling.
+//
+// Estimator. With b drawn from the linear distribution
+// (samplebFromLinearDistribution 1, pdf = 2b/(bmax^2-bmin^2)),
+//
+//     sigma_inel = pi (bmax^2 - bmin^2) * S / M,
+//
+// and with b drawn uniformly (pdf = 1/(bmax-bmin)),
+//
+//     sigma_inel = 2 pi (bmax - bmin) * <b*I>,
+//
+// where S is the number of accepted trials out of M and I is the indicator of
+// acceptance. Both are unbiased with a simple error bar. This is preferable to
+// the N_events / sum(nAttempts) form produced by the normal event loop, which
+// is a ratio of random variables and is biased at O(1/N).
+//
+// Also writes P_inel(b) binned in b, which is what N_coll actually needs and
+// what allows the b-dependence to be reweighted in post-processing.
+// ---------------------------------------------------------------------------
+void runCrossSectionMode(Parameters *param, Random *random, int rank) {
+  pretty_ostream messager;
+
+  const int N = param->getSize();
+  int nn[2] = {N, N};
+  const int M = param->getCrossSectionTrials();
+  const double bmin = param->getbmin();
+  const double bmax = param->getbmax();
+  const bool linearb = (param->getLinearb() == 1);
+
+  if (bmax <= bmin) {
+    cerr << "[crossSectionOnly] bmax must exceed bmin. Exiting." << endl;
+    exit(1);
+  }
+
+  // One parameter set for the whole run, chosen once rather than per event.
+  if (param->getSubNucleonParamType() > 0) {
+    int iSet = param->getSubNucleonParamSet();
+    if (iSet == -1)
+      iSet = random->genrand64_int63();
+    param->setParamsWithPosteriorParameterSet(param->getSubNucleonParamType(),
+                                              iSet);
+  }
+  param->setEventId(rank);
+  writeparams(param);
+
+  Init init(nn);
+  Group group(param->getNc());
+  Glauber glauber;
+  glauber.initGlauber(param->getSigmaNN(), param->getTarget(),
+                      param->getProjectile(), param->getb(),
+                      param->getSetWSDeformParams(), param->getR_WS(),
+                      param->getA_WS(), param->getBeta2(), param->getBeta3(),
+                      param->getBeta4(), param->getGamma(),
+                      param->getForceDmin(), param->getDmin(), 100);
+  // Allocated once for the whole run, not per trial.
+  Lattice lat(param, param->getNc(), N);
+
+  // Load the Q_s table up front so that the threshold it establishes is
+  // reported before per-trial output is silenced below.
+  if (param->getUseNucleus() == 1)
+    init.readNuclearQs(param);
+
+  const int nbins = 100;
+  std::vector<long> nTrialBin(nbins, 0), nInelBin(nbins, 0);
+  long nInel = 0;
+  double sumbI = 0., sumb2I = 0.;
+  // Q_s,min^2 S_T controls dN/dy at leading order, so accumulating it over
+  // the accepted trials gives d(sigma)/dy up to an overall constant that
+  // cancels in any ratio of cross sections (R_AB^sigma and its double
+  // ratio). Unlike sigma_inel it is an integral over the bulk of the
+  // density rather than a level set in its tail, so it responds very
+  // differently to the threshold.
+  double sumQ = 0., sumQ2 = 0., sumTpp = 0.;
+
+  ofstream foutTrials;
+  if (param->getCrossSectionDumpTrials() == 1) {
+    stringstream tname;
+    tname << "trials" << rank << ".dat";
+    foutTrials.open(tname.str().c_str(), ios::out);
+    foutTrials << "# itrial b inelastic Qs2minST Tpp" << endl;
+  }
+
+  messager << "Measuring sigma_inel with " << M << " trials on rank " << rank
+           << ", b in [" << bmin << ", " << bmax << "] fm, "
+           << (linearb ? "linear" : "uniform") << " b sampling.";
+  messager.flush("info");
+
+  // Init prints per-trial diagnostics that would dominate both the runtime and
+  // the log at 10^4 trials, so silence stdout for the loop unless asked not to.
+  std::ofstream devnull("/dev/null");
+  std::streambuf *coutbuf = std::cout.rdbuf();
+  const bool quiet = (param->getCrossSectionVerbose() == 0);
+  if (quiet)
+    std::cout.rdbuf(devnull.rdbuf());
+
+  for (int i = 0; i < M; i++) {
+    param->setSuccess(0);
+    init.init(&lat, &group, param, random, &glauber, 0);
+
+    const double b = param->getb();
+    int ib = static_cast<int>((b - bmin) / (bmax - bmin) * nbins);
+    if (ib < 0)
+      ib = 0;
+    if (ib >= nbins)
+      ib = nbins - 1;
+    nTrialBin[ib]++;
+
+    if (param->getCrossSectionDumpTrials() == 1)
+      foutTrials << i << " " << b << " " << param->getSuccess() << " "
+                 << (param->getSuccess() == 1 ? param->getQs2minST() : 0.)
+                 << " " << param->getTpp() << endl;
+
+    if (param->getSuccess() == 1) {
+      nInel++;
+      nInelBin[ib]++;
+      sumbI += b;
+      sumb2I += b * b;
+      const double q = param->getQs2minST();
+      sumQ += q;
+      sumQ2 += q * q;
+      sumTpp += param->getTpp();
+    }
+
+    if (quiet && (i + 1) % 500 == 0)
+      cerr << "[Info] rank " << rank << ": " << (i + 1) << "/" << M
+           << " trials, " << nInel << " inelastic" << endl;
+  }
+
+  if (quiet)
+    std::cout.rdbuf(coutbuf);
+  if (foutTrials.is_open())
+    foutTrials.close();
+
+  // sigma_inel and its statistical error, in fm^2 then converted to mb.
+  const double Md = static_cast<double>(M);
+  double sigma_fm2 = 0., err_fm2 = 0.;
+  if (linearb) {
+    const double area = M_PI * (bmax * bmax - bmin * bmin);
+    const double p = nInel / Md;
+    sigma_fm2 = area * p;
+    err_fm2 = area * sqrt(p * (1. - p) / Md);
+  } else {
+    const double pref = 2. * M_PI * (bmax - bmin);
+    const double mean = sumbI / Md;
+    // sample variance of the per-trial estimator b*I
+    double var = (sumb2I - Md * mean * mean) / (Md - 1.);
+    if (var < 0.)
+      var = 0.;
+    sigma_fm2 = pref * mean;
+    err_fm2 = pref * sqrt(var / Md);
+  }
+  const double sigma_mb = 10. * sigma_fm2;
+  const double err_mb = 10. * err_fm2;
+
+  stringstream fname;
+  fname << "crossSection" << rank << ".dat";
+  ofstream fout(fname.str().c_str(), ios::out);
+  fout << "# IP-Glasma inelastic cross section (crossSectionOnly mode)" << endl;
+  fout << "# sigma_inel = "
+       << (linearb ? "pi(bmax^2-bmin^2) * nInelastic/nTrials"
+                   : "2pi(bmax-bmin) * <b*I>")
+       << ", error is statistical only" << endl;
+  // d(sigma)/dy up to a constant: same b-measure as sigma_inel, weighted by
+  // the density instead of by acceptance alone.
+  const double norm = linearb ? M_PI * (bmax * bmax - bmin * bmin)
+                              : 2. * M_PI * (bmax - bmin);
+  const double dsigdy = 10. * norm * sumQ / Md;
+  // Standard error of the per-trial estimator q*I (q for accepted trials,
+  // zero for rejected ones), over all M trials -- not sqrt(sum q^2).
+  const double meanAll = sumQ / Md;
+  double varAll = (sumQ2 - Md * meanAll * meanAll) / (Md - 1.);
+  if (varAll < 0.)
+    varAll = 0.;
+  const double dsigdy_err = 10. * norm * sqrt(varAll / Md);
+  const double meanQ = (nInel > 0) ? sumQ / nInel : 0.;
+  const double meanTpp = (nInel > 0) ? sumTpp / nInel : 0.;
+  double varQ = (nInel > 1) ? (sumQ2 - nInel * meanQ * meanQ) / (nInel - 1.) : 0.;
+  if (varQ < 0.)
+    varQ = 0.;
+
+  fout << "# rank nTrials nInelastic sigma_inel_mb stat_err_mb bmin bmax "
+       << "samplebFromLinear QsTableTmin_GeV2 BG BGq dqMin smearingWidth "
+       << "QsmuRatio m NqBase SigmaNN roots Projectile Target size L "
+       << "meanQs2minST rmsQs2minST meanTpp dsigmady_arb dsigmady_err" << endl;
+  fout << rank << " " << M << " " << nInel << " " << sigma_mb << " " << err_mb
+       << " " << bmin << " " << bmax << " " << param->getLinearb() << " "
+       << param->getQsTableTmin() << " " << param->getBG() << " "
+       << param->getBGq() << " " << param->getDqmin() << " "
+       << param->getSmearingWidth() << " " << param->getQsmuRatio() << " "
+       << param->getm() << " " << param->getNqBase() << " "
+       << param->getSigmaNN() << " " << param->getRoots() << " "
+       << param->getProjectile() << " " << param->getTarget() << " "
+       << param->getSize() << " " << param->getL() << " "
+       << meanQ << " " << sqrt(varQ) << " " << meanTpp << " "
+       << dsigdy << " " << dsigdy_err << endl;
+  fout.close();
+
+  stringstream pname;
+  pname << "PinelOfB" << rank << ".dat";
+  ofstream foutP(pname.str().c_str(), ios::out);
+  foutP << "# P_inel(b) from " << M << " trials on rank " << rank << endl;
+  foutP << "# b_lo b_hi b_mid nTrials nInelastic P_inel P_inel_err" << endl;
+  const double db = (bmax - bmin) / nbins;
+  for (int i = 0; i < nbins; i++) {
+    const double blo = bmin + i * db;
+    const long nt = nTrialBin[i], ni = nInelBin[i];
+    double p = 0., ep = 0.;
+    if (nt > 0) {
+      p = static_cast<double>(ni) / static_cast<double>(nt);
+      ep = sqrt(p * (1. - p) / static_cast<double>(nt));
+    }
+    foutP << blo << " " << blo + db << " " << blo + 0.5 * db << " " << nt << " "
+          << ni << " " << p << " " << ep << endl;
+  }
+  foutP.close();
+
+  messager << "sigma_inel = " << sigma_mb << " +/- " << err_mb << " mb  ("
+           << nInel << "/" << M << " inelastic), <Qs2minST> = " << meanQ
+           << ", dsigma/dy [arb] = " << dsigdy << ". Written to "
+           << fname.str() << " and " << pname.str() << ".";
+  messager.flush("info");
+}
+
 void display_logo() {
   cout << endl;
   cout << "--------------------------------------------------------------------"
@@ -573,6 +820,18 @@ int readInput(Setup *setup, Parameters *param, int argc, char *argv[],
   if (param->getSubNucleonParamType() > 0) {
       param->loadPosteriorParameterSets(param->getSubNucleonParamType());
   }
+  // Optional keys: absent from input files written before they existed, so
+  // read them with defaults rather than exiting.
+  // tau, the threshold on T_p [GeV^2] that decides elastic vs inelastic.
+  // <= 0 keeps the historical behaviour (the lower edge of the Q_s table).
+  param->setQsTableTmin(setup->DFindOpt(file_name, "QsTableTmin", -1.));
+  param->setCrossSectionOnly(setup->IFindOpt(file_name, "crossSectionOnly", 0));
+  param->setCrossSectionTrials(
+      setup->IFindOpt(file_name, "crossSectionTrials", 10000));
+  param->setCrossSectionVerbose(
+      setup->IFindOpt(file_name, "crossSectionVerbose", 0));
+  param->setCrossSectionDumpTrials(
+      setup->IFindOpt(file_name, "crossSectionDumpTrials", 0));
   param->setOutputCondensedGrid(setup->IFind(file_name, "outputCondensedGrid"));
   param->setSmallestEnergyGeV(setup->DFind(file_name, "smallestEnergyGeV"));
   if (rank == 0)
@@ -641,5 +900,12 @@ void writeparams(Parameters *param)
     fout1 << "smearing width " << param->getSmearingWidth() << endl;
   }
   fout1 << "Using fat tailed distribution " << param->getUseFatTails() << endl;
+  if (param->getQsTableTmin() > 0.)
+    fout1 << "QsTableTmin (tau) " << param->getQsTableTmin() << " GeV^2" << endl;
+  else
+    fout1 << "QsTableTmin (tau) from the Q_s table's lower edge" << endl;
+  if (param->getCrossSectionOnly() == 1)
+    fout1 << "crossSectionOnly 1, trials " << param->getCrossSectionTrials()
+          << endl;
   fout1.close();
 }
