@@ -4,7 +4,6 @@
 *.png
 *#
 *.pages
-*.py
 src/.DS_Store
 src/ipglasma
 src/ipglasma.dSYM/
@@ -14,4 +13,16 @@ ipglasma
 Tmunu
 *.dylib
 .DS_Store
-*.bin.in
+.vscode/settings.json
+.vscode/
+current_sims_list.txt
+*/submit.log
+simpleFragment.py
+ipglasma_fragment
+.idea
+samples/
+ipglasma_nucleon_sampler
+slurm*
+*.err
+*.log
+*.h5
