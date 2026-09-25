@@ -211,6 +211,10 @@ class Parameters {
     int minimumQs2ST;  // if >0 this will excludes events with Qs_min^2 S_T <
                        // minimumQs2ST. Can be used to trigger on high
                        // multiplicity events.
+    int Ncoll_ = 0;    // number of binary collisions of the last trial
+    double Qs2minST_ = 0.;  // Q_s,min^2 S_T of the last trial (dimensionless)
+    int crossSectionMode_ = 0;  // 1: stop each event as soon as it is found
+                                // to be inelastic (only record the trials)
     double R_WS_, a_WS_;
     double beta2;  // value of deformation parameter beta2 to test sensitivity
                    // in Uranium
@@ -498,6 +502,12 @@ class Parameters {
     }
     void setMinimumQs2ST(int x) { minimumQs2ST = x; }
     int getMinimumQs2ST() { return minimumQs2ST; }
+    void setNcoll(int x) { Ncoll_ = x; }
+    int getNcoll() { return Ncoll_; }
+    void setQs2minST(double x) { Qs2minST_ = x; }
+    double getQs2minST() { return Qs2minST_; }
+    void setCrossSectionMode(int x) { crossSectionMode_ = x; }
+    int getCrossSectionMode() { return crossSectionMode_; }
 
     void setComputeGluonMultiplicity(int x) {
         if (x == 0) {

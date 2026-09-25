@@ -29,6 +29,7 @@ class Init {
     //  Glauber *glauber;
     double Qs2Nuclear[iTpmax][iymaxNuc];
     double Tlist[iTpmax];
+    bool QsTableLoaded_ = false;  // the Q_s table is a fixed file: read once
 
     double As[1];
 

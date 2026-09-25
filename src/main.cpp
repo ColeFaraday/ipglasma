@@ -42,6 +42,9 @@ int readInput(
     Setup *setup, Parameters *param, int argc, char *argv[], int rank);
 void display_logo();
 void writeparams(Parameters *param);
+bool checkCrossSectionSetup(Parameters *param, int rank);
+void writeCrossSectionSummary(
+    Parameters *param, int rank, long nEvents, long nTrials);
 
 // main program 1
 int main(int argc, char *argv[]) {
@@ -127,6 +130,19 @@ int main(int argc, char *argv[]) {
         messager.flush("info");
     }
 
+    // Every sampled impact parameter (trial) is logged, whether or not it led
+    // to an inelastic collision, so that sigma_inel can be computed from any
+    // run. See writeCrossSectionSummary for the estimator.
+    const bool crossSectionMode = (param->getCrossSectionMode() == 1);
+    const bool sigmaValid = checkCrossSectionSetup(param, rank);
+    long nEventsTotal = 0;
+    long nTrialsTotal = 0;
+    stringstream strTrials_name;
+    strTrials_name << "crossSectionTrials" << rank << ".dat";
+    ofstream foutTrials(strTrials_name.str().c_str(), std::ios::out);
+    foutTrials << "# eventId trial b inelastic Npart Ncoll Qs2minST Tpp"
+               << endl;
+
     // event loop starts ...
     for (int iev = 0; iev < nev; iev++) {
         const int profiler_event_id = rank + iev * size;
@@ -138,7 +154,10 @@ int main(int argc, char *argv[]) {
         // welcome
         if (rank == 0) display_logo();
 
-        if (param->getSubNucleonParamType() > 0) {
+        // in cross section mode one parameter set is used for the whole run,
+        // so that sigma_inel refers to a single point in parameter space
+        if (param->getSubNucleonParamType() > 0
+            && (iev == 0 || !crossSectionMode)) {
             IPG_PROFILE_SCOPE("initialization.subnucleon_parameters");
             // sample the sub-nucleon parameters from the posterior distribution
             int iSubNucleonParamSet = param->getSubNucleonParamSet();
@@ -154,7 +173,8 @@ int main(int argc, char *argv[]) {
         param->setEventId(rank + iev * size);
         param->setSuccess(0);
 
-        {
+        // in cross section mode only write the parameters once per rank
+        if (iev == 0 || !crossSectionMode) {
             IPG_PROFILE_SCOPE("parameters.write");
             writeparams(param);
         }
@@ -167,10 +187,12 @@ int main(int argc, char *argv[]) {
         strup_name << "usedParameters" << param->getEventId() << ".dat";
         string up_name;
         up_name = strup_name.str();
-        ofstream fout1(up_name.c_str(), std::ios::app);
-        fout1 << "Random seed used on rank " << rank << ": "
-              << param->getRandomSeed() << endl;
-        fout1.close();
+        if (iev == 0 || !crossSectionMode) {
+            ofstream fout1(up_name.c_str(), std::ios::app);
+            fout1 << "Random seed used on rank " << rank << ": "
+                  << param->getRandomSeed() << endl;
+            fout1.close();
+        }
 
         // initialize init object
         Init init(nn);
@@ -353,8 +375,10 @@ int main(int argc, char *argv[]) {
             Lattice lat(param, param->getNc(), param->getSize());
             messager.info("Lattice generated.");
 
+            int iTrial = 0;
             while (param->getSuccess() == 0) {
                 param->setSuccess(0);
+                iTrial++;
 
                 // initialize gsl random number generator (used for
                 // non-Gaussian distributions)
@@ -369,15 +393,31 @@ int main(int argc, char *argv[]) {
                 }
                 messager.info("initialization done.");
 
+                foutTrials << param->getEventId() << " " << iTrial << " "
+                           << param->getb() << " " << param->getSuccess() << " "
+                           << param->getNpart() << " " << param->getNcoll()
+                           << " " << param->getQs2minST() << " "
+                           << param->getTpp() << endl;
+
                 if (param->getSuccess() == 0) {
                     continue;
                 }
+
+                // the event is inelastic, which is all we want to know here
+                if (crossSectionMode) break;
 
                 messager.info("Start evolution");
                 // do the CYM evolution of the initialized fields using
                 // parameters in param
                 evolution.run(&lat, &group, param);
             }
+
+            nEventsTotal++;
+            nTrialsTotal += iTrial;
+            foutTrials.flush();
+            if (sigmaValid)
+                writeCrossSectionSummary(
+                    param, rank, nEventsTotal, nTrialsTotal);
 
 #ifndef DISABLEMPI
             {
@@ -387,7 +427,7 @@ int main(int argc, char *argv[]) {
 #endif
 
             messager.info("One event finished");
-            if (param->getWriteOutputsToHDF5() == 1) {
+            if (param->getWriteOutputsToHDF5() == 1 && !crossSectionMode) {
                 IPG_PROFILE_SCOPE("output.hdf5_collect_event");
                 int status = 0;
                 stringstream h5output_filename;
@@ -413,6 +453,14 @@ int main(int argc, char *argv[]) {
         }  // lattice lifetime
 
         ipg::Profiler::instance().endEvent();
+    }
+
+    foutTrials.close();
+    if (sigmaValid) {
+        messager << "Cross section summary written to crossSection" << rank
+                 << ".dat (" << nEventsTotal << " inelastic out of "
+                 << nTrialsTotal << " trials).";
+        messager.flush("info");
     }
 
     delete random;
@@ -624,6 +672,9 @@ int readInput(
     param->setShiftConstituentQuarkProtonOrigin(
         setup->DFind(file_name, "shiftConstituentQuarkProtonOrigin"));
     param->setMinimumQs2ST(setup->IFind(file_name, "minimumQs2ST"));
+    // optional: 1 stops every event as soon as it is found to be inelastic
+    param->setCrossSectionMode(
+        setup->IFindOptional(file_name, "crossSectionMode", 0));
     param->setSubNucleonParamType(
         setup->IFind(file_name, "SubNucleonParamType"));
     param->setSubNucleonParamSet(setup->IFind(file_name, "SubNucleonParamSet"));
@@ -698,5 +749,67 @@ void writeparams(Parameters *param) {
     }
     fout1 << "Using fat tailed distribution " << param->getUseFatTails()
           << endl;
+    fout1 << "crossSectionMode " << param->getCrossSectionMode() << endl;
     fout1.close();
+}
+
+// Decides whether the logged trials can be turned into sigma_inel, and exits
+// if cross section mode is requested with a setup where they cannot.
+bool checkCrossSectionSetup(Parameters *param, int rank) {
+    string reason = "";
+    if (param->getUseNucleus() != 1)
+        reason = "useNucleus != 1 (b is not sampled)";
+    else if (param->getReadInitialWilsonLines() != 0)
+        reason = "readInitialWilsonLines != 0 (no inelastic decision is made)";
+    else if (param->getLinearb() != 1)
+        reason = "samplebFromLinearDistribution != 1";
+    else if (param->getUseFixedNpart() != 0)
+        reason =
+            "useFixedNpart != 0 (Init::init resamples b internally, and "
+            "those trials are not counted)";
+
+    if (reason.empty()) return true;
+
+    if (param->getCrossSectionMode() == 1) {
+        if (rank == 0)
+            cerr << "[crossSectionMode] cannot compute sigma_inel with "
+                 << reason << ". Exiting." << endl;
+        exit(1);
+    }
+    if (rank == 0)
+        cout << "[Info] Not writing the sigma_inel summary: " << reason << "."
+             << endl;
+    return false;
+}
+
+// Writes the running estimate of sigma_inel for this rank. With b drawn from
+// the linear distribution on [bmin, bmax], every trial is an independent
+// Bernoulli draw with success probability sigma_inel / (pi (bmax^2-bmin^2)),
+// so
+//     sigma_inel = pi (bmax^2 - bmin^2) * nInelastic / nTrials.
+// Each event stops at its first inelastic trial, so nInelastic = nEvents.
+// This is the maximum-likelihood estimate; its bias is O(1/nEvents). The
+// error is the asymptotic statistical one. To combine ranks, sum nEvents and
+// nTrials. bmax must be large enough that no collision is possible beyond it.
+void writeCrossSectionSummary(
+    Parameters *param, int rank, long nEvents, long nTrials) {
+    const double bmin = param->getbmin();
+    const double bmax = param->getbmax();
+    const double area = M_PI * (bmax * bmax - bmin * bmin);  // fm^2
+    const double p = static_cast<double>(nEvents) / nTrials;
+    const double sigma_mb = 10. * area * p;
+    const double err_mb = 10. * area * sqrt(p * (1. - p) / nTrials);
+
+    stringstream fname;
+    fname << "crossSection" << rank << ".dat";
+    ofstream fout(fname.str().c_str(), std::ios::out);
+    fout << "# sigma_inel = pi(bmax^2-bmin^2) * nEvents/nTrials, "
+         << "statistical error only" << endl;
+    fout << "# rank nEvents nTrials sigma_inel_mb stat_err_mb bmin bmax "
+         << "SigmaNN roots Projectile Target crossSectionMode" << endl;
+    fout << rank << " " << nEvents << " " << nTrials << " " << sigma_mb << " "
+         << err_mb << " " << bmin << " " << bmax << " " << param->getSigmaNN()
+         << " " << param->getRoots() << " " << param->getProjectile() << " "
+         << param->getTarget() << " " << param->getCrossSectionMode() << endl;
+    fout.close();
 }

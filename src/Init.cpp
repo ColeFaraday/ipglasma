@@ -10,7 +10,6 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
-#include <cmath>
 #include <limits>
 #include <sstream>
 #include <string>
@@ -520,6 +519,7 @@ void Init::sampleTA(Parameters *param, Random *random, Glauber *glauber) {
 }
 
 void Init::readNuclearQs(Parameters *param) {
+    if (QsTableLoaded_) return;
     IPG_PROFILE_SCOPE("initialization.read_qs_table");
     // steps in qs0 and Y in the file
     // double y[iymaxNuc];
@@ -553,6 +553,7 @@ void Init::readNuclearQs(Parameters *param) {
             }
         }
         fin.close();
+        QsTableLoaded_ = true;
     } else {
         std::cout << "[Init.cpp:readNuclearQs]: File "
                   << param->getNucleusQsTableFileName()
@@ -921,6 +922,15 @@ void Init::setColorChargeDensity(
 
     param->setQsmuRatioB(param->getQsmuRatio());
 
+    // reset the per-trial observables recorded for the cross section
+    param->setNpart(0);
+    param->setNcoll(0);
+    param->setQs2minST(0.);
+    param->setTpp(0.);
+
+    // in cross section mode nothing downstream uses the per-trial files
+    const bool writeTrialFiles = (param->getCrossSectionMode() == 0);
+
     if (param->getUseNucleus() == 0) {
         if (param->getUseGaussian() == 1) {
             double sigmax = 0.35;
@@ -1231,7 +1241,8 @@ void Init::setColorChargeDensity(
         string Ncoll_name;
         Ncoll_name = strNcoll_name.str();
 
-        ofstream foutNcoll(Ncoll_name.c_str(), std::ios::out);
+        ofstream foutNcoll;
+        if (writeTrialFiles) foutNcoll.open(Ncoll_name.c_str(), std::ios::out);
 
         if (param->getGaussianWounding() == 0) {
             for (int i = 0; i < A1; i++) {
@@ -1287,20 +1298,22 @@ void Init::setColorChargeDensity(
         string Npart_name;
         Npart_name = strNpart_name.str();
 
-        ofstream foutNpart(Npart_name.c_str(), std::ios::out);
+        if (writeTrialFiles) {
+            ofstream foutNpart(Npart_name.c_str(), std::ios::out);
 
-        for (int i = 0; i < A1; i++) {
-            foutNpart << nucleusA_.at(i).x << " " << nucleusA_.at(i).y << " "
-                      << nucleusA_.at(i).proton << " "
-                      << nucleusA_.at(i).collided << endl;
+            for (int i = 0; i < A1; i++) {
+                foutNpart << nucleusA_.at(i).x << " " << nucleusA_.at(i).y
+                          << " " << nucleusA_.at(i).proton << " "
+                          << nucleusA_.at(i).collided << endl;
+            }
+            foutNpart << endl;
+            for (int i = 0; i < A2; i++) {
+                foutNpart << nucleusB_.at(i).x << " " << nucleusB_.at(i).y
+                          << " " << nucleusB_.at(i).proton << " "
+                          << nucleusB_.at(i).collided << endl;
+            }
+            foutNpart.close();
         }
-        foutNpart << endl;
-        for (int i = 0; i < A2; i++) {
-            foutNpart << nucleusB_.at(i).x << " " << nucleusB_.at(i).y << " "
-                      << nucleusB_.at(i).proton << " "
-                      << nucleusB_.at(i).collided << endl;
-        }
-        foutNpart.close();
 
         // in p+p assume that they collided in any case
         if (A1 == 1 && A2 == 1) {
@@ -1319,6 +1332,7 @@ void Init::setColorChargeDensity(
         }
 
         param->setNpart(Npart);
+        param->setNcoll(Ncoll);
 
         if (param->getUseFixedNpart() != 0
             && Npart != param->getUseFixedNpart()) {
@@ -1648,6 +1662,7 @@ void Init::setColorChargeDensity(
     param->setAverageQsmin(sqrt(averageQs2min));
 
     param->setTpp(Tpp);
+    param->setQs2minST(averageQs2min2 * a * a / hbarc / hbarc);
 
     messager << "N_part=" << Npart;
     messager.flush("info");
@@ -1732,11 +1747,13 @@ void Init::setColorChargeDensity(
         alphas = param->getg() * param->getg() / 4. / M_PI;
     }
 
-    if (param->getAverageQs() > 0 && param->getAverageQsAvg() > 0
+    const bool inelastic =
+        param->getAverageQs() > 0 && param->getAverageQsAvg() > 0
         && averageQs2 > 0 && param->getAverageQsmin() > 0 && averageQs2Avg > 0
         && alphas > 0 && Npart >= 2
-        && averageQs2min2 * a * a / hbarc / hbarc > param->getMinimumQs2ST()) {
-        param->setSuccess(1);
+        && averageQs2min2 * a * a / hbarc / hbarc > param->getMinimumQs2ST();
+    if (inelastic) param->setSuccess(1);
+    if (inelastic && writeTrialFiles) {
         stringstream strup_name;
         strup_name << "usedParameters" << param->getEventId() << ".dat";
         string up_name;
@@ -1770,6 +1787,8 @@ void Init::setColorChargeDensity(
              << param->getMinimumQs2ST() << ")." << endl;
 
     param->setalphas(alphas);
+
+    if (!writeTrialFiles) return;
 
     stringstream strNEst_name;
     strNEst_name << "NgluonEstimators" << param->getEventId() << ".dat";
@@ -2663,6 +2682,11 @@ void Init::init(
                  << ". Restarting with new random number..." << endl;
             return;
         }
+
+        // the inelastic decision is complete at this point, so the cross
+        // section mode skips the Wilson lines and the forward lightcone
+        if (param->getCrossSectionMode() == 1) return;
+
         // sample color charges and find Wilson lines V_A and V_B
         setV(lat, param, random);
     }
