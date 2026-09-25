@@ -64,6 +64,7 @@ class Init {
     void solveAxb(double *Jab, double *Fa, std::vector<double> &xvec);
 
     double getNuclearQs2(double Qs2atZeroY, double y);
+    bool passesInelasticCriterion(Parameters *param, Random *random);
     void setColorChargeDensity(
         Lattice *lat, Parameters *param, Random *random, Glauber *glauber);
     void setV(Lattice *lat, Parameters *param, Random *random);

@@ -859,6 +859,34 @@ double Init::getNuclearQs2(double T, double y) {
     return value;
 }
 
+// Additional requirement for a trial with an overlap region to count as
+// inelastic. Uses the quantities stored in param by setColorChargeDensity.
+bool Init::passesInelasticCriterion(Parameters *param, Random *random) {
+    bool pass = true;
+    switch (param->getInelasticCriterion()) {
+        case 0:  // cut on the local thickness
+            pass = param->getMaxMinTp() >= param->getInelasticTpMin();
+            break;
+        case 1:  // cut on the local saturation scale
+            pass = param->getMaxMinQs() >= param->getInelasticQsMin();
+            break;
+        case 2:  // Poisson probability to produce particles, with
+                 // <N> = kappa * Q_s,min^2 S_T
+            pass =
+                random->genrand64_real1()
+                < 1. - exp(-param->getInelasticKappa() * param->getQs2minST());
+            break;
+    }
+    if (!pass)
+        cout << "**** Rejected event - fails inelastic criterion "
+             << param->getInelasticCriterion()
+             << " (max min(T_p) = " << param->getMaxMinTp()
+             << " GeV^2, max min(Q_s) = " << param->getMaxMinQs()
+             << " GeV, Q_s,min^2 S_T = " << param->getQs2minST() << ")."
+             << endl;
+    return pass;
+}
+
 // set g^2\mu^2 as the sum of the individual nucleons' g^2\mu^2, using Q_s(b,y)
 // prop tp g^mu(b,y) also compute N_part using Glauber
 void Init::setColorChargeDensity(
@@ -927,6 +955,8 @@ void Init::setColorChargeDensity(
     param->setNcoll(0);
     param->setQs2minST(0.);
     param->setTpp(0.);
+    param->setMaxMinTp(0.);
+    param->setMaxMinQs(0.);
 
     // in cross section mode nothing downstream uses the per-trial files
     const bool writeTrialFiles = (param->getCrossSectionMode() == 0);
@@ -1550,6 +1580,10 @@ void Init::setColorChargeDensity(
     double x, xm, y, ym;
     double alphas = 0.;
     int check = 0;
+    // largest local min(T_A, T_B) and min(Q_sA^2, Q_sB^2) over the lattice,
+    // used by the inelastic criterion (see Parameters::inelasticCriterion_)
+    double maxMinTp = 0.;
+    double maxMinQs2 = 0.;
     for (int ix = 0; ix < N; ix++)  // loop over all positions
     {
         for (int iy = 0; iy < N; iy++) {
@@ -1572,15 +1606,21 @@ void Init::setColorChargeDensity(
             } else
                 g2mu2B = 0;
 
+            double Qs2minLocal;
             if (g2mu2B >= g2mu2A) {
-                averageQs2min2 += g2mu2A * param->getQsmuRatio()
-                                  * param->getQsmuRatio() / a / a * hbarc
-                                  * hbarc * param->getg() * param->getg();
+                Qs2minLocal = g2mu2A * param->getQsmuRatio()
+                              * param->getQsmuRatio() / a / a * hbarc * hbarc
+                              * param->getg() * param->getg();
             } else {
-                averageQs2min2 += g2mu2B * param->getQsmuRatioB()
-                                  * param->getQsmuRatioB() / a / a * hbarc
-                                  * hbarc * param->getg() * param->getg();
+                Qs2minLocal = g2mu2B * param->getQsmuRatioB()
+                              * param->getQsmuRatioB() / a / a * hbarc * hbarc
+                              * param->getg() * param->getg();
             }
+            averageQs2min2 += Qs2minLocal;
+            maxMinQs2 = std::max(maxMinQs2, Qs2minLocal);
+            maxMinTp = std::max(
+                maxMinTp,
+                std::min(lat->cells[pos]->getTpA(), lat->cells[pos]->getTpB()));
 
             for (int i = 0; i < A1; i++) {
                 xm = nucleusA_.at(i).x;
@@ -1641,6 +1681,9 @@ void Init::setColorChargeDensity(
                              // remember: Tp is in GeV^2
         }
     }
+
+    param->setMaxMinTp(maxMinTp);
+    param->setMaxMinQs(sqrt(maxMinQs2));
 
     if (count == 0) {
         param->setAverageQs(0.);
@@ -1747,11 +1790,12 @@ void Init::setColorChargeDensity(
         alphas = param->getg() * param->getg() / 4. / M_PI;
     }
 
-    const bool inelastic =
+    const bool overlap =
         param->getAverageQs() > 0 && param->getAverageQsAvg() > 0
         && averageQs2 > 0 && param->getAverageQsmin() > 0 && averageQs2Avg > 0
         && alphas > 0 && Npart >= 2
         && averageQs2min2 * a * a / hbarc / hbarc > param->getMinimumQs2ST();
+    const bool inelastic = overlap && passesInelasticCriterion(param, random);
     if (inelastic) param->setSuccess(1);
     if (inelastic && writeTrialFiles) {
         stringstream strup_name;
