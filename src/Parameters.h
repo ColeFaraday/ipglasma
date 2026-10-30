@@ -215,6 +215,10 @@ class Parameters {
     double Qs2minST_ = 0.;  // Q_s,min^2 S_T of the last trial (dimensionless)
     int crossSectionMode_ = 0;  // 1: stop each event as soon as it is found
                                 // to be inelastic (only record the trials)
+    int hardSoftEstimator_ = 0;  // 1: write the estimates of the high-k
+                                 // gluon spectrum from the initial fields,
+                                 // 2: write them and stop the event (no
+                                 // evolution)
     // Additional requirement for a trial to count as inelastic, on top of the
     // overlap conditions in Init::setColorChargeDensity:
     //   0: max over cells of min(T_A, T_B) >= inelasticTpMin [GeV^2]
@@ -536,6 +540,8 @@ class Parameters {
     double getQs2minST() { return Qs2minST_; }
     void setCrossSectionMode(int x) { crossSectionMode_ = x; }
     int getCrossSectionMode() { return crossSectionMode_; }
+    void setHardSoftEstimator(int x) { hardSoftEstimator_ = x; }
+    int getHardSoftEstimator() { return hardSoftEstimator_; }
     void setInelasticCriterion(int x) { inelasticCriterion_ = x; }
     int getInelasticCriterion() { return inelasticCriterion_; }
     void setInelasticTpMin(double x) { inelasticTpMin_ = x; }

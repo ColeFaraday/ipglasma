@@ -53,6 +53,10 @@ class Init {
 
     Matrix one_;
 
+    // hard-soft estimate (hardSoftEstimator) in its k_T bins [1/GeV^2], used
+    // by glasmaFreeSpectrum above the lattice momenta
+    std::vector<double> hardSoftTail_;
+
   public:
     // Constructor.
     Init(const int nn[]) : fft(nn) {};
@@ -74,6 +78,8 @@ class Init {
     void setColorChargeDensity(
         Lattice *lat, Parameters *param, Random *random, Glauber *glauber);
     void setV(Lattice *lat, Parameters *param, Random *random);
+    void hardSoftEstimator(Lattice *lat, Parameters *param);
+    void glasmaFreeSpectrum(Lattice *lat, Group *group, Parameters *param);
     void readV(Lattice *lat, Parameters *param, int format);
     // void eccentricity(Lattice *lat, Group *group, Parameters *param, Random
     // *random, Glauber *glauber);

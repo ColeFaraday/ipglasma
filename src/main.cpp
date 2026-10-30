@@ -408,6 +408,8 @@ int main(int argc, char *argv[]) {
 
                 // the event is inelastic, which is all we want to know here
                 if (crossSectionMode) break;
+                // only the hard-soft estimates were wanted
+                if (param->getHardSoftEstimator() == 2) break;
 
                 messager.info("Start evolution");
                 // do the CYM evolution of the initialized fields using
@@ -678,6 +680,11 @@ int readInput(
     // optional: 1 stops every event as soon as it is found to be inelastic
     param->setCrossSectionMode(
         setup->IFindOptional(file_name, "crossSectionMode", 0));
+    // optional: 1 writes the estimates of the high-k gluon spectrum
+    // (Init::glasmaFreeSpectrum, Init::hardSoftEstimator), 2 writes them and
+    // skips the evolution
+    param->setHardSoftEstimator(
+        setup->IFindOptional(file_name, "hardSoftEstimator", 0));
     // optional: which additional requirement makes a trial inelastic
     // (see Parameters::inelasticCriterion_)
     param->setInelasticCriterion(
@@ -787,6 +794,7 @@ void writeparams(Parameters *param) {
     fout1 << "Using fat tailed distribution " << param->getUseFatTails()
           << endl;
     fout1 << "crossSectionMode " << param->getCrossSectionMode() << endl;
+    fout1 << "hardSoftEstimator " << param->getHardSoftEstimator() << endl;
     fout1 << "inelasticCriterion " << param->getInelasticCriterion()
           << " with cut " << inelasticCut(param) << endl;
     fout1 << "minimumQs2ST " << param->getMinimumQs2ST() << endl;
