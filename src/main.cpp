@@ -343,6 +343,8 @@ int main(int argc, char *argv[]) {
         {
           continue;
         }
+      // only the estimate of the high-k gluon spectrum was wanted
+      if (param->getHardSoftEstimator() == 2) break;
 
       messager.info("Start evolution");
       // do the CYM evolution of the initialized fields using parmeters in param
@@ -513,6 +515,7 @@ int readInput(Setup *setup, Parameters *param, int argc, char *argv[],
   // obsolete
   param->setRunWithQs(setup->IFind(file_name, "runWith0Min1Avg2MaxQs"));
   param->setRunWithkt(setup->IFind(file_name, "runWithkt"));
+  param->setHardSoftEstimator(setup->IFind(file_name, "hardSoftEstimator"));
   param->setRunWithLocalQs(setup->IFind(file_name, "runWithLocalQs"));
   param->setRunWithThisFactorTimesQs(
       setup->DFind(file_name, "runWithThisFactorTimesQs"));
@@ -616,5 +619,6 @@ void writeparams(Parameters *param)
     fout1 << "smearing width " << param->getSmearingWidth() << endl;
   }
   fout1 << "Using fat tailed distribution " << param->getUseFatTails() << endl;
+  fout1 << "hardSoftEstimator " << param->getHardSoftEstimator() << endl;
   fout1.close();
 }

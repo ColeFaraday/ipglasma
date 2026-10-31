@@ -50,6 +50,10 @@ private:
   // list of x and y coordinates of nucleons in nucleus B
   std::vector<ReturnValue> nucleusB_;
 
+  // hard-soft estimate (hardSoftEstimator) in its k_T bins [1/GeV^2], used by
+  // glasmaFreeSpectrum above the lattice momenta
+  std::vector<double> hardSoftTail_;
+
   pretty_ostream messager;
 
 public:
@@ -68,6 +72,8 @@ public:
   void setColorChargeDensity(Lattice *lat, Parameters *param, Random *random,
                              Glauber *glauber);
   void setV(Lattice *lat, Group *group, Parameters *param, Random *random);
+  void hardSoftEstimator(Lattice *lat, Group *group, Parameters *param);
+  void glasmaFreeSpectrum(Lattice *lat, Group *group, Parameters *param);
   void readV(Lattice *lat, Parameters *param, int format);
   // void eccentricity(Lattice *lat, Group *group, Parameters *param, Random
   // *random, Glauber *glauber);

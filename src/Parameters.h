@@ -46,6 +46,9 @@ private:
   int mode; // mode: (1) run the evolution, (2) analysis with files from disk
   int runWithQs; // set whether alpha_s should run with the maximum(2), average
                  // (1) or minimum(0) of Q_s from nucleus A and B
+  int hardSoftEstimator_ = 0; // 1: write the estimate of the high-k gluon
+                              // spectrum from the tau = 0+ fields, 2: write
+                              // it and skip the evolution
   int runWithkt; // set whether alpha_s should run kt (1) or not (0) - if this
                  // is set it overwrites any running with Q_s
   int runWithLocalQs; // set whether alpha_s should run with the local Q_s from
@@ -395,6 +398,8 @@ public:
   int getRunWithQs() { return runWithQs; }
   void setRunWithkt(int x) { runWithkt = x; };
   int getRunWithkt() { return runWithkt; }
+  void setHardSoftEstimator(int x) { hardSoftEstimator_ = x; }
+  int getHardSoftEstimator() { return hardSoftEstimator_; }
   void setRunWithLocalQs(int x) { runWithLocalQs = x; };
   int getRunWithLocalQs() { return runWithLocalQs; }
   void setLinearb(int x) { linearb = x; };

@@ -1,6 +1,39 @@
 // Init.cpp is part of the IP-Glasma solver.
 // Copyright (C) 2012 Bjoern Schenke.
 #include "Init.h"
+#include "GaugeFix.h"
+
+namespace {
+// glibc's rand() with its default seed (TYPE_3 additive feedback generator)
+// and libstdc++'s std::random_shuffle, so that the nucleus configurations of
+// runs made on Linux are reproduced on any platform
+unsigned int glibcRand() {
+  static std::vector<uint32_t> r;
+  if (r.empty()) {
+    r.resize(31);
+    r[0] = 1;
+    for (int k = 1; k < 31; k++) {
+      const long long hi = static_cast<int32_t>(r[k - 1]) / 127773;
+      const long long lo = static_cast<int32_t>(r[k - 1]) % 127773;
+      long long word = 16807 * lo - 2836 * hi;
+      if (word < 0) word += 2147483647;
+      r[k] = static_cast<uint32_t>(word);
+    }
+    for (int k = 31; k < 34; k++) r.push_back(r[k - 31]);
+    for (int k = 34; k < 344; k++) r.push_back(r[k - 31] + r[k - 3]);
+  }
+  const size_t k = r.size();
+  r.push_back(r[k - 31] + r[k - 3]);
+  return r.back() >> 1;
+}
+
+template <typename T> void glibcRandomShuffle(std::vector<T> &v) {
+  for (size_t i = 1; i < v.size(); i++) {
+    const size_t j = glibcRand() % (i + 1);
+    if (i != j) std::swap(v[i], v[j]);
+  }
+}
+} // namespace
 #include "Phys_consts.h"
 #include <algorithm>
 #include <utility>
@@ -2370,6 +2403,8 @@ void Init::init(Lattice *lat, Group *group, Parameters *param, Random *random,
     }
     // sample color charges and find Wilson lines V_A and V_B
     setV(lat, group, param, random);
+    if (param->getHardSoftEstimator() > 0)
+      hardSoftEstimator(lat, group, param);
   }
 
   // output Wilson lines (used also for the proton plots)
@@ -3005,9 +3040,275 @@ void Init::init(Lattice *lat, Group *group, Parameters *param, Random *random,
     delete[] alphaSave;
   }
 
+  if (param->getHardSoftEstimator() > 0)
+    glasmaFreeSpectrum(lat, group, param);
+
   // -----------------------------------------------------------------------------
   // finish
   // -----------------------------------------------------------------------------
+}
+
+
+// Hard-soft estimate of the gluon spectrum at k >> Q_s from the Wilson lines
+// set by setV, used by glasmaFreeSpectrum above the lattice momenta. One
+// nucleus supplies a hard color charge at momentum ~k (white noise with the
+// local g^2mu^2), the other its soft field. To leading power in Q_s/k,
+//   dN/dy d^2k = F(k)/(4 pi^3 k^4) sum_x a^2 [g2mu2_A(x) D_B(x,k) + A<->B],
+//   D(x,k) = sum_{i,a,b} [d_i U^{ab}(x)]^2 using only the |p| < k modes of U,
+// with U the adjoint Wilson line and F(k) = g^2/(4 pi alpha_s) for runWithkt
+// (1 otherwise). D is computed on the lattice at k_c = pi/(2a) and continued
+// above with the white-noise modes the lattice does not have. The result for
+// k >= k_c is kept in hardSoftTail_, in the k_T bins of
+// Evolution::multiplicity continued up to 100 GeV.
+void Init::hardSoftEstimator(Lattice *lat, Group *group, Parameters *param) {
+    messager.info("Computing hard-soft estimate of the gluon spectrum ...");
+    const int N = param->getSize();
+    const int sites = N * N;
+    const int nn[2] = {N, N};
+    const double L = param->getL();
+    const double a = L / N;  // lattice spacing in fm
+    const double g = param->getg();
+    const double kc = M_PI / 2.;  // lattice units
+    const int Nc_ = param->getNc();
+    const int Nc2m1_ = Nc_ * Nc_ - 1;
+
+    // S = sum_x g2mu2_A D_B(k_c) + sum_x g2mu2_B D_A(k_c)
+    double S = 0.;
+    std::vector<Matrix> W(sites, Matrix(Nc_, 0.));
+    complex<double> *dU = new complex<double>[sites];
+    for (int hard = 0; hard < 2; hard++) {
+        // the soft field is the one of the other nucleus
+        for (int b = 0; b < Nc2m1_; b++) {
+#pragma omp parallel for
+            for (int pos = 0; pos < sites; pos++) {
+                const Matrix &V = (hard == 0) ? lat->cells[pos]->getU2()
+                                              : lat->cells[pos]->getU();
+                Matrix Vdag = V;
+                Vdag.conjg();
+                W[pos] = V * group->getT(b) * Vdag;
+            }
+            for (int aa = 0; aa < Nc2m1_; aa++) {
+                // adjoint Wilson line U^{ab} = 2 tr(t^a V t^b V^dagger) (real)
+#pragma omp parallel for
+                for (int pos = 0; pos < sites; pos++) {
+                    dU[pos] =
+                        2. * (group->getT(aa) * W[pos]).trace().real();
+                }
+                fft.fftnComplex(dU, dU, nn, 1);
+
+                // d_x U + i d_y U from the |p| < k_c modes (both are real)
+#pragma omp parallel for
+                for (int pos = 0; pos < sites; pos++) {
+                    const double px =
+                        2. * M_PI * (-0.5 + static_cast<double>(pos / N) / N);
+                    const double py =
+                        2. * M_PI * (-0.5 + static_cast<double>(pos % N) / N);
+                    if (px * px + py * py < kc * kc)
+                        dU[pos] *= complex<double>(-py, px);
+                    else
+                        dU[pos] = 0.;
+                }
+                fft.fftnComplex(dU, dU, nn, -1);
+
+                double sum = 0.;
+#pragma omp parallel for reduction(+ : sum)
+                for (int pos = 0; pos < sites; pos++) {
+                    const double g2mu2Hard =
+                        (hard == 0) ? lat->cells[pos]->getg2mu2A()
+                                    : lat->cells[pos]->getg2mu2B();
+                    sum += g2mu2Hard * norm(dU[pos]);
+                }
+                S += sum;
+            }
+        }
+    }
+    delete[] dU;
+
+    // above k_c each unit of log(k) adds Nc (Nc^2-1)/(2 pi) g^2 g2mu2 to D
+    double overlap = 0.;
+    for (int pos = 0; pos < sites; pos++) {
+        overlap +=
+            lat->cells[pos]->getg2mu2A() * lat->cells[pos]->getg2mu2B();
+    }
+    const double whiteNoise = 2. * Nc_ * Nc2m1_ / (2. * M_PI) * g * g * overlap;
+
+    const double c = param->getc();
+    const double muZero = param->getMuZero();
+    auto couplingFactor = [&](double k) {
+        if (param->getRunWithkt() != 1) return 1.;
+        const double alphas =
+            4. * M_PI
+            / (9.
+               * log(pow(
+                   pow(muZero / 0.2, 2. / c)
+                       + pow(
+                           param->getRunWithThisFactorTimesQs() * k * hbarc / a
+                               / 0.2,
+                           2. / c),
+                   c)));
+        return g * g / (4. * M_PI * alphas);
+    };
+
+    // dN/d^2k averaged over k_T bins with the edges of
+    // Evolution::multiplicity, continued up to 100 GeV
+    const double dkt = 2.83 / 100.;
+    const int bins = static_cast<int>(
+        ceil(std::max(2.83, 100. * a / hbarc) / dkt));
+    const int nSub = 16;
+    const double toGeV = a / hbarc * a / hbarc;
+    hardSoftTail_.assign(bins, 0.);
+    for (int ik = static_cast<int>(ceil(kc / dkt)); ik < bins; ik++) {
+        double weight = 0.;
+        for (int is = 0; is < nSub; is++) {
+            const double k = (ik + (is + 0.5) / nSub) * dkt;
+            hardSoftTail_[ik] += k * couplingFactor(k)
+                                 * (S + whiteNoise * log(k / kc))
+                                 / (4. * M_PI * M_PI * M_PI * pow(k, 4.));
+            weight += k;
+        }
+        hardSoftTail_[ik] *= toGeV / weight;
+    }
+}
+
+
+// Gluon spectrum of the tau = 0+ fields, treated as free from then on
+// (Blaizot, Lappi, Mehtar-Tani, NPA 846 (2010) 63): in Coulomb gauge the
+// transverse A_i and E^eta each give one polarization,
+//   dN/dy d^2k = F(k)/(4 pi^3) sum_a [ |g A_T^a(k)|^2 + |g E^eta,a(k)|^2/k^2 ],
+// with F(k) as in hardSoftEstimator. This is exact (the Kovchegov-Tuchin
+// result) to first order in the charges of either nucleus and misses only
+// the interactions of the gluon with the glasma after tau = 0, which matter
+// little for k >~ 2 GeV. Unlike the CYM spectrum it has no lattice
+// dispersion, so it holds up to k ~ k_switch close to pi/a. Above k_switch
+// the hard-soft estimate (hardSoftEstimator), matched to it, is used. The
+// fields are only gauge transformed, so the CYM evolution can follow.
+void Init::glasmaFreeSpectrum(Lattice *lat, Group *group, Parameters *param) {
+    messager.info("Computing free-field gluon spectrum at tau = 0+ ...");
+    const int N = param->getSize();
+    const int sites = N * N;
+    const int nn[2] = {N, N};
+    const double L = param->getL();
+    const double a = L / N;  // lattice spacing in fm
+    const double g = param->getg();
+    const int Nc2m1_ = param->getNc() * param->getNc() - 1;
+
+    GaugeFix gaugefix;
+    gaugefix.FFTChi(&fft, lat, group, param, 4000);
+
+    // g A_i^a = 2 Im tr(t^a U_i) for small a A_i, g E^eta,a = g 2 tr(t^a pi)
+    std::vector<std::vector<complex<double> > > field(
+        3 * Nc2m1_, std::vector<complex<double> >(sites));
+#pragma omp parallel for
+    for (int pos = 0; pos < sites; pos++) {
+        for (int aa = 0; aa < Nc2m1_; aa++) {
+            const Matrix &t = group->getT(aa);
+            field[aa][pos] = 2. * (t * lat->cells[pos]->getUx()).trace().imag();
+            field[Nc2m1_ + aa][pos] = 2. * (t * lat->cells[pos]->getUy()).trace().imag();
+            field[2 * Nc2m1_ + aa][pos] =
+                g * 2. * (t * lat->cells[pos]->getpi()).trace().real();
+        }
+    }
+    for (int f = 0; f < 3 * Nc2m1_; f++)
+        fft.fftnComplex(&field[f][0], &field[f][0], nn, 1);
+
+    const double dkt = 2.83 / 100.;
+    const int bins = static_cast<int>(M_PI / dkt);
+    std::vector<double> specT(bins, 0.), specE(bins, 0.);
+    std::vector<int> modes(bins, 0);
+    for (int pos = 0; pos < sites; pos++) {
+        const double px = 2. * M_PI * (-0.5 + static_cast<double>(pos / N) / N);
+        const double py = 2. * M_PI * (-0.5 + static_cast<double>(pos % N) / N);
+        const double k = sqrt(px * px + py * py);
+        const int ik = static_cast<int>(k / dkt);
+        if (ik == 0 || ik >= bins) continue;
+        const double kt2 =
+            4. * (pow(sin(px / 2.), 2.) + pow(sin(py / 2.), 2.));
+        modes[ik]++;
+        for (int aa = 0; aa < Nc2m1_; aa++) {
+            const complex<double> Ax = field[aa][pos];
+            const complex<double> Ay = field[Nc2m1_ + aa][pos];
+            // transverse part (the longitudinal one is ~0 after gauge fixing)
+            const complex<double> AL = (px * Ax + py * Ay) / k;
+            specT[ik] += norm(Ax) + norm(Ay) - norm(AL);
+            specE[ik] += norm(field[2 * Nc2m1_ + aa][pos]) / kt2;
+        }
+    }
+
+    const double c = param->getc();
+    const double muZero = param->getMuZero();
+    auto couplingFactor = [&](double k) {
+        if (param->getRunWithkt() != 1) return 1.;
+        const double alphas =
+            4. * M_PI
+            / (9.
+               * log(pow(
+                   pow(muZero / 0.2, 2. / c)
+                       + pow(
+                           param->getRunWithThisFactorTimesQs() * k * hbarc / a
+                               / 0.2,
+                           2. / c),
+                   c)));
+        return g * g / (4. * M_PI * alphas);
+    };
+
+    stringstream strGF_name;
+    strGF_name << "glasmaFree" << param->getEventId() << ".dat";
+    ofstream foutGF(strGF_name.str().c_str(), std::ios::out);
+    foutGF << "# free-field dN/dy d^2k of the tau = 0+ fields in Coulomb gauge "
+              "(Init::glasmaFreeSpectrum)"
+           << endl;
+    foutGF << "# kT_min [GeV]  kT_max [GeV]  dN/d^2k (tau = 0+ below k_switch, "
+              "matched hard-soft above)  tau = 0+  A_T part  E^eta part  "
+              "hard-soft  [1/GeV^2]"
+           << endl;
+    const double toGeV = a / hbarc * a / hbarc;
+    std::vector<double> tau0(bins, 0.), tau0T(bins, 0.), tau0E(bins, 0.);
+    for (int ik = 1; ik < bins; ik++) {
+        if (modes[ik] == 0) continue;
+        const double factor = couplingFactor((ik + 0.5) * dkt)
+                              / (4. * M_PI * M_PI * M_PI * modes[ik]) * toGeV;
+        tau0T[ik] = specT[ik] * factor;
+        tau0E[ik] = specE[ik] * factor;
+        tau0[ik] = tau0T[ik] + tau0E[ik];
+    }
+
+    // Above kSwitch (lattice units) the hard-soft estimate continues the
+    // spectrum, matched to it in [kMatch, kSwitch]: the ratio r of the two
+    // there is a saturation correction, which falls off as r - 1 ~ 1/k.
+    const double kSwitch = 0.8 * M_PI;
+    const double kMatch = 0.6 * M_PI;
+    double sumTau0 = 0., sumHardSoft = 0., sumW = 0., kMid = 0.;
+    for (int ik = 1; ik < bins; ik++) {
+        const double k = (ik + 0.5) * dkt;
+        if (k < kMatch || k > kSwitch) continue;
+        const double w = k * dkt;  // area weight of the bin
+        sumTau0 += tau0[ik] * w;
+        sumHardSoft += hardSoftTail_[ik] * w;
+        sumW += w;
+        kMid += w * k;
+    }
+    const double r = (sumHardSoft > 0.) ? sumTau0 / sumHardSoft : 1.;
+    kMid = (sumW > 0.) ? kMid / sumW : kSwitch;
+
+    for (int ik = 1; ik < static_cast<int>(hardSoftTail_.size()); ik++) {
+        const double k = (ik + 0.5) * dkt;
+        const double best = (ik < bins && (ik + 1) * dkt <= kSwitch)
+                                ? tau0[ik]
+                                : hardSoftTail_[ik] * (1. + (r - 1.) * kMid / k);
+        const double t = (ik < bins) ? tau0[ik] : 0.;
+        const double tT = (ik < bins) ? tau0T[ik] : 0.;
+        const double tE = (ik < bins) ? tau0E[ik] : 0.;
+        foutGF << ik * dkt / a * hbarc << " " << (ik + 1) * dkt / a * hbarc
+               << " " << best << " " << t << " " << tT << " " << tE << " "
+               << hardSoftTail_[ik] << endl;
+    }
+    foutGF.close();
+
+    // FFTChi keeps the gauge transformation in Ux1, which the evolution
+    // expects to be the identity
+    Matrix one(param->getNc(), 1.);
+    for (int pos = 0; pos < sites; pos++) lat->cells[pos]->setUx1(one);
+    messager.info("Free-field spectrum written.");
 }
 
 void Init::multiplicity(Lattice *lat, Parameters *param) {
@@ -3114,7 +3415,7 @@ void Init::generate_nucleus_configuration_with_woods_saxon(
     nucleus.push_back(rv);
   }
 
-  std::random_shuffle(nucleus.begin(), nucleus.end());
+  glibcRandomShuffle(nucleus);
 
   for (unsigned int i = 0; i < r_array.size(); i++) {
     if (static_cast<int>(i) < std::abs(Z)) {
@@ -3202,7 +3503,7 @@ void Init::generate_nucleus_configuration_with_deformed_woods_saxon(
     nucleus.push_back(rv);
   }
 
-  std::random_shuffle(nucleus.begin(), nucleus.end());
+  glibcRandomShuffle(nucleus);
 
   for (unsigned int i = 0; i < r_array.size(); i++) {
     if (static_cast<int>(i) < std::abs(Z)) {
@@ -3278,7 +3579,7 @@ void Init::generate_nucleus_configuration_with_deformed_woods_saxon_force_dmin(
     nucleus.push_back(rv);
   }
 
-  std::random_shuffle(nucleus.begin(), nucleus.end());
+  glibcRandomShuffle(nucleus);
 
   for (unsigned int i = 0; i < x_array.size(); i++) {
     if (static_cast<int>(i) < std::abs(Z)) {
@@ -3332,7 +3633,7 @@ void Init::generate_nucleus_configuration_with_deformed_woods_saxon2(
     nucleus.push_back(rv);
   }
 
-  std::random_shuffle(nucleus.begin(), nucleus.end());
+  glibcRandomShuffle(nucleus);
 
   for (unsigned int i = 0; i < x_array.size(); i++) {
     if (static_cast<int>(i) < std::abs(Z)) {
@@ -3432,7 +3733,7 @@ void Init::recenter_nucleus(std::vector<ReturnValue> &nucleus) {
 
 void Init::assignProtons(std::vector<ReturnValue> &nucleus, const int Z) {
     // randomly assign Z nucleons to be protons inside the nucleus
-    std::random_shuffle(nucleus.begin(), nucleus.end());
+    glibcRandomShuffle(nucleus);
     for (unsigned int i = 0; i < nucleus.size(); i++) {
         if (static_cast<int>(i) < std::abs(Z)) {
             nucleus.at(i).proton = 1;
