@@ -43,6 +43,7 @@ int readInput(
 void display_logo();
 void writeparams(Parameters *param);
 bool checkCrossSectionSetup(Parameters *param, int rank);
+double inelasticCut(Parameters *param);
 void writeCrossSectionSummary(
     Parameters *param, int rank, long nEvents, long nTrials);
 
@@ -140,8 +141,8 @@ int main(int argc, char *argv[]) {
     stringstream strTrials_name;
     strTrials_name << "crossSectionTrials" << rank << ".dat";
     ofstream foutTrials(strTrials_name.str().c_str(), std::ios::out);
-    foutTrials << "# eventId trial b inelastic Npart Ncoll Qs2minST Tpp"
-               << endl;
+    foutTrials << "# eventId trial b inelastic Npart Ncoll Qs2minST Tpp "
+               << "maxMinTp maxMinQs TppField" << endl;
 
     // event loop starts ...
     for (int iev = 0; iev < nev; iev++) {
@@ -397,7 +398,9 @@ int main(int argc, char *argv[]) {
                            << param->getb() << " " << param->getSuccess() << " "
                            << param->getNpart() << " " << param->getNcoll()
                            << " " << param->getQs2minST() << " "
-                           << param->getTpp() << endl;
+                           << param->getTpp() << " " << param->getMaxMinTp()
+                           << " " << param->getMaxMinQs() << " "
+                           << param->getTppField() << endl;
 
                 if (param->getSuccess() == 0) {
                     continue;
@@ -671,10 +674,44 @@ int readInput(
     param->setUseSmoothNucleus(setup->IFind(file_name, "useSmoothNucleus"));
     param->setShiftConstituentQuarkProtonOrigin(
         setup->DFind(file_name, "shiftConstituentQuarkProtonOrigin"));
-    param->setMinimumQs2ST(setup->IFind(file_name, "minimumQs2ST"));
+    param->setMinimumQs2ST(setup->DFind(file_name, "minimumQs2ST"));
     // optional: 1 stops every event as soon as it is found to be inelastic
     param->setCrossSectionMode(
         setup->IFindOptional(file_name, "crossSectionMode", 0));
+    // optional: which additional requirement makes a trial inelastic
+    // (see Parameters::inelasticCriterion_)
+    param->setInelasticCriterion(
+        setup->IFindOptional(file_name, "inelasticCriterion", 0));
+    param->setInelasticTpMin(
+        setup->DFindOptional(file_name, "inelasticTpMin", -1.));
+    param->setInelasticQsMin(
+        setup->DFindOptional(file_name, "inelasticQsMin", 0.));
+    param->setInelasticKappa(
+        setup->DFindOptional(file_name, "inelasticKappa", 0.));
+    param->setInelasticSigmaGG(
+        setup->DFindOptional(file_name, "inelasticSigmaGG", 0.));
+    const int criterion = param->getInelasticCriterion();
+    if (criterion < 0 || criterion > 4) {
+        cerr << "inelasticCriterion must be 0 (T_p cut), 1 (Q_s cut), 2 "
+             << "(probabilistic in Q_s,min^2 S_T), 3 (sigma_gg T_pp) or 4 "
+             << "(sigma_gg T^E_pp, field overlap). Exiting." << endl;
+        exit(1);
+    }
+    if (criterion == 1 && param->getInelasticQsMin() <= 0.) {
+        cerr << "inelasticCriterion 1 needs inelasticQsMin > 0 [GeV]. Exiting."
+             << endl;
+        exit(1);
+    }
+    if (criterion == 2 && param->getInelasticKappa() <= 0.) {
+        cerr << "inelasticCriterion 2 needs inelasticKappa > 0. Exiting."
+             << endl;
+        exit(1);
+    }
+    if (criterion >= 3 && param->getInelasticSigmaGG() <= 0.) {
+        cerr << "inelasticCriterion " << criterion
+             << " needs inelasticSigmaGG > 0 [fm^2]. Exiting." << endl;
+        exit(1);
+    }
     param->setSubNucleonParamType(
         setup->IFind(file_name, "SubNucleonParamType"));
     param->setSubNucleonParamSet(setup->IFind(file_name, "SubNucleonParamSet"));
@@ -750,6 +787,9 @@ void writeparams(Parameters *param) {
     fout1 << "Using fat tailed distribution " << param->getUseFatTails()
           << endl;
     fout1 << "crossSectionMode " << param->getCrossSectionMode() << endl;
+    fout1 << "inelasticCriterion " << param->getInelasticCriterion()
+          << " with cut " << inelasticCut(param) << endl;
+    fout1 << "minimumQs2ST " << param->getMinimumQs2ST() << endl;
     fout1.close();
 }
 
@@ -782,6 +822,22 @@ bool checkCrossSectionSetup(Parameters *param, int rank) {
     return false;
 }
 
+// the number that sets the inelastic criterion: T_p [GeV^2], Q_s [GeV], kappa
+// or sigma_gg [fm^2]
+double inelasticCut(Parameters *param) {
+    switch (param->getInelasticCriterion()) {
+        case 1:
+            return param->getInelasticQsMin();
+        case 2:
+            return param->getInelasticKappa();
+        case 3:
+        case 4:
+            return param->getInelasticSigmaGG();
+        default:
+            return param->getInelasticTpMin();
+    }
+}
+
 // Writes the running estimate of sigma_inel for this rank. With b drawn from
 // the linear distribution on [bmin, bmax], every trial is an independent
 // Bernoulli draw with success probability sigma_inel / (pi (bmax^2-bmin^2)),
@@ -806,10 +862,13 @@ void writeCrossSectionSummary(
     fout << "# sigma_inel = pi(bmax^2-bmin^2) * nEvents/nTrials, "
          << "statistical error only" << endl;
     fout << "# rank nEvents nTrials sigma_inel_mb stat_err_mb bmin bmax "
-         << "SigmaNN roots Projectile Target crossSectionMode" << endl;
+         << "SigmaNN roots Projectile Target crossSectionMode "
+         << "inelasticCriterion inelasticCut" << endl;
     fout << rank << " " << nEvents << " " << nTrials << " " << sigma_mb << " "
          << err_mb << " " << bmin << " " << bmax << " " << param->getSigmaNN()
          << " " << param->getRoots() << " " << param->getProjectile() << " "
-         << param->getTarget() << " " << param->getCrossSectionMode() << endl;
+         << param->getTarget() << " " << param->getCrossSectionMode() << " "
+         << param->getInelasticCriterion() << " " << inelasticCut(param)
+         << endl;
     fout.close();
 }

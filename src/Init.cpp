@@ -535,23 +535,26 @@ void Init::readNuclearQs(Parameters *param) {
     ifstream fin;
     fin.open((param->getNucleusQsTableFileName()).c_str());
     if (fin) {
-        for (int iT = 0; iT < iTpmax; iT++) {
-            for (int iy = 0; iy < iymaxNuc; iy++) {
-                if (!fin.eof()) {
-                    fin >> dummy;
-                    fin >> T;
-                    Tlist[iT] = atof(T.c_str());
-                    fin >> Qs;
-                    Qs2Nuclear[iT][iy] = atof(Qs.c_str());
-                } else {
-                    cerr << " End of file reached prematurely. Did the file "
-                            "change? "
-                            "Exiting."
-                         << std::endl;
-                    exit(1);
-                }
+        // lines "Y T_p Q_s^2", with iymaxNuc values of Y for each T_p
+        int n = 0;
+        while (fin >> dummy >> T >> Qs) {
+            const int iT = n / iymaxNuc;
+            if (iT >= iTpmax) {
+                cerr << " More than " << iTpmax
+                     << " T_p values in the Q_s table. Exiting." << std::endl;
+                exit(1);
             }
+            Tlist[iT] = atof(T.c_str());
+            Qs2Nuclear[iT][n % iymaxNuc] = atof(Qs.c_str());
+            n++;
         }
+        if (n == 0 || n % iymaxNuc != 0) {
+            cerr << " The Q_s table has " << n
+                 << " lines, not a multiple of " << iymaxNuc << ". Exiting."
+                 << std::endl;
+            exit(1);
+        }
+        nTp_ = n / iymaxNuc;
         fin.close();
         QsTableLoaded_ = true;
     } else {
@@ -798,6 +801,11 @@ double Init::getNuclearQs2(double T, double y) {
     double value, fracy, fracT, QsYdown, QsYup;
     int posy, check = 0;
     fracy = 0.;
+    if (QsBelowTable_) {
+        // small T_p gives small Q_s, so large y: stay at the last y column
+        y = std::min(y, (iymaxNuc - 1) * deltaYNuc - 1e-6);
+        if (T < Tlist[0]) return T / Tlist[0] * getNuclearQs2(Tlist[0], y);
+    }
     posy = static_cast<int>(floor(y / deltaYNuc + 0.0000001));
 
     if (y > iymaxNuc * deltaYNuc) {
@@ -809,8 +817,8 @@ double Init::getNuclearQs2(double T, double y) {
     }
 
     //  if ( T > Qs2Nuclear[iTpmax-1][iymaxNuc-1] )
-    if (T > Tlist[iTpmax - 1]) {
-        cerr << "T=" << T << ", maximal T in table=" << Tlist[iTpmax - 1]
+    if (T > Tlist[nTp_ - 1]) {
+        cerr << "T=" << T << ", maximal T in table=" << Tlist[nTp_ - 1]
              << endl;
         cerr << " [Init:getNuclearQs2]:WARNING: out of range. Using maximal T "
                 "in "
@@ -818,8 +826,8 @@ double Init::getNuclearQs2(double T, double y) {
              << endl;
         check = 1;
         fracy = (y - static_cast<double>(posy) * deltaYNuc) / deltaYNuc;
-        QsYdown = (Qs2Nuclear[iTpmax - 1][posy]);
-        QsYup = (Qs2Nuclear[iTpmax - 1][posy + 1]);
+        QsYdown = (Qs2Nuclear[nTp_ - 1][posy]);
+        QsYup = (Qs2Nuclear[nTp_ - 1][posy + 1]);
         value = (fracy * QsYup + (1. - fracy) * QsYdown);  //*hbarc*hbarc;
         return value;
     }
@@ -829,7 +837,7 @@ double Init::getNuclearQs2(double T, double y) {
         return 0.;
     }
 
-    for (int iT = 0; iT < iTpmax; iT++) {
+    for (int iT = 0; iT < nTp_ - 1; iT++) {
         if (T >= Tlist[iT] && T < Tlist[iT + 1]) {
             fracT = (T - Tlist[iT]) / (Tlist[iT + 1] - Tlist[iT]);
             fracy = (y - static_cast<double>(posy) * deltaYNuc) / deltaYNuc;
@@ -852,11 +860,94 @@ double Init::getNuclearQs2(double T, double y) {
                 "the value of Qs^2. Using maximal T_p"
              << endl;
         value =
-            (fracy * Qs2Nuclear[iTpmax - 1][posy + 1]
-             + (1. - fracy) * Qs2Nuclear[iTpmax - 1][posy]);
+            (fracy * Qs2Nuclear[nTp_ - 1][posy + 1]
+             + (1. - fracy) * Qs2Nuclear[nTp_ - 1][posy]);
     }
 
     return value;
+}
+
+// Additional requirement for a trial with an overlap region to count as
+// inelastic. Uses the quantities stored in param by setColorChargeDensity.
+bool Init::passesInelasticCriterion(Parameters *param, Random *random) {
+    bool pass = true;
+    switch (param->getInelasticCriterion()) {
+        case 0:  // cut on the local thickness
+            pass = param->getMaxMinTp() >= param->getInelasticTpMin();
+            break;
+        case 1:  // cut on the local saturation scale
+            pass = param->getMaxMinQs() >= param->getInelasticQsMin();
+            break;
+        case 2:  // Poisson probability to produce particles, with
+                 // <N> = kappa * Q_s,min^2 S_T
+            pass =
+                random->genrand64_real1()
+                < 1. - exp(-param->getInelasticKappa() * param->getQs2minST());
+            break;
+        case 3:  // TRENTo-style eikonal probability, 1 - exp(-sigma_gg T_pp)
+            pass = random->genrand64_real1()
+                   < 1. - exp(-param->getInelasticSigmaGG() * param->getTpp());
+            break;
+        case 4:  // needs the Wilson lines: decided after setV, in
+                 // passesFieldOverlapCriterion
+            break;
+    }
+    if (!pass)
+        cout << "**** Rejected event - fails inelastic criterion "
+             << param->getInelasticCriterion()
+             << " (max min(T_p) = " << param->getMaxMinTp()
+             << " GeV^2, max min(Q_s) = " << param->getMaxMinQs()
+             << " GeV, Q_s,min^2 S_T = " << param->getQs2minST()
+             << ", T_pp = " << param->getTpp() << " fm^-2)." << endl;
+    return pass;
+}
+
+// inelasticCriterion 4: accept with probability 1 - exp(-sigma_gg T^E_pp),
+// where T^E_pp = \int d^2x T^E_A T^E_B [fm^-2] overlaps the field intensities
+// of the Wilson lines, T^E ~ sum_i (Nc - Re tr V(x) V^+(x+i)) ~ |grad V|^2,
+// each normalised to its number of nucleons (as T_p in T_pp is).
+bool Init::passesFieldOverlapCriterion(
+    Lattice *lat, Parameters *param, Random *random) {
+    const int N = param->getSize();
+    const double a = param->getL() / N;  // lattice spacing in fm
+    const int Nc2 = Nc_ * Nc_;
+    // Nc - Re tr V(x) V^+(y)
+    auto linkDeficit = [Nc2, this](const Matrix &V, const Matrix &Vn) {
+        double re = 0.;
+        for (int k = 0; k < Nc2; k++) re += real(V(k) * conj(Vn(k)));
+        return Nc_ - re;
+    };
+
+    double sumA = 0., sumB = 0., sumAB = 0.;
+#pragma omp parallel for reduction(+ : sumA, sumB, sumAB)
+    for (int pos = 0; pos < N * N; pos++) {
+        const int px = lat->pospX[pos];
+        const int py = lat->pospY[pos];
+        const double eA = linkDeficit(lat->U[pos], lat->U[px])
+                          + linkDeficit(lat->U[pos], lat->U[py]);
+        const double eB = linkDeficit(lat->U2[pos], lat->U2[px])
+                          + linkDeficit(lat->U2[pos], lat->U2[py]);
+        sumA += eA;
+        sumB += eB;
+        sumAB += eA * eB;
+    }
+
+    double TppField = 0.;
+    if (sumA > 0. && sumB > 0.)
+        TppField = static_cast<double>(nucleusA_.size() * nucleusB_.size())
+                   * sumAB / (sumA * sumB * a * a);
+    param->setTppField(TppField);
+    cout << "T^E_pp(" << param->getb() << " fm) = " << TppField << " 1/fm^2"
+         << endl;
+
+    const bool pass =
+        random->genrand64_real1()
+        < 1. - exp(-param->getInelasticSigmaGG() * TppField);
+    if (!pass)
+        cout << "**** Rejected event - fails inelastic criterion 4 (T^E_pp = "
+             << TppField << " fm^-2, T_pp = " << param->getTpp() << " fm^-2)."
+             << endl;
+    return pass;
 }
 
 // set g^2\mu^2 as the sum of the individual nucleons' g^2\mu^2, using Q_s(b,y)
@@ -927,6 +1018,9 @@ void Init::setColorChargeDensity(
     param->setNcoll(0);
     param->setQs2minST(0.);
     param->setTpp(0.);
+    param->setTppField(0.);
+    param->setMaxMinTp(0.);
+    param->setMaxMinQs(0.);
 
     // in cross section mode nothing downstream uses the per-trial files
     const bool writeTrialFiles = (param->getCrossSectionMode() == 0);
@@ -1550,6 +1644,13 @@ void Init::setColorChargeDensity(
     double x, xm, y, ym;
     double alphas = 0.;
     int check = 0;
+    // largest local min(T_A, T_B) and min(Q_sA^2, Q_sB^2) over the lattice,
+    // used by the inelastic criterion (see Parameters::inelasticCriterion_)
+    double maxMinTp = 0.;
+    double maxMinQs2 = 0.;
+    // with the sigma_gg criteria the Glauber wounding (SigmaNN) must not
+    // decide whether there is an overlap; sigma_gg alone does
+    const bool ignoreWounding = param->getInelasticCriterion() >= 3;
     for (int ix = 0; ix < N; ix++)  // loop over all positions
     {
         for (int iy = 0; iy < N; iy++) {
@@ -1572,15 +1673,21 @@ void Init::setColorChargeDensity(
             } else
                 g2mu2B = 0;
 
+            double Qs2minLocal;
             if (g2mu2B >= g2mu2A) {
-                averageQs2min2 += g2mu2A * param->getQsmuRatio()
-                                  * param->getQsmuRatio() / a / a * hbarc
-                                  * hbarc * param->getg() * param->getg();
+                Qs2minLocal = g2mu2A * param->getQsmuRatio()
+                              * param->getQsmuRatio() / a / a * hbarc * hbarc
+                              * param->getg() * param->getg();
             } else {
-                averageQs2min2 += g2mu2B * param->getQsmuRatioB()
-                                  * param->getQsmuRatioB() / a / a * hbarc
-                                  * hbarc * param->getg() * param->getg();
+                Qs2minLocal = g2mu2B * param->getQsmuRatioB()
+                              * param->getQsmuRatioB() / a / a * hbarc * hbarc
+                              * param->getg() * param->getg();
             }
+            averageQs2min2 += Qs2minLocal;
+            maxMinQs2 = std::max(maxMinQs2, Qs2minLocal);
+            maxMinTp = std::max(
+                maxMinTp,
+                std::min(lat->cells[pos]->getTpA(), lat->cells[pos]->getTpB()));
 
             for (int i = 0; i < A1; i++) {
                 xm = nucleusA_.at(i).x;
@@ -1588,7 +1695,7 @@ void Init::setColorChargeDensity(
                 r = sqrt((x - xm) * (x - xm) + (y - ym) * (y - ym));
 
                 if (r < sqrt(0.1 * param->getSigmaNN() / M_PI)
-                    && nucleusA_.at(i).collided == 1) {
+                    && (nucleusA_.at(i).collided == 1 || ignoreWounding)) {
                     check = 1;
                 }
             }
@@ -1599,7 +1706,8 @@ void Init::setColorChargeDensity(
                 r = sqrt((x - xm) * (x - xm) + (y - ym) * (y - ym));
 
                 if (r < sqrt(0.1 * param->getSigmaNN() / M_PI)
-                    && nucleusB_.at(i).collided == 1 && check == 1)
+                    && (nucleusB_.at(i).collided == 1 || ignoreWounding)
+                    && check == 1)
                     check = 2;
             }
 
@@ -1641,6 +1749,9 @@ void Init::setColorChargeDensity(
                              // remember: Tp is in GeV^2
         }
     }
+
+    param->setMaxMinTp(maxMinTp);
+    param->setMaxMinQs(sqrt(maxMinQs2));
 
     if (count == 0) {
         param->setAverageQs(0.);
@@ -1747,11 +1858,12 @@ void Init::setColorChargeDensity(
         alphas = param->getg() * param->getg() / 4. / M_PI;
     }
 
-    const bool inelastic =
+    const bool overlap =
         param->getAverageQs() > 0 && param->getAverageQsAvg() > 0
         && averageQs2 > 0 && param->getAverageQsmin() > 0 && averageQs2Avg > 0
-        && alphas > 0 && Npart >= 2
+        && alphas > 0 && (Npart >= 2 || ignoreWounding)
         && averageQs2min2 * a * a / hbarc / hbarc > param->getMinimumQs2ST();
+    const bool inelastic = overlap && passesInelasticCriterion(param, random);
     if (inelastic) param->setSuccess(1);
     if (inelastic && writeTrialFiles) {
         stringstream strup_name;
@@ -1924,6 +2036,12 @@ void Init::setV(Lattice *lat, Parameters *param, Random *random) {
     const double invNy = 1. / static_cast<double>(Ny);
     double UVdamp = param->getUVdamp();  // GeV^-1
     UVdamp = UVdamp / a * hbarc;
+
+    // start from V = 1 (with inelasticCriterion 4 every trial calls setV)
+    for (int pos = 0; pos < sites; pos++) {
+        lat->U[pos] = one_;
+        lat->U2[pos] = one_;
+    }
 
     // The lattice Poisson/UV kernel depends only on transverse momentum and
     // run parameters.  The historical implementation recomputed the same
@@ -2564,6 +2682,7 @@ void Init::init(
     group_ptr_ = group;
     random_ptr_ = random;
     one_ = Matrix(Nc_, 1.);
+    QsBelowTable_ = param->getInelasticCriterion() == 4;
     const double bmin = param->getbmin();
     const double bmax = param->getbmax();
     const Matrix zero(Nc_, 0.);
@@ -2683,12 +2802,22 @@ void Init::init(
             return;
         }
 
-        // the inelastic decision is complete at this point, so the cross
-        // section mode skips the Wilson lines and the forward lightcone
-        if (param->getCrossSectionMode() == 1) return;
+        // except for criterion 4 the inelastic decision is complete at this
+        // point, so the cross section mode skips the Wilson lines and the
+        // forward lightcone
+        const bool fieldCriterion = param->getInelasticCriterion() == 4;
+        if (param->getCrossSectionMode() == 1 && !fieldCriterion) return;
 
         // sample color charges and find Wilson lines V_A and V_B
         setV(lat, param, random);
+
+        if (fieldCriterion) {
+            if (!passesFieldOverlapCriterion(lat, param, random)) {
+                param->setSuccess(0);
+                return;
+            }
+            if (param->getCrossSectionMode() == 1) return;
+        }
     }
 
     // output Wilson lines (used also for the proton plots)

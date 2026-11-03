@@ -19,8 +19,10 @@ class Init {
   private:
     int const static iymaxNuc = 44;  // for the Tp-y table
 
-    int const static iTpmax =
-        200;  // updated in March 2019 to a larger T_A range
+    // room for the T_p rows of the Q_s table; the number used, nTp_, is read
+    // from the file (200 in qs2Adj_vs_Tp_vs_Y_200.in)
+    int const static iTpmax = 400;
+    int nTp_ = 0;
 
     double const deltaYNuc = 0.25;  // for the new table
 
@@ -30,6 +32,8 @@ class Init {
     double Qs2Nuclear[iTpmax][iymaxNuc];
     double Tlist[iTpmax];
     bool QsTableLoaded_ = false;  // the Q_s table is a fixed file: read once
+    // below the table, Q_s^2 proportional to T_p instead of 0 (criterion 4)
+    bool QsBelowTable_ = false;
 
     double As[1];
 
@@ -64,6 +68,9 @@ class Init {
     void solveAxb(double *Jab, double *Fa, std::vector<double> &xvec);
 
     double getNuclearQs2(double Qs2atZeroY, double y);
+    bool passesInelasticCriterion(Parameters *param, Random *random);
+    bool passesFieldOverlapCriterion(
+        Lattice *lat, Parameters *param, Random *random);
     void setColorChargeDensity(
         Lattice *lat, Parameters *param, Random *random, Glauber *glauber);
     void setV(Lattice *lat, Parameters *param, Random *random);
