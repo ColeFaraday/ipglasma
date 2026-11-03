@@ -3072,8 +3072,8 @@ void Init::hardSoftEstimator(Lattice *lat, Group *group, Parameters *param) {
     const int Nc_ = param->getNc();
     const int Nc2m1_ = Nc_ * Nc_ - 1;
 
-    // S = sum_x g2mu2_A D_B(k_c) + sum_x g2mu2_B D_A(k_c)
-    double S = 0.;
+    // S = sum_x g2mu2_A D_B(k_c) + sum_x g2mu2_B D_A(k_c), site by site in sMap
+    std::vector<double> sMap(sites, 0.);
     std::vector<Matrix> W(sites, Matrix(Nc_, 0.));
     complex<double> *dU = new complex<double>[sites];
     for (int hard = 0; hard < 2; hard++) {
@@ -3110,27 +3110,50 @@ void Init::hardSoftEstimator(Lattice *lat, Group *group, Parameters *param) {
                 }
                 fft.fftnComplex(dU, dU, nn, -1);
 
-                double sum = 0.;
-#pragma omp parallel for reduction(+ : sum)
+#pragma omp parallel for
                 for (int pos = 0; pos < sites; pos++) {
                     const double g2mu2Hard =
                         (hard == 0) ? lat->cells[pos]->getg2mu2A()
                                     : lat->cells[pos]->getg2mu2B();
-                    sum += g2mu2Hard * norm(dU[pos]);
+                    sMap[pos] += g2mu2Hard * norm(dU[pos]);
                 }
-                S += sum;
             }
         }
     }
     delete[] dU;
 
-    // above k_c each unit of log(k) adds Nc (Nc^2-1)/(2 pi) g^2 g2mu2 to D
-    double overlap = 0.;
+    // above k_c each unit of log(k) adds Nc (Nc^2-1)/(2 pi) g^2 g2mu2 to D,
+    // site by site in wMap
+    const double perOverlap = 2. * Nc_ * Nc2m1_ / (2. * M_PI) * g * g;
+    std::vector<double> wMap(sites);
+    double S = 0., whiteNoise = 0.;
     for (int pos = 0; pos < sites; pos++) {
-        overlap +=
-            lat->cells[pos]->getg2mu2A() * lat->cells[pos]->getg2mu2B();
+        wMap[pos] = perOverlap * lat->cells[pos]->getg2mu2A()
+                    * lat->cells[pos]->getg2mu2B();
+        S += sMap[pos];
+        whiteNoise += wMap[pos];
     }
-    const double whiteNoise = 2. * Nc_ * Nc2m1_ / (2. * M_PI) * g * g * overlap;
+
+    // where the estimate comes from, for placing hard partons: a gluon at
+    // k >= k_c is produced at site x with probability
+    //   [sMap(x) + wMap(x) log(k/k_c)] / [S + whiteNoise log(k/k_c)]
+    // (below k_c the white-noise continuation does not hold; use sMap).
+    // Coordinates as for epsilon-u-Hydro; sites with a share below 1e-12 of
+    // S and of whiteNoise are left out.
+    stringstream strMap_name;
+    strMap_name << "hardSoftMap" << param->getEventId() << ".dat";
+    ofstream foutMap(strMap_name.str().c_str(), std::ios::out);
+    foutMap << "# sites of the hard-soft estimate (Init::hardSoftEstimator): "
+               "k_c = "
+            << kc / a * hbarc << " GeV  S = " << S
+            << "  whiteNoise = " << whiteNoise << endl;
+    foutMap << "# x [fm]  y [fm]  sMap  wMap" << endl;
+    for (int pos = 0; pos < sites; pos++) {
+        if (sMap[pos] < 1e-12 * S && wMap[pos] < 1e-12 * whiteNoise) continue;
+        foutMap << a * (pos / N - N / 2.) << " " << a * (pos % N - N / 2.)
+                << " " << sMap[pos] << " " << wMap[pos] << endl;
+    }
+    foutMap.close();
 
     const double c = param->getc();
     const double muZero = param->getMuZero();
