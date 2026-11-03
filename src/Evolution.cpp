@@ -3389,6 +3389,24 @@ int Evolution::multiplicity(
         }
     }
 
+    // dN/d^2k in the format of multiplicitynkxky, which the run scripts and
+    // the comparisons with the tau = 0+ estimate (glasmaFree) read
+    stringstream strmult_name;
+    strmult_name << "multiplicity-t" << it * dtau * a << "-"
+                 << param->getEventId() << ".dat";
+    ofstream foutMult(strmult_name.str().c_str(), std::ios::out);
+    foutMult << "# tau [fm]  kT [GeV]  dN/d^2k [1/GeV^2]  dN2/d^2k, but "
+                "sligthly different (?) [1/GeV^2]  Tpp [?]  b [fm]  Npart "
+                "[dimensionless]"
+             << endl;
+    for (int ik = 0; ik < bins; ik++) {
+        foutMult << it * dtau * a << " " << ik * dkt / a * hbarc << " "
+                 << n[ik] * a / hbarc * a / hbarc << " "
+                 << n2[ik] * a / hbarc * a / hbarc << " " << param->getTpp()
+                 << " " << param->getb() << " " << param->getNpart() << endl;
+    }
+    foutMult.close();
+
     addPhaseAndRestart(
         "observables.gluon_multiplicity.bin_postprocess", multiplicityPhaseStart);
 
