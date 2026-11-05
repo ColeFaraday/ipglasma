@@ -223,9 +223,11 @@ class Parameters {
     //   2: accept with probability 1 - exp(-inelasticKappa * Q_s,min^2 S_T)
     //   3: accept with probability 1 - exp(-inelasticSigmaGG * T_pp), with
     //      T_pp = \int d^2x T_A T_B [fm^-2] and sigma_gg in fm^2 (TRENTo's
-    //      sigma_gg; tune it so p+p gives the measured sigma_NN). The Glauber
-    //      wounding with SigmaNN is not required, so the event-level
-    //      probability is 1 - prod_ij (1 - p_ij) over nucleon pairs
+    //      sigma_gg; tune it so p+p gives the measured sigma_NN). SigmaNN is
+    //      not used: there is no Glauber wounding, so the event-level
+    //      probability is 1 - prod_ij (1 - p_ij) over nucleon pairs, and the
+    //      <Q_s> averages (running coupling, inverseQsForMaxTime) are
+    //      weighted by T_A T_B instead of taken near wounded nucleons
     //   4: as 3, with T_pp replaced by the overlap of the Wilson-line field
     //      intensities, T^E_pp = \int d^2x T^E_A T^E_B [fm^-2]. T^E_A is
     //      sum_i (Nc - Re tr V_A(x) V_A^+(x+i)) ~ |grad V_A|^2, normalised to

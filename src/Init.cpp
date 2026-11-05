@@ -1648,9 +1648,13 @@ void Init::setColorChargeDensity(
     // used by the inelastic criterion (see Parameters::inelasticCriterion_)
     double maxMinTp = 0.;
     double maxMinQs2 = 0.;
-    // with the sigma_gg criteria the Glauber wounding (SigmaNN) must not
-    // decide whether there is an overlap; sigma_gg alone does
+    // With the sigma_gg criteria SigmaNN plays no part: sigma_gg alone decides
+    // whether there is a collision, and the <Q_s> averages are weighted by
+    // the overlap density T_A T_B instead of taken within
+    // sqrt(0.1 SigmaNN / pi) of a wounded nucleon of each nucleus
     const bool ignoreWounding = param->getInelasticCriterion() >= 3;
+    // total weight of the <Q_s> averages
+    double sumW = 0.;
     for (int ix = 0; ix < N; ix++)  // loop over all positions
     {
         for (int iy = 0; iy < N; iy++) {
@@ -1689,57 +1693,47 @@ void Init::setColorChargeDensity(
                 maxMinTp,
                 std::min(lat->cells[pos]->getTpA(), lat->cells[pos]->getTpB()));
 
-            for (int i = 0; i < A1; i++) {
-                xm = nucleusA_.at(i).x;
-                ym = nucleusA_.at(i).y;
-                r = sqrt((x - xm) * (x - xm) + (y - ym) * (y - ym));
+            double w;  // weight of this cell in the <Q_s> averages
+            if (ignoreWounding) {
+                w = lat->cells[pos]->getTpA() * lat->cells[pos]->getTpB();
+            } else {
+                for (int i = 0; i < A1; i++) {
+                    xm = nucleusA_.at(i).x;
+                    ym = nucleusA_.at(i).y;
+                    r = sqrt((x - xm) * (x - xm) + (y - ym) * (y - ym));
 
-                if (r < sqrt(0.1 * param->getSigmaNN() / M_PI)
-                    && (nucleusA_.at(i).collided == 1 || ignoreWounding)) {
-                    check = 1;
+                    if (r < sqrt(0.1 * param->getSigmaNN() / M_PI)
+                        && nucleusA_.at(i).collided == 1) {
+                        check = 1;
+                    }
                 }
+
+                for (int i = 0; i < A2; i++) {
+                    xm = nucleusB_.at(i).x;
+                    ym = nucleusB_.at(i).y;
+                    r = sqrt((x - xm) * (x - xm) + (y - ym) * (y - ym));
+
+                    if (r < sqrt(0.1 * param->getSigmaNN() / M_PI)
+                        && nucleusB_.at(i).collided == 1 && check == 1)
+                        check = 2;
+                }
+                w = (check == 2) ? 1. : 0.;
             }
 
-            for (int i = 0; i < A2; i++) {
-                xm = nucleusB_.at(i).x;
-                ym = nucleusB_.at(i).y;
-                r = sqrt((x - xm) * (x - xm) + (y - ym) * (y - ym));
-
-                if (r < sqrt(0.1 * param->getSigmaNN() / M_PI)
-                    && (nucleusB_.at(i).collided == 1 || ignoreWounding)
-                    && check == 1)
-                    check = 2;
-            }
-
-            if (check == 2) {
-                if (g2mu2B > g2mu2A) {
-                    averageQs += sqrt(
-                        g2mu2B * param->getQsmuRatioB() * param->getQsmuRatioB()
-                        / a / a * hbarc * hbarc * param->getg()
-                        * param->getg());
-                    averageQs2 += g2mu2B * param->getQsmuRatioB()
-                                  * param->getQsmuRatioB() / a / a * hbarc
-                                  * hbarc * param->getg() * param->getg();
-                    averageQs2min += g2mu2A * param->getQsmuRatio()
-                                     * param->getQsmuRatio() / a / a * hbarc
-                                     * hbarc * param->getg() * param->getg();
-                } else {
-                    averageQs += sqrt(
-                        g2mu2A * param->getQsmuRatio() * param->getQsmuRatio()
-                        / a / a * hbarc * hbarc * param->getg()
-                        * param->getg());
-                    averageQs2 += g2mu2A * param->getQsmuRatio()
-                                  * param->getQsmuRatio() / a / a * hbarc
-                                  * hbarc * param->getg() * param->getg();
-                    averageQs2min += g2mu2B * param->getQsmuRatioB()
-                                     * param->getQsmuRatioB() / a / a * hbarc
-                                     * hbarc * param->getg() * param->getg();
-                }
-                averageQs2Avg +=
-                    (g2mu2B * param->getQsmuRatioB() * param->getQsmuRatioB()
-                     + g2mu2A * param->getQsmuRatio() * param->getQsmuRatio())
-                    / 2. / a / a * hbarc * hbarc * param->getg()
-                    * param->getg();
+            if (w > 0.) {
+                const double c2 =
+                    hbarc * hbarc * param->getg() * param->getg() / a / a;
+                const double Qs2A =
+                    g2mu2A * param->getQsmuRatio() * param->getQsmuRatio() * c2;
+                const double Qs2B = g2mu2B * param->getQsmuRatioB()
+                                    * param->getQsmuRatioB() * c2;
+                const double Qs2max = (g2mu2B > g2mu2A) ? Qs2B : Qs2A;
+                const double Qs2min = (g2mu2B > g2mu2A) ? Qs2A : Qs2B;
+                averageQs += w * sqrt(Qs2max);
+                averageQs2 += w * Qs2max;
+                averageQs2min += w * Qs2min;
+                averageQs2Avg += w * (Qs2A + Qs2B) / 2.;
+                sumW += w;
                 count++;
             }
             // compute T_pp
@@ -1763,10 +1757,10 @@ void Init::setColorChargeDensity(
         return;
     }
 
-    averageQs /= static_cast<double>(count);
-    averageQs2 /= static_cast<double>(count);
-    averageQs2Avg /= static_cast<double>(count);
-    averageQs2min /= static_cast<double>(count);
+    averageQs /= sumW;
+    averageQs2 /= sumW;
+    averageQs2Avg /= sumW;
+    averageQs2min /= sumW;
 
     param->setAverageQs(sqrt(averageQs2));
     param->setAverageQsAvg(sqrt(averageQs2Avg));
