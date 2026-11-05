@@ -4,6 +4,8 @@
 #ifndef Init_H
 #define Init_H
 
+#include <cstdint>
+
 #include "FFT.h"
 #include "Glauber.h"
 #include "Group.h"
@@ -71,7 +73,8 @@ class Init {
 
     Matrix getUfromExponent(std::vector<double> &in);
     bool findUInForwardLightconeBjoern(Matrix &U1, Matrix &U2, Matrix &Usol);
-    bool findUInForwardLightconeChun(Matrix &U1, Matrix &U2, Matrix &Usol);
+    bool findUInForwardLightconeChun(
+        Matrix &U1, Matrix &U2, Matrix &Usol, std::uint64_t retrySeed);
 
     void readInNucleusConfigs(
         const int nucleusA, const int lightNucleusOption,

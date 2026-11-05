@@ -3,6 +3,9 @@
 
 #include "gsl/gsl_rng.h"
 
+#include <cstddef>
+#include <vector>
+
 #define NN 312
 #define MM 156
 #define MATRIX_A 0xB5026F5AA96619E9ULL
@@ -15,10 +18,13 @@ class Random {
     double gset;
 
     unsigned long long mt[NN];
+    std::vector<unsigned long long> bulkRawScratch_;
     /* mti==NN+1 means mt[NN] is not initialized */
     int mti;
 
     gsl_rng *gslRandom;
+
+    void genrand64RawBulk(unsigned long long *out, std::size_t count);
 
   public:
     Random() {
@@ -41,6 +47,7 @@ class Random {
     double NBD(double nbar, double k);
     int Poisson(const double mean);
     double Gauss(double mean = 0., double width = 1.);
+    void GaussBulk(double *out, std::size_t count, std::vector<double> &scratch);
     double Gauss2(double mean, double sigma);
 };
 
