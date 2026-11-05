@@ -77,7 +77,7 @@ polarizationProjectileJz 0
 polarizationTargetJz 0
 useFixedNpart 0
 averageOverThisManyNuclei 1
-SigmaNN 200.
+SigmaNN 67.
 gaussianWounding 1
 inverseQsForMaxTime 0
 maxtime 0.5
