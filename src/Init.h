@@ -71,6 +71,7 @@ class Init {
     bool passesInelasticCriterion(Parameters *param, Random *random);
     bool passesFieldOverlapCriterion(
         Lattice *lat, Parameters *param, Random *random);
+    void setG2mu2(Lattice *lat, Parameters *param, bool ownCharges);
     void setColorChargeDensity(
         Lattice *lat, Parameters *param, Random *random, Glauber *glauber);
     void setV(Lattice *lat, Parameters *param, Random *random);
