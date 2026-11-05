@@ -208,9 +208,43 @@ class Parameters {
     int shiftConstituentQuarkProtonOrigin;  // if 1, move constituent quark
                                             // center of mass to origin
     double UVdamp;                          // UV damping parameter
-    int minimumQs2ST;  // if >0 this will excludes events with Qs_min^2 S_T <
-                       // minimumQs2ST. Can be used to trigger on high
-                       // multiplicity events.
+    double minimumQs2ST;    // if >0 this will excludes events with Qs_min^2
+                            // S_T < minimumQs2ST. Can be used to trigger on
+                            // high multiplicity events.
+    int Ncoll_ = 0;         // number of binary collisions of the last trial
+    double Qs2minST_ = 0.;  // Q_s,min^2 S_T of the last trial (dimensionless)
+    int crossSectionMode_ = 0;  // 1: stop each event as soon as it is found
+                                // to be inelastic (only record the trials)
+    // Additional requirement for a trial to count as inelastic, on top of the
+    // overlap conditions in Init::setColorChargeDensity:
+    //   0: max over cells of min(T_A, T_B) >= inelasticTpMin [GeV^2]
+    //      (<= 0, or anything below the Q_s table's lower edge, adds nothing)
+    //   1: max over cells of min(Q_sA, Q_sB) >= inelasticQsMin [GeV]
+    //   2: accept with probability 1 - exp(-inelasticKappa * Q_s,min^2 S_T)
+    //   3: accept with probability 1 - exp(-inelasticSigmaGG * T_pp), with
+    //      T_pp = \int d^2x T_A T_B [fm^-2] and sigma_gg in fm^2 (TRENTo's
+    //      sigma_gg; tune it so p+p gives the measured sigma_NN). SigmaNN is
+    //      not used: there is no Glauber wounding, so the event-level
+    //      probability is 1 - prod_ij (1 - p_ij) over nucleon pairs, and the
+    //      <Q_s> averages (running coupling, inverseQsForMaxTime) are
+    //      weighted by T_A T_B instead of taken near wounded nucleons
+    //   4: as 3, with T_pp replaced by the overlap of the Wilson-line field
+    //      intensities, T^E_pp = \int d^2x T^E_A T^E_B [fm^-2]. T^E_A is
+    //      sum_i (Nc - Re tr V_A(x) V_A^+(x+i)) ~ |grad V_A|^2, normalised to
+    //      the number of nucleons in A. The fields reach ~1/m beyond the
+    //      colour charges, so hot spots whose charges miss still collide.
+    //      Needs the Wilson lines, so setV runs for every trial. Below the
+    //      Q_s table Q_s^2 continues proportional to T_p (the dilute limit
+    //      of the IP-Sat dipole) instead of being 0, so the table floor does
+    //      not cut off the overlap
+    int inelasticCriterion_ = 0;
+    double inelasticTpMin_ = -1.;
+    double inelasticQsMin_ = 0.;
+    double inelasticKappa_ = 0.;
+    double inelasticSigmaGG_ = 0.;
+    double maxMinTp_ = 0.;  // max over cells of min(T_A, T_B) [GeV^2]
+    double maxMinQs_ = 0.;  // max over cells of min(Q_sA, Q_sB) [GeV]
+    double TppField_ = 0.;  // T^E_pp of the last trial [fm^-2] (criterion 4)
     double R_WS_, a_WS_;
     double beta2;  // value of deformation parameter beta2 to test sensitivity
                    // in Uranium
@@ -496,8 +530,30 @@ class Parameters {
     int getShiftConstituentQuarkProtonOrigin() {
         return shiftConstituentQuarkProtonOrigin;
     }
-    void setMinimumQs2ST(int x) { minimumQs2ST = x; }
-    int getMinimumQs2ST() { return minimumQs2ST; }
+    void setMinimumQs2ST(double x) { minimumQs2ST = x; }
+    double getMinimumQs2ST() { return minimumQs2ST; }
+    void setNcoll(int x) { Ncoll_ = x; }
+    int getNcoll() { return Ncoll_; }
+    void setQs2minST(double x) { Qs2minST_ = x; }
+    double getQs2minST() { return Qs2minST_; }
+    void setCrossSectionMode(int x) { crossSectionMode_ = x; }
+    int getCrossSectionMode() { return crossSectionMode_; }
+    void setInelasticCriterion(int x) { inelasticCriterion_ = x; }
+    int getInelasticCriterion() { return inelasticCriterion_; }
+    void setInelasticTpMin(double x) { inelasticTpMin_ = x; }
+    double getInelasticTpMin() { return inelasticTpMin_; }
+    void setInelasticQsMin(double x) { inelasticQsMin_ = x; }
+    double getInelasticQsMin() { return inelasticQsMin_; }
+    void setInelasticKappa(double x) { inelasticKappa_ = x; }
+    double getInelasticKappa() { return inelasticKappa_; }
+    void setInelasticSigmaGG(double x) { inelasticSigmaGG_ = x; }
+    double getInelasticSigmaGG() { return inelasticSigmaGG_; }
+    void setMaxMinTp(double x) { maxMinTp_ = x; }
+    double getMaxMinTp() { return maxMinTp_; }
+    void setMaxMinQs(double x) { maxMinQs_ = x; }
+    double getMaxMinQs() { return maxMinQs_; }
+    void setTppField(double x) { TppField_ = x; }
+    double getTppField() { return TppField_; }
 
     void setComputeGluonMultiplicity(int x) {
         if (x == 0) {
