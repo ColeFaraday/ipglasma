@@ -380,6 +380,7 @@ int main(int argc, char *argv[]) {
             while (param->getSuccess() == 0) {
                 param->setSuccess(0);
                 iTrial++;
+                param->setTrial(iTrial);
 
                 // initialize gsl random number generator (used for
                 // non-Gaussian distributions)
@@ -685,6 +686,35 @@ int readInput(
     // 0 samples them on the lattice
     param->setChargeSourceSize(
         setup->IFindOptional(file_name, "chargeSourceSize", 0));
+    // optional: crossSectionTrials file of a run with the same seed on
+    // another lattice, whose accept/reject decisions replace those of
+    // inelasticCriterion 4 (the criterion depends on the lattice spacing)
+    {
+        const std::string trialsFile =
+            setup->SFindOptional(file_name, "acceptTrialsFile", "");
+        if (!trialsFile.empty()) {
+            std::ifstream fin(trialsFile.c_str());
+            if (!fin.is_open()) {
+                cerr << "acceptTrialsFile " << trialsFile
+                     << " cannot be opened. Exiting." << endl;
+                exit(1);
+            }
+            std::string line;
+            while (std::getline(fin, line)) {
+                if (line.empty() || line[0] == '#') continue;
+                std::istringstream ls(line);
+                int eventId, trial, inelastic;
+                double b;
+                if (ls >> eventId >> trial >> b >> inelastic)
+                    param->setForcedInelastic(eventId, trial, inelastic);
+            }
+            if (!param->hasForcedAcceptance()) {
+                cerr << "acceptTrialsFile " << trialsFile
+                     << " holds no trials. Exiting." << endl;
+                exit(1);
+            }
+        }
+    }
     // optional: 1 writes the estimates of the high-k gluon spectrum
     // (Init::glasmaFreeSpectrum, Init::hardSoftEstimator), 2 writes them and
     // skips the evolution

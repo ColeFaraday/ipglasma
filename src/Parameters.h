@@ -4,7 +4,9 @@
 #ifndef Parameters_H
 #define Parameters_H
 
+#include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 class Parameters {
@@ -218,6 +220,12 @@ class Parameters {
     int chargeSourceSize_ = 0;  // N_f > size, a multiple of it: sample the
                                 // colour charges on the N_f grid and block-sum
                                 // them onto the lattice (0: off)
+    // acceptTrialsFile: the (eventId, trial) -> inelastic decisions of a
+    // crossSectionTrials file of a run on another lattice, imposed on
+    // inelasticCriterion 4 (see Init::init)
+    std::map<std::pair<int, int>, int> forcedInelastic_;
+    bool forcedAcceptance_ = false;
+    int trial_ = 0;  // 1-based number of the current trial of the event
     int hardSoftEstimator_ = 0;  // 1: write the estimates of the high-k
                                  // gluon spectrum from the initial fields,
                                  // 2: write them and stop the event (no
@@ -547,6 +555,18 @@ class Parameters {
     int getCrossSectionMode() { return crossSectionMode_; }
     void setChargeSourceSize(int x) { chargeSourceSize_ = x; }
     int getChargeSourceSize() { return chargeSourceSize_; }
+    void setForcedInelastic(int eventId, int trial, int inelastic) {
+        forcedInelastic_[std::make_pair(eventId, trial)] = inelastic;
+        forcedAcceptance_ = true;
+    }
+    bool hasForcedAcceptance() { return forcedAcceptance_; }
+    // -1 if the file has no such trial
+    int getForcedInelastic(int eventId, int trial) {
+        auto it = forcedInelastic_.find(std::make_pair(eventId, trial));
+        return it == forcedInelastic_.end() ? -1 : it->second;
+    }
+    void setTrial(int x) { trial_ = x; }
+    int getTrial() { return trial_; }
     void setHardSoftEstimator(int x) { hardSoftEstimator_ = x; }
     int getHardSoftEstimator() { return hardSoftEstimator_; }
     void setInelasticCriterion(int x) { inelasticCriterion_ = x; }

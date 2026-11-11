@@ -2030,6 +2030,19 @@ void writeInitialWilsonTrainingData(Lattice *lat, Parameters *param) {
 }
 }  // namespace
 
+void Init::skipColorCharges(Parameters *param, Random *random) {
+    const int N = param->getSize();
+    const int Nfine = param->getChargeSourceSize();
+    const std::size_t count =
+        static_cast<std::size_t>(Nfine > N ? Nfine : N)
+        * static_cast<std::size_t>(Nfine > N ? Nfine : N)
+        * static_cast<std::size_t>(Nc2m1_);
+    std::vector<double> buffer(count), scratch;
+    // setV: Ny sheets for nucleus A, then Ny for nucleus B
+    for (int sheet = 0; sheet < 2 * param->getNy(); sheet++)
+        random->GaussBulk(buffer.data(), count, scratch);
+}
+
 void Init::setV(Lattice *lat, Parameters *param, Random *random) {
     IPG_PROFILE_SCOPE("initialization.wilson_lines");
     messager.info("Setting Wilson lines ...");
@@ -3001,11 +3014,35 @@ void Init::init(
         const bool fieldCriterion = param->getInelasticCriterion() == 4;
         if (param->getCrossSectionMode() == 1 && !fieldCriterion) return;
 
+        // acceptTrialsFile: the decision of criterion 4 comes from a run on
+        // another lattice. The first-pass Wilson lines are then only needed
+        // to keep the random stream in step, which skipColorCharges does.
+        const bool forced = fieldCriterion && param->hasForcedAcceptance();
+
         // sample color charges and find Wilson lines V_A and V_B
-        setV(lat, param, random);
+        if (forced)
+            skipColorCharges(param, random);
+        else
+            setV(lat, param, random);
 
         if (fieldCriterion) {
-            if (!passesFieldOverlapCriterion(lat, param, random)) {
+            bool accepted;
+            if (forced) {
+                random->genrand64_real1();  // the draw of the criterion
+                const int decision = param->getForcedInelastic(
+                    param->getEventId(), param->getTrial());
+                if (decision < 0) {
+                    cerr << "acceptTrialsFile has no trial " << param->getTrial()
+                         << " of event " << param->getEventId()
+                         << ". Exiting." << endl;
+                    exit(1);
+                }
+                param->setTppField(0.);
+                accepted = (decision == 1);
+            } else {
+                accepted = passesFieldOverlapCriterion(lat, param, random);
+            }
+            if (!accepted) {
                 param->setSuccess(0);
                 return;
             }

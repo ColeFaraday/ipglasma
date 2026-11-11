@@ -79,6 +79,8 @@ class Init {
     void setColorChargeDensity(
         Lattice *lat, Parameters *param, Random *random, Glauber *glauber);
     void setV(Lattice *lat, Parameters *param, Random *random);
+    // advances the random stream exactly as setV does, without building V
+    void skipColorCharges(Parameters *param, Random *random);
     void hardSoftEstimator(Lattice *lat, Parameters *param);
     void glasmaFreeSpectrum(Lattice *lat, Group *group, Parameters *param);
     void readV(Lattice *lat, Parameters *param, int format);
