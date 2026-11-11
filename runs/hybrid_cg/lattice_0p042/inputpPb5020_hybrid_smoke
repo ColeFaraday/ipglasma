@@ -86,7 +86,7 @@ inelasticCriterion  4
 inelasticTpMin -1
 inelasticQsMin 0.2
 inelasticKappa 1.
-inelasticSigmaGG  10  # smoke test only: low enough that trials are rejected, which the replay must follow
+inelasticSigmaGG  10
 dR_np 0.0
 da_np 0.0
 computeGluonMultiplicity 1
