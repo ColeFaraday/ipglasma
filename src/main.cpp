@@ -680,6 +680,11 @@ int readInput(
     // optional: 1 stops every event as soon as it is found to be inelastic
     param->setCrossSectionMode(
         setup->IFindOptional(file_name, "crossSectionMode", 0));
+    // optional: fine grid size N_f (a multiple of size) on which the colour
+    // charges are sampled and block-summed onto the lattice (see Init::setV);
+    // 0 samples them on the lattice
+    param->setChargeSourceSize(
+        setup->IFindOptional(file_name, "chargeSourceSize", 0));
     // optional: 1 writes the estimates of the high-k gluon spectrum
     // (Init::glasmaFreeSpectrum, Init::hardSoftEstimator), 2 writes them and
     // skips the evolution

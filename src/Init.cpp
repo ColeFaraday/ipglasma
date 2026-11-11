@@ -2114,8 +2114,51 @@ void Init::setV(Lattice *lat, Parameters *param, Random *random) {
             g * sqrt(lat->cells[pos]->getg2mu2B() * invNy);
     }
 
+    // chargeSourceSize N_f (input key, 0 = off): draw the unit Gaussians of
+    // every sheet on a finer N_f x N_f grid in the order a run of that size
+    // would, and block-sum them onto this lattice (the sum of f^2 unit
+    // Gaussians over f is again a unit Gaussian, f = N_f / N). The lattice
+    // then carries the coarse-grained colour charges of the N_f event, and
+    // the random stream is the same as in that run, so the two runs of one
+    // seed see one event. The sheet scale g mu(x)/sqrt(Ny) is applied after
+    // the block sum (exact for g^2 mu^2 constant within a block).
+    const int Nfine = param->getChargeSourceSize();
+    if (Nfine != 0 && !(Nfine > N && Nfine % N == 0)) {
+        cerr << "chargeSourceSize " << Nfine
+             << " must be 0 or a multiple (> 1) of size " << N << endl;
+        exit(1);
+    }
+    const int fgrain = (Nfine > N) ? Nfine / N : 1;
+    std::vector<double> fineGaussian;
+    if (fgrain > 1)
+        fineGaussian.resize(static_cast<std::size_t>(Nfine)
+                            * static_cast<std::size_t>(Nfine)
+                            * static_cast<std::size_t>(Nc2m1_));
     auto fillColorCharge = [&](const std::vector<double> &scale) {
-        {
+        if (fgrain > 1) {
+            IPG_PROFILE_SCOPE("initialization.wilson_random.gauss");
+            random->GaussBulk(
+                fineGaussian.data(), fineGaussian.size(), gaussianScratch);
+            const double invf = 1. / static_cast<double>(fgrain);
+#pragma omp parallel for
+            for (int pos = 0; pos < sites; ++pos) {
+                const int ci = pos / N, cj = pos - ci * N;
+                for (int n = 0; n < Nc2m1_; ++n) {
+                    double sum = 0.;
+                    for (int di = 0; di < fgrain; ++di)
+                        for (int dj = 0; dj < fgrain; ++dj)
+                            sum += fineGaussian
+                                [(static_cast<std::size_t>(ci * fgrain + di)
+                                      * static_cast<std::size_t>(Nfine)
+                                  + static_cast<std::size_t>(cj * fgrain + dj))
+                                     * static_cast<std::size_t>(Nc2m1_)
+                                 + static_cast<std::size_t>(n)];
+                    gaussianField[static_cast<std::size_t>(pos)
+                                      * static_cast<std::size_t>(Nc2m1_)
+                                  + static_cast<std::size_t>(n)] = sum * invf;
+                }
+            }
+        } else {
             IPG_PROFILE_SCOPE("initialization.wilson_random.gauss");
             random->GaussBulk(
                 gaussianField.data(), gaussianField.size(), gaussianScratch);

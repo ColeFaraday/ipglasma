@@ -215,6 +215,9 @@ class Parameters {
     double Qs2minST_ = 0.;  // Q_s,min^2 S_T of the last trial (dimensionless)
     int crossSectionMode_ = 0;  // 1: stop each event as soon as it is found
                                 // to be inelastic (only record the trials)
+    int chargeSourceSize_ = 0;  // N_f > size, a multiple of it: sample the
+                                // colour charges on the N_f grid and block-sum
+                                // them onto the lattice (0: off)
     int hardSoftEstimator_ = 0;  // 1: write the estimates of the high-k
                                  // gluon spectrum from the initial fields,
                                  // 2: write them and stop the event (no
@@ -542,6 +545,8 @@ class Parameters {
     double getQs2minST() { return Qs2minST_; }
     void setCrossSectionMode(int x) { crossSectionMode_ = x; }
     int getCrossSectionMode() { return crossSectionMode_; }
+    void setChargeSourceSize(int x) { chargeSourceSize_ = x; }
+    int getChargeSourceSize() { return chargeSourceSize_; }
     void setHardSoftEstimator(int x) { hardSoftEstimator_ = x; }
     int getHardSoftEstimator() { return hardSoftEstimator_; }
     void setInelasticCriterion(int x) { inelasticCriterion_ = x; }
