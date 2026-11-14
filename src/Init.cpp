@@ -1365,6 +1365,17 @@ void Init::setColorChargeDensity(
         gauss2.push_back(gauss_array);
     }
 
+    // kept for Init::subBoxPass
+    xq1_ = xq1;
+    yq1_ = yq1;
+    BGq1_ = BGq1;
+    gauss1_ = gauss1;
+    xq2_ = xq2;
+    yq2_ = yq2;
+    BGq2_ = BGq2;
+    gauss2_ = gauss2;
+    nucleiInAverage_ = nucleiInAverage;
+
     // test what a smmoth Woods-Saxon would give
     if (param->getUseSmoothNucleus() == 1) {
         cout << "Using smooth nucleus for test purposes. Does not include "
@@ -2046,6 +2057,11 @@ void Init::skipColorCharges(Parameters *param, Random *random) {
 void Init::setV(Lattice *lat, Parameters *param, Random *random) {
     IPG_PROFILE_SCOPE("initialization.wilson_lines");
     messager.info("Setting Wilson lines ...");
+    if (!chargeOverride_ && !captureOnly_) {
+        setVStartState_ = random->getState();
+        haveSetVState_ = true;
+    }
+    int captureSheet = 0;
     const int N = param->getSize();
     const int Ny = param->getNy();
     const int sites = N * N;
@@ -2059,9 +2075,11 @@ void Init::setV(Lattice *lat, Parameters *param, Random *random) {
     UVdamp = UVdamp / a * hbarc;
 
     // start from V = 1 (with inelasticCriterion 4 every trial calls setV)
-    for (int pos = 0; pos < sites; pos++) {
-        lat->U[pos] = one_;
-        lat->U2[pos] = one_;
+    if (!captureOnly_) {
+        for (int pos = 0; pos < sites; pos++) {
+            lat->U[pos] = one_;
+            lat->U2[pos] = one_;
+        }
     }
 
     // The lattice Poisson/UV kernel depends only on transverse momentum and
@@ -2148,7 +2166,10 @@ void Init::setV(Lattice *lat, Parameters *param, Random *random) {
                             * static_cast<std::size_t>(Nfine)
                             * static_cast<std::size_t>(Nc2m1_));
     auto fillColorCharge = [&](const std::vector<double> &scale) {
-        if (fgrain > 1) {
+        if (chargeOverride_) {
+            IPG_PROFILE_SCOPE("initialization.wilson_random.gauss");
+            chargeOverride_(gaussianField);
+        } else if (fgrain > 1) {
             IPG_PROFILE_SCOPE("initialization.wilson_random.gauss");
             random->GaussBulk(
                 fineGaussian.data(), fineGaussian.size(), gaussianScratch);
@@ -2198,6 +2219,8 @@ void Init::setV(Lattice *lat, Parameters *param, Random *random) {
             IPG_PROFILE_SCOPE("initialization.wilson_random");
             fillColorCharge(colorChargeScaleA);
         }
+        if (chargeCapture_) chargeCapture_(gaussianField, captureSheet++);
+        if (captureOnly_) continue;
 
         for (int n = 0; n < Nc2m1_; n++) {
             fft.fftnComplex(rhoACoeff[n], rhoACoeff[n], nn, 1);
@@ -2241,6 +2264,8 @@ void Init::setV(Lattice *lat, Parameters *param, Random *random) {
             IPG_PROFILE_SCOPE("initialization.wilson_random");
             fillColorCharge(colorChargeScaleB);
         }
+        if (chargeCapture_) chargeCapture_(gaussianField, captureSheet++);
+        if (captureOnly_) continue;
 
         for (int n = 0; n < Nc2m1_; n++) {
             fft.fftnComplex(rhoACoeff[n], rhoACoeff[n], nn, 1);
@@ -2284,6 +2309,7 @@ void Init::setV(Lattice *lat, Parameters *param, Random *random) {
         delete[] rhoACoeff[ic];
     }
     delete[] rhoACoeff;
+    if (captureOnly_) return;
   if (param->getWriteOutputs() == 5) {
     writeInitialWilsonTrainingData(lat, param);
   }
@@ -2509,17 +2535,28 @@ void Init::hardSoftEstimator(Lattice *lat, Parameters *param) {
     // Coordinates as for epsilon-u-Hydro; sites with a share below 1e-12 of
     // S and of whiteNoise are left out.
     stringstream strMap_name;
-    strMap_name << "hardSoftMap" << param->getEventId() << ".dat";
+    strMap_name << outputPrefix_ << "hardSoftMap" << param->getEventId()
+                << ".dat";
     ofstream foutMap(strMap_name.str().c_str(), std::ios::out);
     foutMap << "# sites of the hard-soft estimate (Init::hardSoftEstimator): "
                "k_c = "
             << kc / a * hbarc << " GeV  S = " << S
             << "  whiteNoise = " << whiteNoise << endl;
     foutMap << "# x [fm]  y [fm]  sMap  wMap" << endl;
+    const double mapX0 = customOrigin_ ? originX_ : -a * N / 2.;
+    const double mapY0 = customOrigin_ ? originY_ : -a * N / 2.;
+    hsCentroidX_ = 0.;
+    hsCentroidY_ = 0.;
     for (int pos = 0; pos < sites; pos++) {
+        hsCentroidX_ += sMap[pos] * (mapX0 + a * (pos / N));
+        hsCentroidY_ += sMap[pos] * (mapY0 + a * (pos % N));
         if (sMap[pos] < 1e-12 * S && wMap[pos] < 1e-12 * whiteNoise) continue;
-        foutMap << a * (pos / N - N / 2.) << " " << a * (pos % N - N / 2.)
+        foutMap << mapX0 + a * (pos / N) << " " << mapY0 + a * (pos % N)
                 << " " << sMap[pos] << " " << wMap[pos] << endl;
+    }
+    if (S > 0.) {
+        hsCentroidX_ /= S;
+        hsCentroidY_ /= S;
     }
     foutMap.close();
 
@@ -3057,6 +3094,22 @@ void Init::init(
         if (param->getHardSoftEstimator() > 0) hardSoftEstimator(lat, param);
     }
 
+    forwardLightcone(lat, param);
+
+    if (param->getHardSoftEstimator() > 0)
+        glasmaFreeSpectrum(lat, group, param);
+
+    // -----------------------------------------------------------------------------
+    // finish
+    // -----------------------------------------------------------------------------
+}
+
+// tau = 0+ fields in the forward light cone from the Wilson lines of the two
+// nuclei (lat->U, lat->U2): the gauge links Ux, Uy and E^eta (Ux2). U, U2 are
+// reset afterwards.
+void Init::forwardLightcone(Lattice *lat, Parameters *param) {
+    const int N = param->getSize();
+    const Matrix zero(Nc_, 0.);
     // output Wilson lines (used also for the proton plots)
     double L = param->getL();
     double a = L / N;  // lattice spacing in fm
@@ -3326,12 +3379,6 @@ void Init::init(
         }
     }
 
-    if (param->getHardSoftEstimator() > 0)
-        glasmaFreeSpectrum(lat, group, param);
-
-    // -----------------------------------------------------------------------------
-    // finish
-    // -----------------------------------------------------------------------------
 }
 
 // Gluon spectrum of the tau = 0+ fields, treated as free from then on
@@ -3415,7 +3462,8 @@ void Init::glasmaFreeSpectrum(Lattice *lat, Group *group, Parameters *param) {
     };
 
     stringstream strGF_name;
-    strGF_name << "glasmaFree" << param->getEventId() << ".dat";
+    strGF_name << outputPrefix_ << "glasmaFree" << param->getEventId()
+               << ".dat";
     ofstream foutGF(strGF_name.str().c_str(), std::ios::out);
     foutGF << "# free-field dN/dy d^2k of the tau = 0+ fields in Coulomb gauge "
               "(Init::glasmaFreeSpectrum)"
@@ -4311,4 +4359,260 @@ Matrix Init::getUfromExponent(std::vector<double> &in) {
         tempM.set(2, 1, 0.5 * (U[6] + I * U[7]));
     }
     return tempM;
+}
+
+
+// T_p of both nuclei on a lattice from the nucleon positions and constituents
+// of the last setColorChargeDensity (same formulae), at sites
+// (originX_ + a ix, originY_ + a iy) with a = L/size of param.
+void Init::setThicknessFromStoredGeometry(Lattice *lat, Parameters *param) {
+    const int N = param->getSize();
+    const double a = param->getL() / N;
+    const double x0 = customOrigin_ ? originX_ : -param->getL() / 2.;
+    const double y0 = customOrigin_ ? originY_ : -param->getL() / 2.;
+    const int A1 = nucleusA_.size();
+    const int A2 = nucleusB_.size();
+    const double xi = param->getProtonAnisotropy();
+    const bool quarks = param->getUseConstituentQuarkProton() > 0;
+    if (param->getUseSmoothNucleus() == 1) {
+        cerr << "subBoxSize does not support useSmoothNucleus" << endl;
+        exit(1);
+    }
+#pragma omp parallel for
+    for (int ix = 0; ix < N; ix++) {
+        const double x = x0 + a * ix;
+        for (int iy = 0; iy < N; iy++) {
+            const double y = y0 + a * iy;
+            const int pos = ix * N + iy;
+            for (int nuc = 0; nuc < 2; nuc++) {
+                const std::vector<ReturnValue> &pr =
+                    (nuc == 0) ? nucleusA_ : nucleusB_;
+                const std::vector<std::vector<double> > &xq =
+                    (nuc == 0) ? xq1_ : xq2_;
+                const std::vector<std::vector<double> > &yq =
+                    (nuc == 0) ? yq1_ : yq2_;
+                const std::vector<std::vector<double> > &BGq =
+                    (nuc == 0) ? BGq1_ : BGq2_;
+                const std::vector<std::vector<double> > &gs =
+                    (nuc == 0) ? gauss1_ : gauss2_;
+                double Ttot = 0.;
+                for (unsigned int i = 0; i < pr.size(); i++) {
+                    const double xm = pr[i].x, ym = pr[i].y;
+                    double T = 0.;
+                    if (quarks) {
+                        for (unsigned int iq = 0; iq < xq[i].size(); iq++) {
+                            double bp2 = (xm + xq[i][iq] - x) * (xm + xq[i][iq] - x)
+                                         + (ym + yq[i][iq] - y) * (ym + yq[i][iq] - y);
+                            bp2 /= hbarc * hbarc;
+                            T += exp(-bp2 / (2. * BGq[i][iq]))
+                                 / (2. * M_PI * BGq[i][iq])
+                                 / (static_cast<double>(xq[i].size()))
+                                 * gs[i][iq];
+                        }
+                    } else {
+                        const double BG = param->getBG();
+                        const double phi = pr[i].phi;
+                        double bp2 = (xm - x) * (xm - x) + (ym - y) * (ym - y)
+                                     + xi * pow((xm - x) * cos(phi)
+                                                    + (ym - y) * sin(phi), 2.);
+                        bp2 /= hbarc * hbarc;
+                        T = sqrt(1 + xi) * exp(-bp2 / (2. * BG))
+                            / (2. * M_PI * BG) * gs[i][0];
+                    }
+                    Ttot += T / nucleiInAverage_;
+                }
+                if (nuc == 0)
+                    lat->cells[pos]->setTpA(Ttot);
+                else
+                    lat->cells[pos]->setTpB(Ttot);
+            }
+        }
+    }
+}
+
+// The accepted event again on a finer lattice in a box around it (periodic
+// by default), for the tau = 0+ spectrum and the hard-soft estimate at higher
+// momenta. The box is centred on the centroid of the coarse hard-soft map
+// (sMap), which is the proton of a p+A event. The colour charges of the box
+// are the coarse event's, refined: with c the unit Gaussian of a coarse site
+// (the coarse charge density is g mu c / sqrt(N_y)) and f the refinement,
+//   w_k = z_k - mean(z) + c / f,    (1/f) sum_k w_k = c,
+// z_k fresh unit Gaussians, so the f x f fine sites of a coarse site have
+// that coarse charge and independent fluctuations inside. Where the box
+// extends beyond the coarse lattice the charges are not constrained (w = z).
+// The fine Gaussians come from a generator of their own, so the random
+// stream of the event and all its outputs are unchanged. Output files with
+// the prefix sub_: glasmaFree, hardSoftMap.
+void Init::subBoxPass(Lattice *lat, Group *group, Parameters *param) {
+    IPG_PROFILE_SCOPE("initialization.sub_box");
+    if (param->getHardSoftEstimator() == 0 || !haveSetVState_) {
+        cerr << "subBoxSize needs hardSoftEstimator > 0 and an accepted "
+                "event with colour charges"
+             << endl;
+        exit(1);
+    }
+    const int N = param->getSize();
+    const double L = param->getL();
+    const double a = L / N;
+    const int f = param->getSubBoxRefine() * param->getSubBoxRefine2();
+    if (f < 1) {
+        cerr << "subBoxRefine * subBoxRefine2 must be >= 1" << endl;
+        exit(1);
+    }
+    const double af = a / f;
+    int M = static_cast<int>(std::lround(param->getSubBoxSize() / a));
+    if (M % 2 != 0) M++;  // even number of coarse sites
+    const int Ns = M * f;
+    // first coarse site of the box (may lie outside the lattice)
+    double cenX = hsCentroidX_, cenY = hsCentroidY_;
+    const int centreMode = param->getSubBoxCentre();
+    if ((centreMode == 0 && nucleusA_.size() == 1) || centreMode == 2) {
+        cenX = cenY = 0.;
+        for (const ReturnValue &n : nucleusA_) {
+            cenX += n.x / nucleusA_.size();
+            cenY += n.y / nucleusA_.size();
+        }
+    }
+    const int ix0 = static_cast<int>(std::lround((cenX + L / 2.) / a)) - M / 2;
+    const int iy0 = static_cast<int>(std::lround((cenY + L / 2.) / a)) - M / 2;
+    const double originX = -L / 2. + a * ix0;
+    const double originY = -L / 2. + a * iy0;
+    messager << "Sub-box: " << M * a << " fm around (" << cenX << ", " << cenY
+             << ") fm (hard-soft centroid " << hsCentroidX_ << ", "
+             << hsCentroidY_ << "), " << Ns << "^2 sites, a = " << af
+             << " fm, coarse sites " << ix0 << ".." << ix0 + M - 1 << " x "
+             << iy0 << ".." << iy0 + M - 1 << " of " << N;
+    messager.flush("info");
+
+    // the unit Gaussians of the coarse event inside the box: replay setV
+    const int Ny = param->getNy();
+    const int Nc2m1 = Nc2m1_;
+    std::vector<std::vector<double> > coarse(
+        2 * Ny, std::vector<double>(
+                    static_cast<std::size_t>(M) * M * Nc2m1, 0.));
+    {
+        IPG_PROFILE_SCOPE("initialization.sub_box.replay");
+        const Random::MTState saved = random_ptr_->getState();
+        random_ptr_->setState(setVStartState_);
+        captureOnly_ = true;
+        chargeCapture_ = [&](const std::vector<double> &g, int sheet) {
+            std::vector<double> &out = coarse[sheet];
+            for (int ci = 0; ci < M; ci++) {
+                const int ix = ix0 + ci;
+                if (ix < 0 || ix >= N) continue;
+                for (int cj = 0; cj < M; cj++) {
+                    const int iy = iy0 + cj;
+                    if (iy < 0 || iy >= N) continue;
+                    for (int n = 0; n < Nc2m1; n++)
+                        out[(static_cast<std::size_t>(ci) * M + cj) * Nc2m1 + n] =
+                            g[(static_cast<std::size_t>(ix) * N + iy) * Nc2m1 + n];
+                }
+            }
+        };
+        setV(lat, param, random_ptr_);
+        captureOnly_ = false;
+        chargeCapture_ = nullptr;
+        random_ptr_->setState(saved);
+    }
+
+    // the box as a lattice of its own
+    const int nnSub[2] = {Ns, Ns};
+    Init sub(nnSub);
+    sub.Nc_ = Nc_;
+    sub.Nc2m1_ = Nc2m1_;
+    sub.group_ptr_ = group;
+    sub.random_ptr_ = random_ptr_;
+    sub.one_ = one_;
+    sub.QsBelowTable_ = QsBelowTable_;
+    sub.nTp_ = nTp_;
+    for (int i = 0; i < iTpmax; i++) {
+        sub.Tlist[i] = Tlist[i];
+        for (int j = 0; j < iymaxNuc; j++)
+            sub.Qs2Nuclear[i][j] = Qs2Nuclear[i][j];
+    }
+    sub.QsTableLoaded_ = QsTableLoaded_;
+    sub.nucleusA_ = nucleusA_;
+    sub.nucleusB_ = nucleusB_;
+    sub.xq1_ = xq1_; sub.yq1_ = yq1_; sub.BGq1_ = BGq1_; sub.gauss1_ = gauss1_;
+    sub.xq2_ = xq2_; sub.yq2_ = yq2_; sub.BGq2_ = BGq2_; sub.gauss2_ = gauss2_;
+    sub.nucleiInAverage_ = nucleiInAverage_;
+    sub.customOrigin_ = true;
+    sub.originX_ = originX;
+    sub.originY_ = originY;
+    sub.outputPrefix_ = "sub_";
+
+    // everything below reads size and L from param: set them to the box's
+    const int savedChargeSourceSize = param->getChargeSourceSize();
+    param->setChargeSourceSize(0);  // the box draws its own charges
+    param->setSize(Ns);
+    param->setL(Ns * af);
+    {
+        Lattice subLat(param, param->getNc(), Ns, param->getSubBoxPeriodic() == 1);
+        sub.setThicknessFromStoredGeometry(&subLat, param);
+        sub.setG2mu2(&subLat, param, false);
+        const double taper = param->getSubBoxTaper();
+        if (taper > 0.) {
+            const double Lbox = Ns * af;
+            for (int ix = 0; ix < Ns; ix++)
+                for (int iy = 0; iy < Ns; iy++) {
+                    const double d = std::min(
+                        std::min(ix * af, Lbox - ix * af),
+                        std::min(iy * af, Lbox - iy * af));
+                    if (d >= taper) continue;
+                    const double w = pow(sin(0.5 * M_PI * d / taper), 2.);
+                    const int pos = ix * Ns + iy;
+                    subLat.cells[pos]->setg2mu2A(w * subLat.cells[pos]->getg2mu2A());
+                    subLat.cells[pos]->setg2mu2B(w * subLat.cells[pos]->getg2mu2B());
+                }
+        }
+
+        // refined colour charges, from a generator of the box's own
+        Random subRandom;
+        subRandom.init_genrand64(
+            param->getRandomSeed() * 1000003ULL
+            + static_cast<unsigned long long>(param->getEventId()) + 17ULL
+            + 7919ULL * static_cast<unsigned long long>(
+                            param->getSubBoxNoiseSeed()));
+        std::vector<double> z(static_cast<std::size_t>(Ns) * Ns * Nc2m1);
+        std::vector<double> scratch;
+        int sheet = 0;
+        sub.chargeOverride_ = [&](std::vector<double> &w) {
+            subRandom.GaussBulk(z.data(), z.size(), scratch);
+            const std::vector<double> &c = coarse[sheet++];
+            const double invf2 = 1. / (static_cast<double>(f) * f);
+#pragma omp parallel for
+            for (int ci = 0; ci < M; ci++) {
+                const bool insideX = (ix0 + ci >= 0 && ix0 + ci < N);
+                for (int cj = 0; cj < M; cj++) {
+                    const bool inside = insideX && (iy0 + cj >= 0 && iy0 + cj < N);
+                    for (int n = 0; n < Nc2m1; n++) {
+                        double sum = 0.;
+                        for (int di = 0; di < f; di++)
+                            for (int dj = 0; dj < f; dj++)
+                                sum += z[(static_cast<std::size_t>(ci * f + di) * Ns
+                                          + cj * f + dj) * Nc2m1 + n];
+                        const double mean = sum * invf2;
+                        const double cc =
+                            inside ? c[(static_cast<std::size_t>(ci) * M + cj) * Nc2m1 + n]
+                                   : sum / f;
+                        for (int di = 0; di < f; di++)
+                            for (int dj = 0; dj < f; dj++) {
+                                const std::size_t k =
+                                    (static_cast<std::size_t>(ci * f + di) * Ns
+                                     + cj * f + dj) * Nc2m1 + n;
+                                w[k] = z[k] - mean + cc / f;
+                            }
+                    }
+                }
+            }
+        };
+        sub.setV(&subLat, param, random_ptr_);
+        sub.chargeOverride_ = nullptr;
+        sub.hardSoftEstimator(&subLat, param);
+        sub.forwardLightcone(&subLat, param);
+        sub.glasmaFreeSpectrum(&subLat, group, param);
+    }
+    param->setSize(N);
+    param->setL(L);
+    param->setChargeSourceSize(savedChargeSourceSize);
 }

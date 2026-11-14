@@ -17,7 +17,8 @@ class Lattice {
     int Nc;
 
   public:
-    Lattice(Parameters *param, int N, int length);
+    // periodic: neighbours wrap around (default: clamped at the edges)
+    Lattice(Parameters *param, int N, int length, bool periodic = false);
     ~Lattice() = default;
     Lattice(const Lattice &) = delete;
     Lattice &operator=(const Lattice &) = delete;

@@ -27,6 +27,28 @@ class Random {
     void genrand64RawBulk(unsigned long long *out, std::size_t count);
 
   public:
+    // state of the Mersenne twister and of the cached Gaussian: what Gauss()
+    // and GaussBulk() depend on (not the gsl generator)
+    struct MTState {
+        int iset;
+        double gset;
+        unsigned long long mt[NN];
+        int mti;
+    };
+    MTState getState() const {
+        MTState s;
+        s.iset = iset;
+        s.gset = gset;
+        for (int i = 0; i < NN; i++) s.mt[i] = mt[i];
+        s.mti = mti;
+        return s;
+    }
+    void setState(const MTState &s) {
+        iset = s.iset;
+        gset = s.gset;
+        for (int i = 0; i < NN; i++) mt[i] = s.mt[i];
+        mti = s.mti;
+    }
     Random() {
         iset = 0;
         gslRandom = gsl_rng_alloc(gsl_rng_taus);

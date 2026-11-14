@@ -217,6 +217,16 @@ class Parameters {
     double Qs2minST_ = 0.;  // Q_s,min^2 S_T of the last trial (dimensionless)
     int crossSectionMode_ = 0;  // 1: stop each event as soon as it is found
                                 // to be inelastic (only record the trials)
+    // refined sub-box (Init::subBoxPass): side [fm] of a periodic box around
+    // the hard-production centroid (0: off), refinement factors of the
+    // lattice spacing (two nested levels), periodic neighbours (1) or clamped
+    double subBoxSize_ = 0.;
+    int subBoxRefine_ = 3;
+    int subBoxRefine2_ = 1;
+    int subBoxPeriodic_ = 1;
+    int subBoxCentre_ = 0;  // 0 auto, 1 hard-soft centroid, 2 projectile nucleon
+    int subBoxNoiseSeed_ = 0;  // varies the fresh sub-coarse noise at fixed event
+    double subBoxTaper_ = 0.;  // fm: smooth fall-off of g2mu2 at the box edge
     int chargeSourceSize_ = 0;  // N_f > size, a multiple of it: sample the
                                 // colour charges on the N_f grid and block-sum
                                 // them onto the lattice (0: off)
@@ -553,6 +563,20 @@ class Parameters {
     double getQs2minST() { return Qs2minST_; }
     void setCrossSectionMode(int x) { crossSectionMode_ = x; }
     int getCrossSectionMode() { return crossSectionMode_; }
+    void setSubBoxSize(double x) { subBoxSize_ = x; }
+    double getSubBoxSize() { return subBoxSize_; }
+    void setSubBoxRefine(int x) { subBoxRefine_ = x; }
+    int getSubBoxRefine() { return subBoxRefine_; }
+    void setSubBoxRefine2(int x) { subBoxRefine2_ = x; }
+    int getSubBoxRefine2() { return subBoxRefine2_; }
+    void setSubBoxPeriodic(int x) { subBoxPeriodic_ = x; }
+    void setSubBoxCentre(int x) { subBoxCentre_ = x; }
+    int getSubBoxCentre() { return subBoxCentre_; }
+    void setSubBoxNoiseSeed(int x) { subBoxNoiseSeed_ = x; }
+    int getSubBoxNoiseSeed() { return subBoxNoiseSeed_; }
+    void setSubBoxTaper(double x) { subBoxTaper_ = x; }
+    double getSubBoxTaper() { return subBoxTaper_; }
+    int getSubBoxPeriodic() { return subBoxPeriodic_; }
     void setChargeSourceSize(int x) { chargeSourceSize_ = x; }
     int getChargeSourceSize() { return chargeSourceSize_; }
     void setForcedInelastic(int eventId, int trial, int inelastic) {

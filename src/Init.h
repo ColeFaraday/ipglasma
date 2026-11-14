@@ -4,6 +4,8 @@
 #ifndef Init_H
 #define Init_H
 
+#include <functional>
+#include <string>
 #include <cstdint>
 
 #include "FFT.h"
@@ -57,6 +59,30 @@ class Init {
     // by glasmaFreeSpectrum above the lattice momenta
     std::vector<double> hardSoftTail_;
 
+    // ---- refined sub-box (subBoxPass) ----
+    // random state at the start of the last setV: its colour charges can be
+    // drawn again
+    Random::MTState setVStartState_;
+    bool haveSetVState_ = false;
+    // constituent positions, widths and Q_s normalizations of the last
+    // setColorChargeDensity, to evaluate T_p on another lattice
+    std::vector<std::vector<double> > xq1_, yq1_, BGq1_, gauss1_;
+    std::vector<std::vector<double> > xq2_, yq2_, BGq2_, gauss2_;
+    double nucleiInAverage_ = 1.;
+    // centroid [fm] of the last hard-soft map (sMap)
+    double hsCentroidX_ = 0., hsCentroidY_ = 0.;
+    // position [fm] of site (0, 0) if it is not (-L/2, -L/2)
+    bool customOrigin_ = false;
+    double originX_ = 0., originY_ = 0.;
+    // prefix of glasmaFree and hardSoftMap file names
+    std::string outputPrefix_;
+    // if set, setV takes the unit Gaussians of each sheet from here
+    std::function<void(std::vector<double> &)> chargeOverride_;
+    // capture mode: setV only draws the unit Gaussians of its sheets and
+    // hands each to chargeCapture_ (sheet index, Gaussians), builds nothing
+    bool captureOnly_ = false;
+    std::function<void(const std::vector<double> &, int)> chargeCapture_;
+
   public:
     // Constructor.
     Init(const int nn[]) : fft(nn) {};
@@ -82,6 +108,12 @@ class Init {
     // advances the random stream exactly as setV does, without building V
     void skipColorCharges(Parameters *param, Random *random);
     void hardSoftEstimator(Lattice *lat, Parameters *param);
+    // tau = 0+ fields from the Wilson lines (the second half of init)
+    void forwardLightcone(Lattice *lat, Parameters *param);
+    // T_p of both nuclei on a lattice from the stored geometry of the event
+    void setThicknessFromStoredGeometry(Lattice *lat, Parameters *param);
+    // the accepted event on a finer lattice in a periodic box around it
+    void subBoxPass(Lattice *lat, Group *group, Parameters *param);
     void glasmaFreeSpectrum(Lattice *lat, Group *group, Parameters *param);
     void readV(Lattice *lat, Parameters *param, int format);
     // void eccentricity(Lattice *lat, Group *group, Parameters *param, Random

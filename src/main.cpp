@@ -409,6 +409,9 @@ int main(int argc, char *argv[]) {
 
                 // the event is inelastic, which is all we want to know here
                 if (crossSectionMode) break;
+                // the same event on a finer lattice in a box around it
+                if (param->getSubBoxSize() > 0.)
+                    init.subBoxPass(&lat, &group, param);
                 // only the hard-soft estimates were wanted
                 if (param->getHardSoftEstimator() == 2) break;
 
@@ -686,6 +689,26 @@ int readInput(
     // 0 samples them on the lattice
     param->setChargeSourceSize(
         setup->IFindOptional(file_name, "chargeSourceSize", 0));
+    // subBoxSize L_s [fm] (0: off): after an event is accepted, the tau = 0+
+    // spectrum and the hard-soft estimate are also computed on a periodic
+    // box of side L_s around the hard-production centroid, with the lattice
+    // spacing divided by subBoxRefine * subBoxRefine2 and the colour charges
+    // of the event refined onto it (Init::subBoxPass); needs
+    // hardSoftEstimator > 0
+    param->setSubBoxSize(setup->DFindOptional(file_name, "subBoxSize", 0.));
+    param->setSubBoxRefine(setup->IFindOptional(file_name, "subBoxRefine", 3));
+    param->setSubBoxRefine2(
+        setup->IFindOptional(file_name, "subBoxRefine2", 1));
+    param->setSubBoxPeriodic(
+        setup->IFindOptional(file_name, "subBoxPeriodic", 1));
+    param->setSubBoxTaper(setup->DFindOptional(file_name, "subBoxTaper", 0.));
+    // subBoxCentre: 0 the projectile nucleon if the projectile is a single
+    // nucleon (p+A: the box then sits on the proton even when its field wraps
+    // around the lattice edge), else the centroid of the hard-soft map;
+    // 1 the centroid; 2 the projectile nucleon (centroid of nucleus A)
+    param->setSubBoxCentre(setup->IFindOptional(file_name, "subBoxCentre", 0));
+    param->setSubBoxNoiseSeed(
+        setup->IFindOptional(file_name, "subBoxNoiseSeed", 0));
     // optional: crossSectionTrials file of a run with the same seed on
     // another lattice, whose accept/reject decisions replace those of
     // inelasticCriterion 4 (the criterion depends on the lattice spacing)
@@ -830,6 +853,13 @@ void writeparams(Parameters *param) {
           << endl;
     fout1 << "crossSectionMode " << param->getCrossSectionMode() << endl;
     fout1 << "hardSoftEstimator " << param->getHardSoftEstimator() << endl;
+    fout1 << "subBoxSize " << param->getSubBoxSize() << endl;
+    fout1 << "subBoxRefine " << param->getSubBoxRefine() << endl;
+    fout1 << "subBoxRefine2 " << param->getSubBoxRefine2() << endl;
+    fout1 << "subBoxPeriodic " << param->getSubBoxPeriodic() << endl;
+    fout1 << "subBoxTaper " << param->getSubBoxTaper() << endl;
+    fout1 << "subBoxCentre " << param->getSubBoxCentre() << endl;
+    fout1 << "subBoxNoiseSeed " << param->getSubBoxNoiseSeed() << endl;
     fout1 << "inelasticCriterion " << param->getInelasticCriterion()
           << " with cut " << inelasticCut(param) << endl;
     fout1 << "minimumQs2ST " << param->getMinimumQs2ST() << endl;
