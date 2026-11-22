@@ -249,6 +249,14 @@ class Parameters {
     double maxMinTp_ = 0.;  // max over cells of min(T_A, T_B) [GeV^2]
     double maxMinQs_ = 0.;  // max over cells of min(Q_sA, Q_sB) [GeV]
     double TppField_ = 0.;  // T^E_pp of the last trial [fm^-2] (criterion 4)
+    // Colour-field cutoff of a nucleon [fm] (0: off). In setV the gauge field
+    // A^a(x) of every longitudinal sheet is multiplied by
+    //   w(d) = 1 / (1 + exp((d - nucleonFieldCutoff) / nucleonFieldCutoffWidth)),
+    // with d the distance from x to the nearest nucleon centre of that nucleus,
+    // so the Yukawa tails of the fields (range 1/m) end at about the cutoff.
+    // The width keeps A smooth: a step in A would itself make field intensity.
+    double nucleonFieldCutoff_ = 0.;
+    double nucleonFieldCutoffWidth_ = 0.1;
     double R_WS_, a_WS_;
     double beta2;  // value of deformation parameter beta2 to test sensitivity
                    // in Uranium
@@ -550,6 +558,10 @@ class Parameters {
     double getInelasticTpMin() { return inelasticTpMin_; }
     void setInelasticQsMin(double x) { inelasticQsMin_ = x; }
     double getInelasticQsMin() { return inelasticQsMin_; }
+    void setNucleonFieldCutoff(double x) { nucleonFieldCutoff_ = x; }
+    double getNucleonFieldCutoff() { return nucleonFieldCutoff_; }
+    void setNucleonFieldCutoffWidth(double x) { nucleonFieldCutoffWidth_ = x; }
+    double getNucleonFieldCutoffWidth() { return nucleonFieldCutoffWidth_; }
     void setInelasticKappa(double x) { inelasticKappa_ = x; }
     double getInelasticKappa() { return inelasticKappa_; }
     void setInelasticSigmaGG(double x) { inelasticSigmaGG_ = x; }

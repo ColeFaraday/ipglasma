@@ -2114,6 +2114,32 @@ void Init::setV(Lattice *lat, Parameters *param, Random *random) {
             g * sqrt(lat->cells[pos]->getg2mu2B() * invNy);
     }
 
+    // nucleonFieldCutoff: window on the gauge field of each nucleus, from the
+    // distance to its nearest nucleon centre (see Parameters.h). Empty: off.
+    const double cutR = param->getNucleonFieldCutoff();
+    const double cutW = param->getNucleonFieldCutoffWidth();
+    auto fieldWindow = [&](const std::vector<ReturnValue> &nucleons) {
+        std::vector<double> w;
+        if (cutR <= 0. || nucleons.empty()) return w;
+        w.resize(static_cast<std::size_t>(sites));
+#pragma omp parallel for
+        for (int pos = 0; pos < sites; ++pos) {
+            const double x = -L / 2. + a * (pos / N);
+            const double y = -L / 2. + a * (pos % N);
+            double d2 = 1e300;
+            for (const auto &nuc : nucleons) {
+                const double dx = x - nuc.x;
+                const double dy = y - nuc.y;
+                d2 = std::min(d2, dx * dx + dy * dy);
+            }
+            const double z = (sqrt(d2) - cutR) / cutW;
+            w[static_cast<std::size_t>(pos)] = z > 50. ? 0. : 1. / (1. + exp(z));
+        }
+        return w;
+    };
+    const std::vector<double> windowA = fieldWindow(nucleusA_);
+    const std::vector<double> windowB = fieldWindow(nucleusB_);
+
     auto fillColorCharge = [&](const std::vector<double> &scale) {
         {
             IPG_PROFILE_SCOPE("initialization.wilson_random.gauss");
@@ -2171,6 +2197,9 @@ void Init::setV(Lattice *lat, Parameters *param, Random *random) {
                         // by -1 (not -i).
                         in[aa] = -(rhoACoeff[aa][pos]).real();
                     }
+                    if (!windowA.empty())
+                        for (int aa = 0; aa < Nc2m1_; aa++)
+                            in[aa] *= windowA[static_cast<std::size_t>(pos)];
                     tempNew = getUfromExponent(in);
                     temp = tempNew * lat->U[pos];
                     lat->U[pos] = temp;
@@ -2215,6 +2244,9 @@ void Init::setV(Lattice *lat, Parameters *param, Random *random) {
                     for (int aa = 0; aa < Nc2m1_; aa++) {
                         in[aa] = -(rhoACoeff[aa][pos]).real();
                     }
+                    if (!windowB.empty())
+                        for (int aa = 0; aa < Nc2m1_; aa++)
+                            in[aa] *= windowB[static_cast<std::size_t>(pos)];
                     tempNew = getUfromExponent(in);
                     temp = tempNew * lat->U2[pos];
                     lat->U2[pos] = temp;

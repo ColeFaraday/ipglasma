@@ -697,6 +697,18 @@ int readInput(
         setup->DFindOptional(file_name, "inelasticKappa", 0.));
     param->setInelasticSigmaGG(
         setup->DFindOptional(file_name, "inelasticSigmaGG", 0.));
+    param->setNucleonFieldCutoff(
+        setup->DFindOptional(file_name, "nucleonFieldCutoff", 0.));
+    param->setNucleonFieldCutoffWidth(
+        setup->DFindOptional(file_name, "nucleonFieldCutoffWidth", 0.1));
+    if (param->getNucleonFieldCutoff() < 0.
+        || (param->getNucleonFieldCutoff() > 0.
+            && param->getNucleonFieldCutoffWidth() <= 0.)) {
+        cerr << "nucleonFieldCutoff must be >= 0 [fm] (0: off), and "
+             << "nucleonFieldCutoffWidth > 0 [fm] when it is on. Exiting."
+             << endl;
+        exit(1);
+    }
     const int criterion = param->getInelasticCriterion();
     if (criterion < 0 || criterion > 4) {
         cerr << "inelasticCriterion must be 0 (T_p cut), 1 (Q_s cut), 2 "
@@ -798,6 +810,9 @@ void writeparams(Parameters *param) {
     fout1 << "inelasticCriterion " << param->getInelasticCriterion()
           << " with cut " << inelasticCut(param) << endl;
     fout1 << "minimumQs2ST " << param->getMinimumQs2ST() << endl;
+    fout1 << "nucleonFieldCutoff " << param->getNucleonFieldCutoff()
+          << " fm, width " << param->getNucleonFieldCutoffWidth() << " fm"
+          << endl;
     fout1.close();
 }
 
